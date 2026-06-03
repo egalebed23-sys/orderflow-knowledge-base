@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMT · Auction Market Theory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #000000;
+    --surface: #101012;
+    --surface-2: #08080a;
+    --border: #25252a;
+    --border-2: #313137;
+    --accent: #ffffff;
+    --accent-azure: #b15cf0;
+    --green: #ffd23f;
+    --red: #ff8c3a;
+    --text: #ececef;
+    --muted: #8a8a92;
+    --muted-2: #54545c;
+    --tag-bg: #1a1a1d;
+    --sidebar-w: 264px;
+    --content-max: 1280px;
+    --content-gutter: 80px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface-2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0 40px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo {
+    font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none;
+    background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+
+  /* ─── MAIN ─── */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter))); max-width: none; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+
+  /* ─── HEADER ─── */
+  .header { width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter))); max-width: none; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+
+  /* ─── PLATFORM NOTE ─── */
+  .platform-note { width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter))); max-width: none; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+
+  /* ─── SECTION ─── */
+  .section { width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter))); max-width: none; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+
+  /* ─── LEVEL BLOCKS ─── */
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+
+  /* ─── ATOMS ─── */
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+
+  /* ─── HIGHLIGHTS ─── */
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+
+  /* ─── TABLES ─── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+
+  /* ─── DIAGRAM WRAPPER ─── */
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+
+  /* ─── CHEAT SHEET ─── */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 14px 0; }
+  .cheat-card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; font-size: 13px; color: var(--text); line-height: 1.55; }
+  .cheat-card .n { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ffd23f; font-size: 12px; margin-right: 6px; }
+  .cheat-card b { color: #fff; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .topbar, .header, .platform-note, .section { width: 100%; max-width: none; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+
+  /* ─── SCROLL TOP ─── */
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item active" href="#"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое AMT</a>
+    <a href="#cycle">02 · Баланс и имбаланс</a>
+    <a href="#value">03 · Value area: VAH/POC/VAL</a>
+    <a href="#accept">04 · Acceptance vs Rejection</a>
+    <a href="#scenarios">05 · Сценарии AMT</a>
+    <a href="#failed">06 · Failed auction</a>
+    <a href="#cheat">07 · Cheat sheet динамики</a>
+    <a href="#trade">08 · Как торговать</a>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>AMT · Auction Market Theory</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>AMT · Auction Market Theory</h1>
+    <p>// фундамент: как рынок ищет справедливую цену через аукцион</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). AMT — теория под всеми инструментами: TPO, Volume Profile, footprint, heatmap читают один и тот же аукцион. Термины ниже ведут к <a href="https://mmt.gg/learn" target="_blank" rel="noopener">докам MMT</a>.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ AMT ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое AMT</span>
+      <span class="section-badge">framework</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>AMT</strong> (Auction Market Theory) — это <strong>фреймворк, а не стратегия</strong>. Он объясняет, как взаимодействуют покупатели и продавцы: цену двигает <strong>агрессия</strong> — takers (маркет-ордера) перебивают makers (лимитки).</p>
+        <p>Рынок = двусторонний аукцион. Он существует, чтобы <strong>facilitate trade</strong> — свести сделку, найдя «справедливую цену» (fair value).</p>
+
+        <div class="diagram">
+          <div data-triad></div>
+          <div class="diagram-cap">3 элемента AMT — Price + Time + Volume — вместе дают объёмную (3D) картину того, где участники видят стоимость = Market Profile.</div>
+        </div>
+
+        <div class="grid3">
+          <div class="card"><div class="card-title">PRICE</div>Рекламный механизм. Аукционит вверх, пока покупатель берёт, и вниз, пока продавец продаёт — стимулирует импульсивное поведение.</div>
+          <div class="card"><div class="card-title">TIME</div>Регулирует возможность: сколько времени даётся торговать на цене. Долго на уровне = принятие, мельком = отказ.</div>
+          <div class="card"><div class="card-title">VOLUME</div>Измеряет успех или провал «рекламы»: подтверждает движение цены или отрицает его.</div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>Продуктовый магазин: арахисовая паста слишком дорогая → покупатель не берёт → продавец снижает цену. Слишком дёшево → разбирают, запасы тают → поднимает. Цена балансирует посередине, где идёт двусторонняя торговля. Так же рынок аукционит вверх, пока покупатель не перестанет брать, и вниз, пока продавец не перестанет продавать — формируя края (хвосты колокола).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p><strong>Market Profile = price + time + volume</strong> за одну сессию: свечи + распределение времени (TPO) + профиль объёма. <strong>TPO</strong> (time price opportunity) — буквы/блоки, маркирующие 30-мин периоды вместо свечей (см. раздел <a href="tpo.html" style="color:#9cc5ec;">TPO</a>).</p>
+        <p>Зачем это трейдеру:</p>
+        <ul>
+          <li>понять, <strong>где проводится время</strong> (где принята стоимость)</li>
+          <li>находить <strong>ключевые уровни</strong> (POC, VAH, VAL)</li>
+          <li>фреймворк для <strong>directionality bias</strong> через неэффективности в распределении</li>
+          <li>создать контекст: <strong>куда рынок пытается идти и насколько хорошо у него получается</strong></li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p><strong>Цикл AMT:</strong> покупатели и продавцы торгуют эффективно (efficiency) → приходит новая информация → возникает разногласие (disagreement) → эффективность теряется (inefficiency) → рынок начинает <strong>поиск стоимости</strong> (search for value) → формируется новый баланс. И по кругу.</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Это связка слоёв: свечи + TPO + VPVR/VPSV (price + time + volume вместе). Всё дальнейшее в базе — CVD, footprint, heatmap, OI — это инструменты чтения того же аукциона под разными углами.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. БАЛАНС И ИМБАЛАНС ─────── -->
+  <section class="section" id="cycle">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Баланс и имбаланс</span>
+      <span class="section-badge">market cycle</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Рынок всё время циклится между двумя режимами:</p>
+        <ul>
+          <li><strong>Баланс</strong> — ротация/рейндж, <em>indecision</em> (нерешительность). Цена крутится внутри стоимости</li>
+          <li><strong>Имбаланс</strong> — тренд, <em>aggressive conviction</em>: takers перебивают makers. Цена едет искать новую стоимость</li>
+        </ul>
+        <p>Рынок проводит в балансе <strong>~80% времени</strong>; имбаланс — короткие импульсы между зонами стоимости.</p>
+
+        <div class="diagram">
+          <div data-scene="cycle"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>Пружина: компрессия (баланс) копит потенциальную энергию → экспансия (имбаланс) переводит её в кинетическую. Чем дольше сжатие — тем мощнее и резче ход.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th></th><th>Баланс</th><th>Имбаланс</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Профиль</strong></td><td>симметричный (bell), толстый</td><td>тонкий, вытянутый, со сдвигом</td></tr>
+            <tr><td><strong>Цена</strong></td><td>ротирует, реджектит края</td><td>едет в одну сторону</td></tr>
+            <tr><td><strong>Характер</strong></td><td>choppy, indecision</td><td>импульс, conviction</td></tr>
+            <tr><td><strong>Тактика</strong></td><td>фейд краёв к центру</td><td>по тренду, вход на откатах</td></tr>
+          </tbody>
+        </table>
+        <div class="hl"><span class="hl-label">Суть</span>Главный вопрос всегда: в каком режиме рынок <em>сейчас</em>? Перепутал — фейдишь край в имбалансе (ловишь нож) или гонишься за трендом в балансе (тебя пилит).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>Переход <strong>баланс → имбаланс</strong>: пробой границы на объёме + follow-through + развитие времени за пределами прежней value. Переход <strong>имбаланс → баланс</strong>: импульс выдыхается, появляется ротация, формируется новая симметрия.</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Режим читается по форме профиля (D = баланс; тонкий вытянутый = имбаланс), по размаху свечей и по тому, как смещается value area от сессии к сессии. Вложенность: дневной баланс состоит из часовых имбалансов — определяй режим на своём ТФ и на старшем.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. VALUE AREA ─────── -->
+  <section class="section" id="value">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Value area: VAH, POC, VAL</span>
+      <span class="section-badge">fair value</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Внутри баланса формируется <strong>value area</strong> — диапазон, где прошло <strong>~68.26% времени (или объёма) = 1 стандартное отклонение</strong> от среднего.</p>
+        <ul>
+          <li><strong>VAH</strong> (Value Area High) — верхняя граница стоимости</li>
+          <li><strong>VAL</strong> (Value Area Low) — нижняя граница</li>
+          <li><strong>POC</strong> (Point of Control) — самая «торгуемая» цена: макс. объём (vPOC) или макс. время (tPOC)</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-scene="value"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>Bell curve = нормальное распределение. Толстая середина — принятая стоимость, тонкие края (хвосты) — цены, которые рынок попробовал и отверг.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>POC = «магнит» или «репеллент»</strong> в зависимости от потока: цену либо тянет к POC, либо отталкивает от него</li>
+          <li>Реакции на <strong>VAH / VAL / POC</strong> — ключевые точки наблюдения: принимает рынок цену или отвергает</li>
+          <li>Следи за <strong>skew</strong> (перекосом) распределения — он намекает на готовящуюся инициативу</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>POC по объёму = <strong>VPOC</strong> (на VPVR/VPSV), POC по времени = TPO POC. VAH/VAL = границы 68%. На HTF используй как <em>общие зоны</em>, на LTF — гранулярнее. Прошлая value area и POC (или композит) — рабочие референс-уровни на сегодня.</div>
+        <div class="hl note"><span class="hl-label">Нюанс</span>Уровни — это области, а не точки. Рынок динамичен: дай зоне «дышать», наблюдай реакцию, а не лови тик-в-тик.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. ACCEPTANCE VS REJECTION ─────── -->
+  <section class="section" id="accept">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Acceptance vs Rejection</span>
+      <span class="section-badge">the decision</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Когда цена выходит за пределы стоимости, рынок «голосует»:</p>
+        <ul>
+          <li><strong>Acceptance</strong> (принятие) — участники согласились на новую цену → движение продолжается (имбаланс)</li>
+          <li><strong>Rejection</strong> (отвержение) — новую цену не приняли → возврат в прежнюю стоимость</li>
+        </ul>
+        <p>Цель — определить, где <strong>текущая</strong> и где <strong>ожидаемая</strong> fair value.</p>
+
+        <div class="diagram">
+          <div data-scene="accept"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Как отличить acceptance от rejection (наблюдая реакции на VAH/VAL):</p>
+        <ul>
+          <li><strong>Spot interest & follow-through</strong> — есть ли продолжение за краем</li>
+          <li><strong>Время на новой цене</strong> — рынок «обживает» уровень или мгновенно уходит</li>
+          <li><strong>Volume analysis</strong> — объём подтверждает движение или нет</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Куда тянет</span>Когда односторонние участники выталкивают цену за стоимость, она обычно ищет баланс у <strong>прежде согласованной fair value</strong> (прошлая value area / POC). Там и смотри: примут прежнюю стоимость или отвергнут.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl green"><span class="hl-label">Acceptance — что хочешь видеть</span>Spot ставит стоп на откатах и продолжает гнать цену; время и объём строятся на новой цене; ретест прежнего края держит как поддержка/сопротивление.</div>
+        <div class="hl red"><span class="hl-label">Rejection — зеркально</span>Цена тыкается за край без follow-through, объём не подтверждает, время не набирается → быстрый возврат в стоимость и часто слом к противоположному краю.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Подтверждай footprint/дельтой на самом крае: поглощение и дельта-дивергенция = rejection; агрессивный пробой с дельтой по тренду = acceptance.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. СЦЕНАРИИ AMT ─────── -->
+  <section class="section" id="scenarios">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Сценарии AMT</span>
+      <span class="section-badge">scenarios</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Любой ход рынка — это комбинация принятия/отвержения у краёв стоимости. Читается слева направо:</p>
+
+        <div class="diagram">
+          <div data-scene="scenarios"></div>
+        </div>
+
+        <ul>
+          <li><strong>1. Acceptance inside value</strong> — ротация внутри стоимости</li>
+          <li><strong>2. Rotation to other side</strong> — ход к противоположному краю</li>
+          <li><strong>3. Rotation + break outside</strong> — пробой наружу value</li>
+          <li><strong>4. Acceptance outside = имбаланс</strong> — трендовый ход за пределы прежней VA</li>
+          <li><strong>5. Rejection / acceptance inside</strong> — отказ снаружи → возврат в стоимость</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p><strong>Imbalance = трендовый ход за пределы прежней value area.</strong> POC по пути работает «магнитом/репеллентом» по потоку. Главные точки наблюдения — реакции на value extremes (VAH/VAL) и на POC.</p>
+        <div class="hl note"><span class="hl-label">Гранулярность по ТФ</span>На старших ТФ это общие зоны для наблюдения потока; на интрадей — гранулярнее. Дай уровням «дышать», а не торгуй тик-в-тик.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Для входов комбинируй сценарий с <strong>orderflow и объёмом</strong> в ключевых зонах + ощущение моментума. <strong>ATR</strong> (average true range) — для идеи стопа по волатильности (зависит от ТФ) в связке с конфлюэнсом на ключевых уровнях.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. FAILED AUCTION ─────── -->
+  <section class="section" id="failed">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Failed Auction</span>
+      <span class="section-badge">reversal setup</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Failed auction</strong> (несостоявшийся аукцион) = цена выходит за пределы стоимости, но <strong>не находит принятия</strong>. Покупатели на хаях / продавцы на лоях не соглашаются, что новый ценник справедлив.</p>
+        <p>Простыми словами: пробили баланс, не смогли закрепиться выше (ниже), вернулись обратно в баланс. Это частный случай <strong>rejection</strong> (§04) — и один из самых рабочих разворотных сетапов AMT.</p>
+
+        <div class="diagram">
+          <div data-failed-story></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Как распознать failed auction:</p>
+        <ul>
+          <li><strong>Нет follow-through — смотри объём.</strong> Рывок на объёме, который не продавил рынок дальше, сменяется низкообъёмной болтанкой (chop)</li>
+          <li><strong>Поведение цены:</strong> пробой из баланса → неудача закрепиться → принятие обратно в баланс</li>
+          <li><strong>Аномалии на крае:</strong> часто помечен <strong>poor highs / poor lows</strong> — рынок не доделал экстремум</li>
+          <li><strong>Якорь стоимости:</strong> «outside of value» меряют от чего-то — anchored VWAP (в MMT — слой VWAP/Anchored VWAP), VAH/VAL баланса, прошлая VA</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <ul>
+          <li><strong>Завершение сетапа:</strong> failure to close above value → бывшая поддержка флипается в сопротивление (VAL → resistance) → имбаланс обратно в прежнюю VA, часто дальше (further sell-off / squeeze)</li>
+          <li>Торгуешь <em>не</em> «против тренда», а <strong>возврат отвергнутой цены к стоимости</strong> — это и делает сетап высоковероятным</li>
+        </ul>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Есть на всех ТФ: на HTF — многодневный разворот, на LTF — интрадей-фейд. Триггер входа: возврат в value + подтверждение потоком (поглощение на крае, дельта-дивергенция).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. CHEAT SHEET ─────── -->
+  <section class="section" id="cheat">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Cheat sheet: динамика рынка</span>
+      <span class="section-badge">cheat sheet</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Девять наблюдаемых тенденций поведения (не жёсткие законы — «loose behavior» для разных фреймворков):</p>
+        <div class="diagram">
+          <div data-cheat-story></div>
+          <div class="diagram-cap">Визуальная шпаргалка AMT: внутри value — ротации и реджекты краёв; вне value — acceptance, failed auction и поиск нового баланса.</div>
+        </div>
+        <div class="cheat-grid">
+          <div class="cheat-card"><span class="n">1</span><b>Принятие в balance area</b> → вероятен возврат к другому краю баланса.</div>
+          <div class="cheat-card"><span class="n">2</span>Внутри баланса цена <b>реджектит края</b>, пока не доказано обратное (даёт чёткий R:R).</div>
+          <div class="cheat-card"><span class="n">3</span>Внутри баланса price action <b>«choppier»</b> — установленная стоимость, консолидация.</div>
+          <div class="cheat-card"><span class="n">4</span>Принятие <b>вне</b> баланса → вероятен имбаланс (поиск нового баланса).</div>
+          <div class="cheat-card"><span class="n">5</span>Два больших вопроса: <b>куда</b> рынок хочет идти и <b>насколько хорошо</b> у него получается?</div>
+          <div class="cheat-card"><span class="n">6</span>«Пункт назначения» имбаланса — часто <b>прежняя старая balance area</b>; первая остановка — POC.</div>
+          <div class="cheat-card"><span class="n">7</span>Сильная реакция от <b>POC</b> может сломать правило №1.</div>
+          <div class="cheat-card"><span class="n">8</span>Цена часто <b>«ретестит»</b> края balance areas.</div>
+          <div class="cheat-card"><span class="n">9</span>Если <b>время/объём копится</b> у края баланса/рейнджа — цена, вероятно, продавит насквозь.</div>
+        </div>
+        <div class="hl note"><span class="hl-label">Дисклеймер</span>Это не строгий cheat sheet, а набор тенденций, которые встраиваются в разные фреймворки. Несколько версий этих наблюдений существуют давно.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Как торговать по AMT</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Два вопроса</span>AMT всегда отвечает на два вопроса: <strong>1) Куда рынок пытается идти?</strong> и <strong>2) Насколько хорошо у него это получается?</strong> Первый — про направление (режим, инициатива), второй — про подтверждение (объём, follow-through, время).</div>
+        <p>Каркас: (1) определи режим и где value сейчас → (2) у краёв (VAH/VAL/POC) читай acceptance/rejection → (3) триггер входа — orderflow + объём.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Фейд края (баланс)</div>Внутри баланса цена реджектит края → продажа у VAH / покупка у VAL с целью POC / противоположный край.</div>
+          <div class="card"><div class="card-title">Acceptance outside</div>Пробой с объёмом и агрессией → вход по тренду на ретесте прежнего края (если ретест дают).</div>
+          <div class="card"><div class="card-title">Rejection / failed auction</div>Выход за стоимость без принятия → фейд возврата в value (см. §06).</div>
+          <div class="card"><div class="card-title">POC как магнит</div>Незакрытый POC — логичная цель и место реакции (магнит/репеллент по потоку).</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>«Чистый» ретест прежнего края дают <em>не всегда</em> — в сильном тренде его front-run. Используй <strong>общие зоны</strong>, а не статичные уровни: рынок динамичен, дай ему дышать.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Гранулярность входа — orderflow + объём в ключевых зонах. <strong>ATR</strong> — для стопа по волатильности (зависит от ТФ) в связке с конфлюэнсом. Слои: VPVR/VPSV/FRVP + footprint + heatmap + VWAP.</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Сильнейшие зоны — где сходится несколько слоёв: край прежней VA + POC + реакция потока + сигнал моментума. Один слой — гипотеза; стек — сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── AMT visual engine (Viz components, shared with tpo.html) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function heat(f){f=Math.max(0,Math.min(1,f));
+    var s=[[0,[64,30,96]],[0.25,[124,42,140]],[0.45,[178,62,128]],[0.65,[226,98,70]],[0.82,[255,140,58]],[1,[255,210,63]]];
+    var a=s[0],b=s[s.length-1],i;
+    for(i=0;i<s.length-1;i++){if(f>=s[i][0]&&f<=s[i+1][0]){a=s[i];b=s[i+1];break;}}
+    var u=(f-a[0])/((b[0]-a[0])||1),c=a[1].map(function(v,j){return Math.round(v+(b[1][j]-v)*u);});
+    return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight);
+    if(o.anchor)tx.setAttribute('text-anchor',o.anchor);
+    tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){var defs=E('defs',{}),m=E('marker',{id:'arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));defs.appendChild(m);svg.appendChild(defs);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  var Viz={
+    canvas:function(o){
+      var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg);
+      svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){
+        svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));}}
+      return svg;
+    },
+    line:function(svg,o){var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('line',a));},
+    path:function(svg,o){var a={d:o.d,fill:o.fill||'none',stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('path',a));},
+    poly:function(svg,o){var a={points:o.points.map(function(p){return p[0]+','+p[1];}).join(' '),fill:o.fill||'none',stroke:o.color||C.ink,'stroke-width':o.width||1.4,opacity:o.opacity==null?1:o.opacity,'stroke-linejoin':'round','stroke-linecap':'round'};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('polyline',a));},
+    text:function(svg,text,x,y,o){addText(svg,text,x,y,o||{});},
+    label:function(svg,text,x,y,o){o=o||{};var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});},
+    pill:function(svg,o){
+      var w=o.w||Math.max(44,String(o.text||'').length*7+18),h=o.h||24;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||5,fill:o.bg||'#101012',stroke:o.stroke||o.color||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,o.text,o.x+w/2,o.y+h/2+4,{anchor:'middle',size:o.size||11,fill:o.fill||o.color||'#ececef',weight:o.weight||700});
+    },
+    note:function(svg,o){var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
+    profile:function(svg,o){
+      var rows=o.rows,bw=o.bw||5,bh=o.bh||5,g=o.g==null?1:o.g,maxB=o.maxB||14,dir=o.dir||1,fade=o.fade==null?0.95:o.fade;
+      var max=Math.max.apply(null,rows)||1;
+      rows.forEach(function(r,i){var n=Math.max(1,Math.round(r/max*maxB)),yy=o.y+i*(bh+g),col=o.colorFn?o.colorFn(r/max,i,n):o.color||heat(r/max),k;
+        for(k=0;k<n;k++){var xx=dir>0?o.x+k*(bw+g):o.x-(k+1)*(bw+g);
+          svg.appendChild(E('rect',{x:xx,y:yy,width:bw,height:bh,rx:o.rx==null?1.2:o.rx,fill:col,opacity:(fade*(0.52+0.48*(r/max))).toFixed(2),stroke:o.stroke||C.stroke,'stroke-width':o.strokeWidth==null?0.45:o.strokeWidth}));}});
+      if(o.axis){var ax=o.axisX!=null?o.axisX:(dir>0?o.x-5:o.x+5);
+        Viz.line(svg,{x1:ax,y1:o.y-7,x2:ax,y2:o.y+rows.length*(bh+g)+4,color:o.axisColor||'#606069',width:o.axisWidth||1});}
+      return {height:rows.length*(bh+g),width:maxB*(bw+g),rowY:function(i){return o.y+i*(bh+g)+bh/2;},right:o.x+maxB*(bw+g),left:o.x-maxB*(bw+g)};
+    },
+    level:function(svg,o){
+      Viz.line(svg,{x1:o.x1,y1:o.y,x2:o.x2,y2:o.y,color:o.color,width:o.width,opacity:o.opacity,dash:o.dash});
+      if(o.label) Viz.text(svg,o.label,o.labelX||o.x1,o.labelY||o.y-6,{size:o.labelSize||11,fill:o.color,weight:700,anchor:o.labelAnchor});
+    },
+    candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
+    candleWalk:function(svg,o){
+      var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){
+        var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);
+        var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);
+        var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});}});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};
+    },
+    marker:function(svg,o){
+      svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6,opacity:o.opacity==null?1:o.opacity}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});
+    },
+    /* generic scene: validated layout (profile | candles | side-panels) */
+    scene:function(o){
+      var W=1280,H=o.h||620;
+      var svg=Viz.canvas({w:W,h:H,label:o.label||'',grid:{start:92,end:H-64,step:64,x1:22,x2:W-22}});
+      if(o.title) Viz.label(svg,o.title,34,34,{w:o.titleW||360,size:13});
+      var prof=Viz.profile(svg,{rows:o.rows,x:66,y:o.profileY||150,bw:9,bh:11,g:1,maxB:o.maxB||42,fade:0.95,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+      var lv={}; (o.levels||[]).forEach(function(L){lv[L.key]=prof.rowY(L.row);});
+      function Y(ref,off){return typeof ref==='string'?lv[ref]+(off||0):ref+(off||0);}
+      if(o.band) svg.appendChild(E('rect',{x:54,y:lv[o.band[0]]-6,width:o.bandW||886,height:lv[o.band[1]]-lv[o.band[0]]+12,rx:4,fill:'#ffffff',opacity:0.03}));
+      var walk=null;
+      if(o.legs){var legs=o.legs.map(function(s){return {n:s.n,from:Y(s.from,s.fromOff),to:Y(s.to,s.toOff),vol:s.vol,wick:s.wick};});
+        walk=Viz.candleWalk(svg,{x0:o.x0||540,dx:o.dx||13,cw:9,seed:o.seed||7,legs:legs});}
+      var lvX2=walk?walk.x(walk.n-1)+8:(o.lvX2||920);
+      (o.levels||[]).forEach(function(L){Viz.level(svg,{x1:22,x2:lvX2,y:lv[L.key],color:L.color||C.va,width:L.width||1.7,opacity:0.92,label:L.label!=null?L.label:L.key,labelX:24,labelY:lv[L.key]-7,labelSize:12});});
+      (o.ellipses||[]).forEach(function(e){svg.appendChild(E('ellipse',{cx:(walk&&e.at!=null)?walk.x(e.at):e.x,cy:Y(e.y,e.off),rx:e.rx,ry:e.ry,fill:'none',stroke:e.color||'#ffe08a','stroke-width':1.4,opacity:e.opacity==null?0.9:e.opacity}));});
+      (o.markers||[]).forEach(function(m){Viz.marker(svg,{n:m.n,x:(walk&&m.at!=null)?walk.x(m.at):m.x,y:Y(m.y,m.off),color:m.color||C.ink});});
+      (o.notes||[]).forEach(function(nt){Viz.note(svg,nt);});
+      (o.legend||[]).forEach(function(t,i){Viz.text(svg,t,640,H-48+i*22,{anchor:'middle',size:i?11:12,fill:i?'#8a8a92':'#c6c6ce'});});
+      return svg;
+    }
+  };
+
+  /* ── §01: price + time + volume = market profile ── */
+  var BELL=[3,5,8,12,18,26,36,48,62,76,86,90,84,70,54,38,25,15,9,5,3];
+  function triadSVG(){
+    var W=1280,H=620,svg=Viz.canvas({w:W,h:H,label:'Applied AMT: price plus time plus volume equals market profile',grid:{start:82,end:500,step:58,x1:26,x2:1248}});
+    Viz.label(svg,'Applied AMT: price + time + volume = Market Profile',34,34,{w:430,size:13});
+
+    Viz.pill(svg,{text:'PRICE',x:64,y:72,w:92,color:'#e8e8ee'});
+    Viz.text(svg,'session candlestick chart',64,106,{size:11,fill:'#8a8a92'});
+    Viz.candleWalk(svg,{x0:68,dx:14,cw:9,seed:5,legs:[
+      {n:7,from:360,to:300,vol:18,wick:14},
+      {n:7,from:300,to:176,vol:16,wick:13},
+      {n:7,from:176,to:260,vol:20,wick:16}
+    ]});
+    Viz.text(svg,'+',300,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+
+    Viz.pill(svg,{text:'TIME / TPO',x:350,y:72,w:118,color:'#c98bff'});
+    var tpo=Viz.profile(svg,{rows:BELL,x:356,y:112,bw:8,bh:10,g:1,maxB:34,fade:0.96,axis:true,axisColor:'#6f6f78',axisWidth:1.2,
+      colorFn:function(f,i){return i<8?'#5c2e75':(i<14?'#ff8c3a':'#2d6f7c');}});
+    var tvah=tpo.rowY(8),tpoc=tpo.rowY(11),tval=tpo.rowY(14);
+    Viz.level(svg,{x1:348,x2:636,y:tvah,color:C.va,width:1.3,opacity:0.85,label:'VAH',labelX:568,labelY:tvah-7,labelSize:11});
+    Viz.level(svg,{x1:348,x2:636,y:tpoc,color:C.poc,width:2.3,opacity:0.95,label:'time-based POC',labelX:470,labelY:tpoc-7,labelSize:10});
+    Viz.level(svg,{x1:348,x2:636,y:tval,color:C.va,width:1.3,opacity:0.85,label:'VAL',labelX:568,labelY:tval+15,labelSize:11});
+    Viz.text(svg,'session time distribution',480,106,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'+',674,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+
+    Viz.pill(svg,{text:'VOLUME',x:734,y:72,w:104,color:'#ffc599'});
+    var volRows=[4,7,11,17,24,34,48,66,84,96,90,70,45,28,18,13,22,36,54,62,46,25,12];
+    Viz.profile(svg,{rows:volRows,x:742,y:100,bw:7,bh:8,g:1,maxB:42,fade:0.9,axis:true,axisColor:'#6f6f78',axisWidth:1.1,
+      colorFn:function(f){return f>0.82?'#9e2f25':(f>0.55?'#c65d40':'#8b8b92');}});
+    Viz.text(svg,'session volume profile',846,122,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'=',1002,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+
+    Viz.pill(svg,{text:'MARKET PROFILE',x:1050,y:72,w:166,color:'#ffe08a'});
+    var mp=Viz.profile(svg,{rows:[1,2,3,5,8,13,21,29,37,45,50,42,32,21,15,10,7,4,2],x:1076,y:120,bw:8,bh:9,g:1,maxB:20,fade:0.98,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+    Viz.line(svg,{x1:1070,y1:mp.rowY(10),x2:1214,y2:mp.rowY(10),color:C.poc,width:3});
+    Viz.text(svg,'3D view of value',1128,332,{size:12,fill:'#ececef',weight:700,anchor:'middle'});
+    Viz.text(svg,'price + time + volume',1128,350,{size:10,fill:'#8a8a92',anchor:'middle'});
+
+    Viz.line(svg,{x1:460,y1:360,x2:460,y2:392,color:'#c6c6ce',width:1.2,arrow:true});
+    Viz.pill(svg,{text:'expanded TPO cluster',x:342,y:408,w:196,color:'#c6c6ce'});
+    Viz.profile(svg,{rows:[1,1,2,3,5,8,12,18,25,32,38,34,28,22,17,13,9,6,3,2,1],x:356,y:430,bw:8,bh:6,g:1,maxB:22,fade:0.95,axis:true,axisColor:'#6f6f78'});
+    Viz.level(svg,{x1:352,x2:548,y:467,color:C.poc,width:2.4,opacity:0.9,label:'tPOC',labelX:500,labelY:462,labelSize:10});
+
+    Viz.note(svg,{x:736,y:388,w:408,h:126,title:'Что даёт Market Profile',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['• где рынок реально тратил время и объём;', '• ключевые уровни VAH / POC / VAL;', '• контекст для directional bias;', '• поиск inefficiencies внутри TPO distribution.']});
+    return svg;
+  }
+
+  /* ── failed auction (moved from TPO) ── */
+  function failedAuctionStorySVG(){
+    var W=1280,H=660,svg=Viz.canvas({w:W,h:H,label:'Failed auction: пробой value без принятия и возврат в баланс',grid:{start:92,end:H-64,step:64,x1:22,x2:W-22}});
+    Viz.label(svg,'Failed auction: пробой value без принятия',34,34,{w:344,size:13});
+    var rows=[3,5,8,12,18,26,36,48,62,76,86,90,84,70,54,38,25,15,9,5,3];
+    var pX=66,pY=150,pBH=11,pG=1;
+    var profile=Viz.profile(svg,{rows:rows,x:pX,y:pY,bw:9,bh:pBH,g:pG,maxB:44,fade:0.95,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+    var vahY=profile.rowY(8),pocY=profile.rowY(11),valY=profile.rowY(14);
+    Viz.text(svg,'prior balance / value area',pX+2,pY+rows.length*(pBH+pG)+22,{size:11,fill:'#8a8a92'});
+    svg.appendChild(E('rect',{x:54,y:vahY-6,width:886,height:valY-vahY+12,rx:4,fill:'#ffffff',opacity:0.03}));
+    var walk=Viz.candleWalk(svg,{x0:536,dx:13,cw:9,seed:7,legs:[
+      {n:7,from:pocY+16,to:pocY-4,vol:24,wick:11},
+      {n:6,from:pocY-4,to:vahY-92,vol:13,wick:10},
+      {n:6,from:vahY-92,to:vahY-84,vol:18,wick:14},
+      {n:5,from:vahY-84,to:valY+10,vol:15,wick:11},
+      {n:6,from:valY+10,to:valY+150,vol:13,wick:11}
+    ]});
+    var cx=walk.x,lvX2=walk.x(walk.n-1)+8;
+    Viz.level(svg,{x1:22,x2:lvX2,y:vahY,color:C.va,width:1.7,opacity:0.9,label:'VAH',labelX:24,labelY:vahY-7,labelSize:12});
+    Viz.level(svg,{x1:22,x2:lvX2,y:pocY,color:C.poc,width:2.4,opacity:0.95,label:'POC',labelX:24,labelY:pocY-7,labelSize:12});
+    Viz.level(svg,{x1:22,x2:lvX2,y:valY,color:C.va,width:1.7,opacity:0.9,label:'VAL',labelX:24,labelY:valY-7,labelSize:12});
+    svg.appendChild(E('ellipse',{cx:cx(15),cy:vahY-86,rx:58,ry:20,fill:'none',stroke:'#ffe08a','stroke-width':1.4,opacity:0.9}));
+    Viz.marker(svg,{n:1,x:cx(9),y:vahY-8,color:'#c6c6ce'});
+    Viz.marker(svg,{n:2,x:cx(15),y:vahY-114,color:'#ffe08a'});
+    Viz.marker(svg,{n:3,x:cx(21),y:vahY+12,color:'#c6c6ce'});
+    Viz.marker(svg,{n:4,x:cx(24),y:valY+22,color:'#ffc599'});
+    Viz.note(svg,{x:54,y:452,w:362,h:120,title:'Чеклист failed auction',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:['1. Цена выходит за VAH/VAL.','2. Нет follow-through за value.','3. Экстремум часто poor high/low.','4. Возврат внутрь value = acceptance back.']});
+    Viz.note(svg,{x:952,y:90,w:298,h:124,title:'Гипотеза',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:['Покупатели вытолкнули цену выше value,','но рынок не принял ценник: poor highs','+ low-vol chop → аукцион не завершён.','Ждём возврат к стоимости.']});
+    Viz.note(svg,{x:952,y:236,w:298,h:124,title:'Подтверждение → вход',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:['Acceptance back внутрь value и','флип VAL в сопротивление.','Вход на возврате; цель — POC,','затем противоположный край.'],stroke:'#3a2a24'});
+    Viz.note(svg,{x:952,y:382,w:298,h:96,title:'Invalidation',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,
+      lines:['Уверенное принятие выше VAH','на растущем объёме = breakout,','а не fade. Идея отменяется.']});
+    Viz.text(svg,'① выход выше VAH    ② нет принятия (poor highs)    ③ acceptance back    ④ VAL-флип → sell-off',640,614,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    Viz.text(svg,'Выход за value → нет follow-through → принятие обратно → пробой противоположного края → импульс к прежней стоимости.',640,638,{anchor:'middle',size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  /* ── AMT scene configs ── */
+  function amtCycleStorySVG(){
+    var W=1280,H=650,svg=Viz.canvas({w:W,h:H,label:'AMT cycle: balance, imbalance, acceptance, rejection',grid:{start:82,end:H-58,step:58,x1:24,x2:W-24}});
+    Viz.label(svg,'AMT cycle: fair value → imbalance → acceptance / rejection',34,34,{w:470,size:13});
+
+    var p1=Viz.profile(svg,{rows:[2,4,8,14,24,38,54,66,76,82,72,58,42,28,16,9,5,2],x:70,y:114,bw:8,bh:10,g:1,maxB:32,fade:0.96,axis:true,axisColor:'#6f6f78',axisWidth:1.1});
+    var vah=p1.rowY(6),poc=p1.rowY(9),val=p1.rowY(13);
+    Viz.level(svg,{x1:58,x2:356,y:vah,color:C.va,width:1.4,label:'VAH',labelX:300,labelY:vah-7,labelSize:11});
+    Viz.level(svg,{x1:58,x2:356,y:poc,color:C.poc,width:2.4,label:'POC',labelX:300,labelY:poc-7,labelSize:11});
+    Viz.level(svg,{x1:58,x2:356,y:val,color:C.va,width:1.4,label:'VAL',labelX:300,labelY:val+15,labelSize:11});
+    Viz.pill(svg,{text:'balance',x:116,y:342,w:92,color:'#9cc5ec'});
+    Viz.text(svg,'rotational / indecision',100,378,{size:11,fill:'#8a8a92'});
+
+    Viz.candleWalk(svg,{x0:402,dx:15,cw:10,seed:21,legs:[
+      {n:6,from:poc+24,to:poc-20,vol:26,wick:14},
+      {n:5,from:poc-20,to:vah-92,vol:16,wick:12},
+      {n:6,from:vah-92,to:vah-132,vol:18,wick:13},
+      {n:6,from:vah-132,to:vah-30,vol:22,wick:14}
+    ]});
+    Viz.poly(svg,{points:[[392,poc+14],[446,val-8],[500,poc-18],[552,vah-88],[610,vah-126],[666,vah-58]],color:'#dfe3ea',width:1.1,opacity:0.45});
+    Viz.line(svg,{x1:358,y1:poc,x2:398,y2:poc-10,color:'#8a8a92',width:1.1,arrow:true});
+    Viz.pill(svg,{text:'imbalance',x:492,y:84,w:112,color:'#ffe08a'});
+    Viz.text(svg,'aggressive conviction: takers overwhelm makers',414,118,{size:11,fill:'#ffc599'});
+
+    Viz.note(svg,{x:734,y:92,w:332,h:116,title:'1. Determine current value',titleColor:'#9cc5ec',size:12,lineH:18,titleSize:12,
+      lines:['Price advertises opportunity.', 'Time shows where opportunity was accepted.', 'Volume confirms or denies the auction.']});
+    Viz.note(svg,{x:734,y:236,w:332,h:112,title:'2. Ask what happens outside value',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['One-sided participants push price away.', 'Does the market accept the new price,', 'or rotate back into prior value?']});
+
+    Viz.poly(svg,{points:[[782,470],[844,402],[900,452],[952,366],[1018,310]],color:'#6fcb7f',width:2.2,arrow:true});
+    Viz.poly(svg,{points:[[980,472],[1038,392],[1098,428],[1148,384],[1210,494]],color:'#ff8c3a',width:2.2,arrow:true});
+    Viz.pill(svg,{text:'acceptance',x:758,y:492,w:132,color:'#6fcb7f'});
+    Viz.pill(svg,{text:'rejection',x:1000,y:492,w:112,color:'#ffc599'});
+    Viz.text(svg,'new value builds outside the old range',720,536,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'auction fails and returns inside',998,536,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'AMT is not a strategy: it is a regime lens. First locate value, then judge acceptance/rejection at its edges.',640,616,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function amtValueStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({w:W,h:H,label:'Value area: VAH POC VAL and reactions',grid:{start:88,end:H-62,step:58,x1:24,x2:W-24}});
+    Viz.label(svg,'Value area: VAH / POC / VAL as reference levels',34,34,{w:430,size:13});
+    var rows=[2,4,8,12,18,26,36,52,72,88,96,86,66,48,32,20,12,7,4,2];
+    var prof=Viz.profile(svg,{rows:rows,x:78,y:112,bw:8,bh:11,g:1,maxB:48,fade:0.94,axis:true,axisColor:'#6f6f78',axisWidth:1.1});
+    var vah=prof.rowY(7),poc=prof.rowY(10),val=prof.rowY(14);
+    svg.appendChild(E('rect',{x:62,y:vah-8,width:856,height:val-vah+16,rx:4,fill:'#ffffff',opacity:0.035}));
+    Viz.level(svg,{x1:56,x2:1146,y:vah,color:C.va,width:1.8,label:'VAH',labelX:1110,labelY:vah-8,labelSize:12});
+    Viz.level(svg,{x1:56,x2:1146,y:poc,color:C.poc,width:2.7,label:'POC / fair price',labelX:590,labelY:poc-8,labelSize:12});
+    Viz.level(svg,{x1:56,x2:1146,y:val,color:C.va,width:1.8,label:'VAL',labelX:1110,labelY:val+16,labelSize:12});
+
+    Viz.candleWalk(svg,{x0:436,dx:15,cw:9,seed:42,legs:[
+      {n:7,from:val+26,to:vah-16,vol:18,wick:13},
+      {n:5,from:vah-16,to:poc+20,vol:22,wick:15},
+      {n:5,from:poc+20,to:val-2,vol:14,wick:13},
+      {n:6,from:val-2,to:vah-6,vol:17,wick:14},
+      {n:6,from:vah-6,to:vah-86,vol:16,wick:13}
+    ]});
+    Viz.path(svg,{d:'M 154 '+(val+12)+' C 232 '+(val+6)+', 262 '+(vah+6)+', 352 '+(vah-26),color:'#c6c6ce',width:1.2,opacity:0.8});
+    Viz.path(svg,{d:'M 154 '+(vah-12)+' C 232 '+(vah-2)+', 262 '+(poc-10)+', 352 '+poc,color:'#c6c6ce',width:1.2,opacity:0.8});
+    Viz.marker(svg,{n:1,x:530,y:poc+10,color:'#ffd23f'});
+    Viz.marker(svg,{n:2,x:818,y:vah-12,color:'#c6c6ce'});
+    Viz.marker(svg,{n:3,x:902,y:vah-74,color:'#ffe08a'});
+
+    Viz.note(svg,{x:80,y:386,w:332,h:104,title:'How to read it',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['VAH/VAL = accepted value extremes.', 'POC = price where most time/volume traded.', 'Inside value: expect rotation until proven otherwise.']});
+    Viz.note(svg,{x:446,y:386,w:348,h:104,title:'POC behavior',titleColor:'#ffd23f',size:12,lineH:18,titleSize:12,
+      lines:['Can act as a magnet, target, or repellent.', 'Strong reaction from POC can interrupt', 'the clean “rotate to other side” idea.'],stroke:'#3a2a24'});
+    Viz.note(svg,{x:828,y:386,w:330,h:104,title:'Edges are areas, not pixels',titleColor:'#c98bff',size:12,lineH:18,titleSize:12,
+      lines:['Use them as reference zones.', 'Confirm with spot interest, follow-through,', 'volume, momentum, and orderflow.']});
+    Viz.text(svg,'~68% of time/volume is inside value area. Thin edges show prices that were advertised and rejected.',640,580,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function amtAcceptanceStorySVG(){
+    var W=1280,H=700,svg=Viz.canvas({w:W,h:H,label:'Acceptance versus rejection around value',grid:{start:92,end:H-70,step:58,x1:24,x2:W-24}});
+    Viz.label(svg,'Acceptance vs Rejection: two practical patterns',34,34,{w:410,size:13});
+    var prof=Viz.profile(svg,{rows:[3,6,10,16,25,38,56,72,84,90,78,60,42,28,16,8,4,2],x:78,y:130,bw:8,bh:10,g:1,maxB:45,fade:0.96,axis:true,axisColor:'#6f6f78',axisWidth:1.1});
+    var vah=prof.rowY(6),poc=prof.rowY(9),val=prof.rowY(13);
+    svg.appendChild(E('rect',{x:62,y:vah-8,width:1048,height:val-vah+16,rx:4,fill:'#ffffff',opacity:0.035}));
+    Viz.level(svg,{x1:56,x2:1140,y:vah,color:C.va,width:1.7,label:'VAH',labelX:1104,labelY:vah-8,labelSize:12});
+    Viz.level(svg,{x1:56,x2:1140,y:poc,color:C.poc,width:2.6,label:'POC',labelX:1104,labelY:poc-8,labelSize:12});
+    Viz.level(svg,{x1:56,x2:1140,y:val,color:C.va,width:1.7,label:'VAL',labelX:1104,labelY:val+16,labelSize:12});
+
+    Viz.pill(svg,{text:'A) Breaking into value',x:320,y:82,w:180,color:'#9cc5ec'});
+    Viz.candleWalk(svg,{x0:320,dx:13,cw:8,seed:33,legs:[
+      {n:6,from:vah-80,to:vah-10,vol:18,wick:16},
+      {n:5,from:vah-10,to:val+18,vol:22,wick:18},
+      {n:6,from:val+18,to:poc+4,vol:20,wick:16},
+      {n:5,from:poc+4,to:vah-4,vol:17,wick:15}
+    ]});
+    Viz.line(svg,{x1:374,y1:vah-72,x2:404,y2:vah-8,color:'#ffc599',width:1.2,arrow:true});
+    Viz.text(svg,'failed breakout → back inside value',292,350,{size:11,fill:'#ffc599'});
+    Viz.text(svg,'rotation to other side',432,374,{size:11,fill:'#c6c6ce'});
+    Viz.marker(svg,{n:1,x:404,y:vah-8,color:'#c6c6ce'});
+    Viz.marker(svg,{n:2,x:462,y:val+8,color:'#ffe08a'});
+
+    Viz.pill(svg,{text:'B) Acceptance outside value',x:720,y:82,w:224,color:'#ffe08a'});
+    Viz.candleWalk(svg,{x0:720,dx:14,cw:9,seed:55,legs:[
+      {n:5,from:val+8,to:poc+8,vol:16,wick:13},
+      {n:5,from:poc+8,to:vah-70,vol:12,wick:11},
+      {n:5,from:vah-70,to:vah-20,vol:18,wick:14},
+      {n:6,from:vah-20,to:vah-122,vol:14,wick:12}
+    ]});
+    Viz.line(svg,{x1:814,y1:vah-78,x2:872,y2:vah-20,color:'#ffe08a',width:1.2,arrow:true});
+    Viz.line(svg,{x1:860,y1:vah-12,x2:936,y2:vah-118,color:'#ffe08a',width:1.4,arrow:true});
+    Viz.text(svg,'VAH holds as support',800,342,{size:11,fill:'#ffe08a'});
+    Viz.text(svg,'new value sought above prior balance',792,364,{size:11,fill:'#8a8a92'});
+    Viz.marker(svg,{n:3,x:858,y:vah-10,color:'#ffe08a'});
+
+    Viz.note(svg,{x:82,y:484,w:358,h:110,title:'Acceptance means',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['Participants agree to do business at a new price.', 'Look for hold/retest, time spent there,', 'and volume/follow-through after the move.']});
+    Viz.note(svg,{x:468,y:484,w:360,h:110,title:'Rejection means',titleColor:'#ffc599',size:12,lineH:18,titleSize:12,
+      lines:['Price advertises outside value, but gets no response.', 'Fast return inside value = failed auction risk.', 'Fade only after acceptance back is visible.'],stroke:'#3a2a24'});
+    Viz.note(svg,{x:856,y:484,w:330,h:110,title:'Practical rule',titleColor:'#c98bff',size:12,lineH:18,titleSize:12,
+      lines:['Clean retest may be front-run in strong trends.', 'Trade zones, not static one-tick levels.', 'Confirm with orderflow and volume.']});
+    Viz.text(svg,'Acceptance/rejection is the market answering: “is this advertised price fair enough to keep trading here?”',640,654,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function amtScenariosStorySVG(){
+    var W=1280,H=660,svg=Viz.canvas({w:W,h:H,label:'Auction market theory scenarios',grid:{start:92,end:H-68,step:58,x1:24,x2:W-24}});
+    Viz.label(svg,'Auction Market Theory scenarios: read left → right',34,34,{w:430,size:13});
+    var prof=Viz.profile(svg,{rows:[2,4,7,12,20,34,54,72,84,88,76,58,40,24,13,7,3],x:74,y:150,bw:8,bh:11,g:1,maxB:44,fade:0.96,axis:true,axisColor:'#6f6f78'});
+    var vah=prof.rowY(6),poc=prof.rowY(9),val=prof.rowY(13);
+    Viz.level(svg,{x1:56,x2:1118,y:vah,color:C.va,width:1.8,label:'VAH',labelX:1070,labelY:vah-8,labelSize:13});
+    Viz.level(svg,{x1:56,x2:1118,y:poc,color:C.poc,width:2.5,label:'POC',labelX:1070,labelY:poc-8,labelSize:13});
+    Viz.level(svg,{x1:56,x2:1118,y:val,color:C.va,width:1.8,label:'VAL',labelX:1070,labelY:val+16,labelSize:13});
+    Viz.path(svg,{d:'M 130 '+(val+18)+' C 210 '+(val+4)+', 240 '+(vah+12)+', 316 '+(vah-22),color:'#c6c6ce',width:1.2,opacity:0.8});
+    Viz.text(svg,'bell curve = value distribution',88,418,{size:11,fill:'#8a8a92'});
+
+    var x0=360;
+    Viz.poly(svg,{points:[[x0,vah+8],[x0+44,poc+38],[x0+88,poc-8],[x0+132,val+12]],color:'#ffb36d',width:2});
+    Viz.marker(svg,{n:1,x:x0+38,y:poc+28,color:'#ffb36d'});
+    Viz.text(svg,'accept inside value',x0-10,poc+76,{size:11,fill:'#ffb36d'});
+
+    Viz.poly(svg,{points:[[x0+138,poc+8],[x0+188,val+12],[x0+240,poc+8],[x0+286,vah+4]],color:'#c98bff',width:2});
+    Viz.marker(svg,{n:2,x:x0+188,y:val+12,color:'#c98bff'});
+    Viz.text(svg,'rotation to other side',x0+146,val+54,{size:11,fill:'#c98bff'});
+
+    Viz.poly(svg,{points:[[x0+296,vah+6],[x0+342,poc-10],[x0+388,vah-54],[x0+430,vah-2]],color:'#e8e8ee',width:2});
+    Viz.marker(svg,{n:3,x:x0+384,y:vah-52,color:'#e8e8ee'});
+    Viz.text(svg,'break outside value',x0+314,vah-76,{size:11,fill:'#e8e8ee'});
+
+    Viz.poly(svg,{points:[[x0+446,vah-8],[x0+488,vah-78],[x0+540,vah-132],[x0+590,vah-78]],color:'#ffe08a',width:2.2,arrow:true});
+    Viz.marker(svg,{n:4,x:x0+540,y:vah-132,color:'#ffe08a'});
+    Viz.text(svg,'acceptance outside = imbalance',x0+450,vah-158,{size:11,fill:'#ffe08a'});
+
+    Viz.poly(svg,{points:[[x0+606,vah-10],[x0+654,poc-18],[x0+704,poc+38],[x0+748,val+6]],color:'#ffc599',width:2.2,arrow:true});
+    Viz.marker(svg,{n:5,x:x0+652,y:poc-18,color:'#ffc599'});
+    Viz.text(svg,'rejection → back inside',x0+610,poc+80,{size:11,fill:'#ffc599'});
+
+    Viz.note(svg,{x:80,y:466,w:306,h:92,title:'Inside value',titleColor:'#9cc5ec',size:12,lineH:18,titleSize:12,
+      lines:['Expect rotation and choppy price action.', 'Edges reject until time/volume builds enough', 'to push through.']});
+    Viz.note(svg,{x:422,y:466,w:324,h:92,title:'Outside value',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['Acceptance outside = new balance search.', 'Destination is often a prior balance area;', 'first stop is often POC.']});
+    Viz.note(svg,{x:780,y:466,w:330,h:92,title:'Two questions',titleColor:'#c98bff',size:12,lineH:18,titleSize:12,
+      lines:['Which way is the market trying to go?', 'How good of a job is it doing?', 'Answer with flow, time, and volume.']});
+    Viz.text(svg,'Use VAH / POC / VAL as reference zones. The scenario changes when price accepts, rejects, or fails to follow through.',640,626,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  var SCENES={
+    cycle:{label:'Цикл: баланс → имбаланс → новый баланс',title:'Баланс ↔ имбаланс',h:600,rows:BELL,profileY:140,
+      levels:[{key:'VAH',row:8},{key:'POC',row:11,color:C.poc,width:2.4},{key:'VAL',row:14}],band:['VAH','VAL'],
+      legs:[{n:7,from:'POC',fromOff:16,to:'POC',toOff:-6,vol:22,wick:11},
+        {n:6,from:'POC',fromOff:-6,to:'VAH',toOff:-92,vol:13,wick:10},
+        {n:8,from:'VAH',fromOff:-92,to:'VAH',toOff:-100,vol:17,wick:12}],
+      markers:[{n:1,at:3,y:'POC',off:30,color:'#c6c6ce'},{n:2,at:10,y:'VAH',off:-30,color:'#ffe08a'},{n:3,at:18,y:'VAH',off:-118,color:'#c6c6ce'}],
+      notes:[{x:952,y:96,w:298,h:138,title:'Баланс (ротация)',titleColor:'#9cc5ec',size:13,lineH:19,titleSize:13,lines:['Рейндж, indecision.','Цена крутится внутри стоимости,','реджектит края. ~80% времени.']},
+        {x:952,y:256,w:298,h:138,title:'Имбаланс (тренд)',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Aggressive conviction:','takers перебивают makers,','цена ищет новую стоимость.'],stroke:'#3a2a24'}],
+      legend:['① баланс (ротация · indecision)  →  ② имбаланс (тренд · conviction)  →  ③ новый баланс','Аналогия: пружина — компрессия копит энергию, экспансия её высвобождает. Дольше сжатие → мощнее ход.']},
+
+    value:{label:'Value area: VAH/POC/VAL',title:'Value area: где принята стоимость',h:560,rows:BELL,profileY:130,
+      levels:[{key:'VAH',row:8},{key:'POC',row:11,color:C.poc,width:2.4},{key:'VAL',row:14}],band:['VAH','VAL'],
+      legs:[{n:4,from:'VAL',fromOff:8,to:'VAH',toOff:-8,vol:7,wick:7},
+        {n:4,from:'VAH',fromOff:-8,to:'VAL',toOff:8,vol:7,wick:7},
+        {n:4,from:'VAL',fromOff:8,to:'POC',vol:7,wick:7},
+        {n:4,from:'POC',to:'VAH',toOff:-8,vol:7,wick:7},
+        {n:4,from:'VAH',fromOff:-8,to:'POC',vol:7,wick:7}],
+      ellipses:[{at:14,y:'POC',rx:18,ry:15,color:'#ffd23f'}],
+      notes:[{x:952,y:96,w:298,h:118,title:'Value area',titleColor:'#9cc5ec',size:13,lineH:19,titleSize:13,lines:['~68.26% времени/объёма','= 1 стандартное отклонение.','Толстая середина = принятая','стоимость.']},
+        {x:952,y:236,w:298,h:118,title:'POC',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,lines:['Самая торгуемая цена','(vPOC объём / tPOC время).','«Магнит» или «репеллент»','по потоку.'],stroke:'#3a2a24'}],
+      legend:['Bell curve = нормальное распределение: середина принята, тонкие края отвергнуты.','На HTF — общие зоны; на LTF — гранулярнее. Прошлая VA/POC — референс на сегодня.']},
+
+    accept:{label:'Acceptance vs Rejection',title:'Acceptance vs Rejection у края стоимости',h:600,rows:BELL,profileY:150,
+      levels:[{key:'VAH',row:8},{key:'POC',row:11,color:C.poc,width:2.4},{key:'VAL',row:14}],band:['VAH','VAL'],
+      legs:[{n:6,from:'POC',fromOff:10,to:'VAH',toOff:-6,vol:10,wick:9},
+        {n:5,from:'VAH',fromOff:-6,to:'VAH',toOff:-70,vol:12,wick:10},
+        {n:6,from:'VAH',fromOff:-70,to:'VAH',toOff:-132,vol:12,wick:11}],
+      markers:[{n:1,at:8,y:'VAH',off:-16,color:'#c6c6ce'},{n:2,at:14,y:'VAH',off:-92,color:'#ffe08a'}],
+      notes:[{x:952,y:96,w:298,h:138,title:'Acceptance',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Spot держит откаты и гонит цену,','время и объём строятся выше VAH,','ретест VAH держит → продолжение.']},
+        {x:952,y:256,w:298,h:138,title:'Rejection (зеркально)',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Тык за край без follow-through,','объём не подтверждает →','быстрый возврат в стоимость.'],stroke:'#3a2a24'}],
+      legend:['① выход за VAH  →  ② принятие (hold + время + объём) → продолжение (имбаланс)','Голос рынка: accept (новая цена) или reject (возврат). Читай spot interest, follow-through, время, объём.']},
+
+    scenarios:{label:'Сценарии AMT',title:'Сценарии AMT (читать слева направо)',h:620,rows:BELL,profileY:150,dx:12,
+      levels:[{key:'VAH',row:8},{key:'POC',row:11,color:C.poc,width:2.4},{key:'VAL',row:14}],band:['VAH','VAL'],
+      legs:[{n:4,from:'VAH',fromOff:-6,to:'POC',vol:7,wick:7},
+        {n:5,from:'POC',to:'VAL',toOff:6,vol:8,wick:8},
+        {n:5,from:'VAL',toOff:6,to:'VAH',toOff:-58,vol:12,wick:10},
+        {n:4,from:'VAH',toOff:-58,to:'VAH',toOff:-122,vol:12,wick:11},
+        {n:5,from:'VAH',toOff:-122,to:'VAH',toOff:-26,vol:14,wick:12}],
+      markers:[{n:1,at:2,y:'POC',off:-24,color:'#ffc599'},{n:2,at:7,y:'VAL',off:24,color:'#c98bff'},
+        {n:3,at:12,y:'VAH',off:-6,color:'#c6c6ce'},{n:4,at:15,y:'VAH',off:-128,color:'#ffd23f'},{n:5,at:20,y:'VAH',off:-18,color:'#ffc599'}],
+      legend:['① accept inside · ② rotation to other side · ③ rotation + break outside · ④ accept outside = имбаланс · ⑤ rejection/accept inside','imbalance = трендовый ход за пределы прежней value area. POC — магнит/репеллент по потоку.']}
+  };
+
+  function amtCheatStorySVG(){
+    var W=1280,H=760,svg=Viz.canvas({w:W,h:H,label:'AMT market dynamics cheat sheet'});
+    Viz.label(svg,'AMT market dynamics cheat sheet: 9 loose behaviors',34,34,{w:420,size:13});
+    function panel(x,y,n,title,color,pts,note,profileColor){
+      var w=382,h=198;
+      svg.appendChild(E('rect',{x:x,y:y,width:w,height:h,rx:7,fill:'#101012',stroke:'#25252a','stroke-width':1}));
+      Viz.text(svg,n+'. '+title,x+16,y+24,{size:12,fill:color||'#ececef',weight:700});
+      Viz.line(svg,{x1:x+38,y1:y+58,x2:x+38,y2:y+160,color:'#8a8a92',width:1});
+      Viz.line(svg,{x1:x+56,y1:y+76,x2:x+w-28,y2:y+76,color:'#8a8a92',width:1,dash:'2 4',opacity:0.7});
+      Viz.line(svg,{x1:x+56,y1:y+134,x2:x+w-28,y2:y+134,color:'#8a8a92',width:1,dash:'2 4',opacity:0.7});
+      Viz.path(svg,{d:'M '+(x+40)+' '+(y+138)+' C '+(x+88)+' '+(y+130)+', '+(x+86)+' '+(y+82)+', '+(x+40)+' '+(y+74),color:profileColor||color||'#c6c6ce',width:2.2,opacity:0.9});
+      Viz.poly(svg,{points:pts.map(function(p){return [x+p[0],y+p[1]];}),color:color||'#ececef',width:2,arrow:true});
+      Viz.text(svg,note,x+16,y+182,{size:10.5,fill:'#9a9aa2'});
+    }
+    panel(34,70,1,'accept into balance area','#ffb36d',[[130,72],[178,116],[224,92],[276,134]],'Likely rotation to the other side of value.','#ff8c3a');
+    panel(442,70,2,'inside balance rejects edges','#9cc5ec',[[126,132],[174,78],[222,134],[274,78],[330,138]],'Fade edges until time/volume proves breakout.','#9cc5ec');
+    panel(850,70,3,'choppy inside value','#c6c6ce',[[120,132],[162,86],[204,120],[248,80],[292,120],[336,96]],'Established value often rotates messily.','#c6c6ce');
+
+    panel(34,288,4,'accept outside balance','#6fcb7f',[[132,132],[184,86],[238,52],[300,74],[344,42]],'Acceptance outside = imbalance / new value search.','#6fcb7f');
+    panel(442,288,5,'two market questions','#c98bff',[[126,112],[170,82],[214,116],[258,78],[316,144]],'Where is it trying to go? How well is it doing?','#c98bff');
+    panel(850,288,6,'destination: prior balance / POC','#ffe08a',[[126,148],[172,118],[218,86],[268,86],[322,58]],'Old balance often becomes target; POC is first stop.','#ffe08a');
+    Viz.marker(svg,{n:'P',x:1126,y:346,color:'#ffe08a',size:10});
+
+    panel(34,506,7,'POC reaction can disrupt','#ffd23f',[[130,112],[174,86],[222,104],[260,78],[316,116]],'Strong POC reaction can invalidate clean rotation.','#ffd23f');
+    panel(442,506,8,'retest balance edges','#e8e8ee',[[126,58],[178,112],[232,78],[278,134],[330,88]],'Edges are often revisited and tested.','#e8e8ee');
+    panel(850,506,9,'time/volume builds at edge','#ffc599',[[126,134],[176,86],[226,112],[276,84],[340,152]],'Build at edge increases odds of push-through.','#ffc599');
+    Viz.text(svg,'These are not mechanical rules. Use them as behavior maps, then confirm with orderflow, volume, momentum, and timeframe context.',640,728,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  /* ── dispatch ── */
+  var STORY_SCENES={cycle:amtCycleStorySVG,value:amtValueStorySVG,accept:amtAcceptanceStorySVG,scenarios:amtScenariosStorySVG};
+  document.querySelectorAll('[data-triad]').forEach(function(d){d.appendChild(triadSVG());});
+  document.querySelectorAll('[data-scene]').forEach(function(d){var fn=STORY_SCENES[d.dataset.scene],cf=SCENES[d.dataset.scene];if(fn)d.appendChild(fn());else if(cf)d.appendChild(Viz.scene(cf));});
+  document.querySelectorAll('[data-cheat-story]').forEach(function(d){d.appendChild(amtCheatStorySVG());});
+  document.querySelectorAll('[data-failed-story]').forEach(function(d){d.appendChild(failedAuctionStorySVG());});
+})();
+</script>
+
+<script>
+  // Level switcher
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      buttons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      body.setAttribute('data-level', btn.dataset.lvl);
+    });
+  });
+  // Scroll to top
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){
+      if (window.scrollY > 300) scrollBtn.classList.add('visible');
+      else scrollBtn.classList.remove('visible');
+    });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPO · Market Profile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #000000;
+    --surface: #101012;
+    --surface-2: #08080a;
+    --border: #25252a;
+    --border-2: #313137;
+    --accent: #ffffff;
+    --accent-azure: #b15cf0;
+    --green: #ffd23f;
+    --red: #ff8c3a;
+    --text: #ececef;
+    --muted: #8a8a92;
+    --muted-2: #54545c;
+    --tag-bg: #1a1a1d;
+    --sidebar-w: 264px;
+    --content-max: 1280px;
+    --visual-max: 1280px;
+    --content-gutter: 80px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface-2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0 40px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-brand {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .sidebar-brand a.logo {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+    background: linear-gradient(90deg, #ffffff, #8a8a96);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sidebar-brand .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--muted-2);
+    letter-spacing: 1px;
+    padding: 0 12px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted-2);
+    min-width: 20px;
+  }
+  .nav-soon {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted-2);
+    background: #161618;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .toc-inner {
+    padding: 0 12px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .toc-inner a {
+    display: block;
+    padding: 5px 12px 5px 28px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    border-radius: 4px;
+    border-left: 2px solid transparent;
+    margin-left: 8px;
+  }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+
+  /* ─── MAIN ─── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 32px 40px 80px;
+    max-width: calc(100vw - var(--sidebar-w));
+  }
+  .topbar {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .crumbs {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+
+  .level-switch {
+    margin-left: auto;
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .level-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.4px;
+  }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+
+  /* ─── HEADER ─── */
+  .header {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 36px;
+    border-left: 3px solid transparent;
+    border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1;
+    padding-left: 20px;
+  }
+  .header h1 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: #fff;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── SECTION ─── */
+  .section {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    scroll-margin-top: 24px;
+  }
+  .section.visual-wide,
+  #composite {
+    width: min(var(--visual-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 24px;
+  }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04));
+    color: #e2e2e8;
+  }
+  .section-body { padding: 22px 26px; }
+
+  /* ─── LEVEL BLOCKS ─── */
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2,
+  body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+
+  /* ─── ATOMS ─── */
+  ul { list-style: none; padding: 0; }
+  ul li {
+    padding: 4px 0 4px 16px;
+    position: relative;
+    color: var(--text);
+    font-size: 14px;
+  }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .card {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    color: #e4e4ea;
+  }
+
+  /* ─── HIGHLIGHTS ─── */
+  .hl {
+    background: rgba(255,255,255,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin: 10px 0;
+    color: #dcdce2;
+  }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-right: 6px;
+    opacity: 0.8;
+  }
+
+  /* ─── TABLES ─── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th {
+    background: var(--surface-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  td code { font-size: 11.5px; }
+  td strong { color: #fff; }
+
+  /* ─── TPO LETTER LADDER ─── */
+  .tpo-profile {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+    background: var(--surface-2);
+  }
+  .tpo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 3px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .tpo-row:last-child { border-bottom: none; }
+  .tpo-price { color: var(--muted-2); min-width: 44px; text-align: right; }
+  .tpo-cells { letter-spacing: 3px; color: #b9b9c4; white-space: nowrap; }
+  .tpo-note { margin-left: auto; font-size: 10px; letter-spacing: 0.5px; color: var(--muted); white-space: nowrap; }
+  .tpo-row.va { background: rgba(255,255,255,0.05); }
+  .tpo-row.poc { background: rgba(255,255,255,0.16); }
+  .tpo-row.poc .tpo-cells { color: #ffffff; font-weight: 600; }
+  .tpo-row.poc .tpo-note { color: var(--accent); font-weight: 700; }
+  .tpo-row.vah .tpo-note, .tpo-row.val .tpo-note { color: #c98bff; font-weight: 700; }
+  .tpo-row.hvn .tpo-note { color: #ffe08a; font-weight: 700; }
+  .tpo-row.lvn .tpo-note { color: var(--red); font-weight: 700; }
+  .tpo-row.tail .tpo-cells { color: var(--muted-2); }
+  .tpo-row.tail .tpo-note { color: var(--red); }
+  .tpo-legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted);
+    margin-top: 8px;
+  }
+  .tpo-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tpo-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .lg-poc { background: #ffd23f; }
+  .lg-va { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.4); }
+  .lg-tail { background: var(--muted-2); }
+
+  /* ─── PROFILE SHAPES ─── */
+  .shapes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .shape-card {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .shape-card .s-name { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; color: #fff; }
+  .shape-card .s-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #9a9aa2; margin-bottom: 4px; }
+  .shape-card .s-desc { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+
+  /* ─── RENDERED PROFILES (JS) ─── */
+  .mpmini { display: flex; justify-content: center; align-items: flex-end; }
+  .shape-card .mpmini { min-height: 86px; margin-bottom: 10px; }
+  .mpmini svg { display: block; }
+  .mpchart svg { display: block; width: 100%; height: auto; }
+
+  /* ─── DIAGRAM WRAPPER ─── */
+  .diagram {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-2);
+    padding: 14px 14px 10px;
+    margin: 14px 0;
+  }
+  .diagram-cap {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--muted);
+    margin-top: 8px; text-align: center; line-height: 1.55;
+  }
+
+  /* ─── PARAM QUESTIONS ─── */
+  .param-q { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; }
+  .param-q .q {
+    flex: 1; min-width: 220px;
+    background: var(--tag-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13.5px; font-style: italic; color: #e2e2e8;
+  }
+  .param-q .q b { font-style: normal; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; display: block; margin-bottom: 4px; opacity: 0.7; }
+
+  /* ─── COMPOSITE ─── */
+  .composite { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .composite .days { display: flex; gap: 8px; align-items: flex-end; }
+  .composite .eq { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--muted); }
+  .composite .comp-result { display: flex; align-items: stretch; gap: 10px; }
+  .composite .comp-levels { display: flex; flex-direction: column; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 0; }
+  .composite .comp-levels .vah, .composite .comp-levels .val { color: #c98bff; font-weight: 700; }
+  .composite .comp-levels .poc { color: #ffd23f; font-weight: 700; }
+
+  /* ─── PLATFORM NOTE ─── */
+  .platform-note {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none; margin: 0 auto 28px;
+    display: flex; gap: 14px; align-items: flex-start;
+    background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04));
+    border: 1px solid var(--border); border-left: 3px solid var(--accent-azure);
+    border-radius: 10px; padding: 13px 18px;
+  }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .topbar, .header, .section, .section.visual-wide, #composite, .platform-note { width: 100%; max-width: none; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+
+  /* ─── SCROLL TOP ─── */
+  .scroll-top {
+    position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: var(--text);
+    cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item active" href="#"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое TPO</a>
+    <a href="#regime">02 · Баланс и имбаланс</a>
+    <a href="#poc">03 · POC и Value Area</a>
+    <a href="#npoc">04 · Naked POC</a>
+    <a href="#excess">05 · Excess: хвосты и single prints</a>
+    <a href="#anomalies">06 · Poor highs/lows и ledges</a>
+    <a href="#params">07 · Параметры: RF · ACR · VAR</a>
+    <a href="#shapes">08 · Формы профиля</a>
+    <a href="#composite">09 · Композиты</a>
+    <a href="#session">10 · Старт сессии</a>
+    <a href="#vs-vp">11 · TPO vs Volume Profile</a>
+    <a href="#trade">12 · Как торговать</a>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>TPO · Market Profile</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>TPO · Market Profile</h1>
+    <p>// распределение цены по времени · язык рыночного аукциона</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) — термины и инструменты ниже соответствуют MMT и её <a href="https://mmt.gg/learn/tpo-market-profile" target="_blank" rel="noopener">документации</a>.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ TPO ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое TPO</span>
+      <span class="section-badge">market profile</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>TPO</strong> = Time Price Opportunity. Профиль строит <strong>распределение цены по времени</strong>: вместо свечей показывает, сколько времени рынок провёл на каждом уровне.</p>
+        <ul>
+          <li>Сессия режется на 30-минутные интервалы, каждому — <strong>блок</strong> (так в MMT; в классике — буква <code>A</code>, <code>B</code>, <code>C</code>…). Один блок = 30 минут</li>
+          <li>Побывала цена в интервале на уровне — ставим там блок этого интервала</li>
+          <li>Где торговали долго — длинный ряд блоков (толстый профиль), где пролетели — один-два (тонкий)</li>
+        </ul>
+
+        <div class="hl green"><span class="hl-label">Зачем это трейдеру</span>Свеча даёт 4 числа (O-H-L-C). Профиль показывает <strong>где рынок согласился на цену</strong> (толстая середина = стоимость), а где её отверг (тонкие края). Это карта принятия, а не просто след движения.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Читается <strong>сверху вниз</strong> как ось цены и <strong>слева направо</strong> как лента времени (A → Z → a → z)</li>
+          <li>Внутри периода цена ходит вверх-вниз → одна буква стоит на нескольких уровнях сразу</li>
+          <li>Вся практическая ценность — в производных: <strong>POC, Value Area, HVN/LVN, excess, single prints, poor highs/lows</strong>. Им и посвящена страница</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Сессия в MMT</span>На крипте нет торговых часов, поэтому MMT берёт сессию = 24ч с <strong>00:00 UTC</strong>, период — 30 минут, блоки стакает влево от начала сессии. Нативно доступны недельные и месячные сессии. Меняются цифры, не логика: распределение времени по цене.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>Под TPO лежит <strong>Auction Market Theory</strong>: рынок — двусторонний аукцион, который ищет цену, устраивающую обе стороны. Профиль — визуализация этого поиска. Отсюда главный вопрос ко всему дальше: <em>цена принята (баланс) или отвергнута (имбаланс)?</em> — см. §02.</p>
+        <div class="hl azure"><span class="hl-label">На рынке</span>TPO считает <strong>время</strong>, Volume Profile — <strong>объём</strong> (§12). На крипте объём надёжен, поэтому многие смотрят VP. Но язык один (POC, VA, ноды), и весь разбор ниже работает для обоих.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. БАЛАНС И ИМБАЛАНС ─────── -->
+  <section class="section" id="regime">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Баланс и имбаланс — режимный каркас</span>
+      <span class="section-badge">AMT core</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Всё остальное на этой странице — производные от одного цикла. Рынок всегда в одном из двух режимов:</p>
+        <ul>
+          <li><strong>Баланс</strong> — рейндж, ротация. Покупатель и продавец согласны по цене, профиль симметричный (D)</li>
+          <li><strong>Имбаланс</strong> — тренд. Одна сторона доминирует, цена быстро ищет новую стоимость, профиль вытянутый и тонкий</li>
+        </ul>
+
+        <div class="diagram">
+          <div class="mpchart" data-chart="regime"></div>
+          <div class="diagram-cap">~80% времени рынок в балансе (толстый профиль). Имбаланс — тонкий вытянутый профиль, переносящий стоимость в новую зону.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th></th><th>Баланс</th><th>Имбаланс</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Профиль</strong></td><td>симметричный (D), толстый</td><td>вытянутый, тонкий, со сдвигом POC</td></tr>
+            <tr><td><strong>Цена</strong></td><td>ротирует VAL ↔ POC ↔ VAH</td><td>едет в одну сторону, оставляет single prints / nPOC</td></tr>
+            <tr><td><strong>Тактика</strong></td><td>фейд краёв обратно к центру</td><td>по тренду, вход на откатах</td></tr>
+          </tbody>
+        </table>
+        <div class="hl"><span class="hl-label">Суть</span>Главная и самая дорогая работа трейдера — <strong>определить режим</strong>. Фейд края в имбалансе = ловишь нож. Погоня за трендом в балансе = тебя пилит. Сначала режим, потом сетап.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <ul>
+          <li><strong>Баланс → имбаланс:</strong> пробой границы баланса с follow-through — растёт объём, расширяется свеча (ACR↑), Rotation Factor устойчиво в одну сторону (§07)</li>
+          <li><strong>Имбаланс → баланс:</strong> импульс выдыхается, появляется ротация, ACR падает, формируется новая D-форма</li>
+          <li>Когда цену <strong>выбивает из баланса</strong>, участники тянут её к прежним зонам стоимости (POC), где им «комфортно торговать» — отсюда магнетизм POC и nPOC (§03–04)</li>
+        </ul>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Режимы вложены: дневной баланс состоит из часовых имбалансов. Определяй режим <strong>на своём ТФ и на старшем</strong> — имбаланс на 5m внутри дневного баланса фейдится к центру дня, а не торгуется как тренд.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. POC И VALUE AREA ─────── -->
+  <section class="section visual-wide" id="poc">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">POC, Value Area, HVN / LVN</span>
+      <span class="section-badge">magnet & S/R</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Три главных ориентира + два типа нод:</p>
+        <ul>
+          <li><strong>POC</strong> (Point of Control) — уровень с максимумом времени/объёма. Самая «справедливая» цена, главный магнит</li>
+          <li><strong>Value Area</strong> — диапазон ~70% активности (≈1σ). Границы: <strong>VAH</strong> сверху, <strong>VAL</strong> снизу</li>
+          <li><strong>HVN</strong> (High Volume Node) — утолщение профиля = принятая цена. <strong>LVN</strong> (Low Volume Node) — провал = отвергнутая цена. POC = самый крупный HVN</li>
+        </ul>
+
+        <div class="diagram">
+          <div class="mpchart" data-poc-story></div>
+          <div class="diagram-cap">POC = самый крупный HVN и центр принятия. VAH/VAL задают границы value area; реакция вокруг них говорит, рынок принимает цену или возвращается к справедливой зоне.</div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>POC — центр тяжести. VAH/VAL — стены комнаты, где рынок «договорился». HVN — обжитые этажи (магниты), LVN — пролёты между ними, которые проскакивают быстро.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p><strong>POC как магнит и пит-стоп.</strong> При принятии в Value Area или отказе от края — жди ротацию к противоположному краю, где POC работает «остановкой» по пути (часто реакция именно на нём).</p>
+        <p><strong>POC / HVN как S/R</strong> (не жёсткое правило — нужен контекст):</p>
+        <ul>
+          <li>Цена подходит <strong>сверху</strong> → нода работает как поддержка</li>
+          <li>Цена подходит <strong>снизу</strong> → как сопротивление</li>
+          <li>Даёт временные отскоки/отказы — материал для скальпа</li>
+        </ul>
+        <p><strong>LVN</strong> проходится быстро — там не было согласия. Хорошие места для стопов (за нодой) и границы между распределениями.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <ul>
+          <li><strong>Контекст важнее ноды.</strong> В трендовом режиме HVN/POC — зоны интереса для <em>продолжения</em> (вход по тренду). В ротационном — для <em>фейда</em> на слабости</li>
+          <li>VAH/VAL и POC <em>прошлого</em> дня/недели — рабочие уровни на сегодня. Где открылись относительно прошлой VA задаёт сценарий (§11)</li>
+        </ul>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Связка с order flow обязательна: профиль говорит <em>где</em> реакция вероятна, а footprint/дельта на самом уровне — <em>будет</em> ли она. Нода без подтверждения потоком = просто линия.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. NAKED POC ─────── -->
+  <section class="section visual-wide" id="npoc">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Naked POC (nPOC)</span>
+      <span class="section-badge">untested magnet</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>nPOC</strong> — точка контроля, <strong>оставленная позади и ещё не протестированная</strong>. Появляется на имбалансных (трендовых) движениях, когда цену быстро уносит из баланса. <em>В MMT непротестированные экстремумы профиля называют naked / untouched extensions.</em></p>
+
+        <div class="diagram">
+          <div class="mpchart" data-npoc-story></div>
+          <div class="diagram-cap">POC, оставленный имбалансом, остаётся магнитом (жёлтая линия = nPOC). Цену тянет назад «снять» его — там самый комфортный для рынка ценник.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Логика (AMT):</strong> выбитые из баланса участники тянут цену обратно к области, где наторговали больше всего — к нетронутому POC</li>
+          <li><strong>nPOC = магнит и зона интереса.</strong> Цена часто возвращается его снять (sweep) и даёт реакцию</li>
+          <li>Чем <strong>свежее и ближе</strong> nPOC, тем сильнее притяжение. Старые и дальние — слабее</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>nPOC — это <strong>зона интереса, а не сигнал</strong>. Не использовать вслепую. Нужен контекст: order flow на подходе (поглощение/дельта-дивергенция), старший ТФ, ключевой уровень. «Магнит» молчит, пока его не подтвердит поток.</div>
+        <ul>
+          <li><strong>Sweep + отказ</strong> (поглощение, дельта-дивергенция) = разворотный триггер. <strong>Sweep + проход</strong> = продолжение</li>
+          <li>В <strong>сильном тренде</strong> nPOC остаются позади непротестированными — это само по себе признак силы (рынок не оглядывается)</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. EXCESS: ХВОСТЫ И SINGLE PRINTS ─────── -->
+  <section class="section visual-wide" id="excess">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Excess: хвосты и single prints</span>
+      <span class="section-badge">conviction</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Рынок — двусторонний аукцион. Он уходит <strong>вниз, чтобы найти покупателей</strong>, и <strong>вверх, чтобы привлечь продавцов</strong> («цена — это рекламный механизм»). Когда он агрессивно «переавционит» в одну сторону, остаётся <strong>excess</strong> — след убеждённости (conviction).</p>
+        <ul>
+          <li><strong>Хвост (buying / selling tail)</strong> — вытянутый узкий край <strong>TPO-профиля</strong>: несколько ценовых строк по 1–2 TPO, где рынок резко отверг цену. Buying tail внизу, selling tail вверху. <em>Длина хвоста = сила отказа</em></li>
+          <li><strong>Single print</strong> — то же самое, но <strong>в середине</strong> структуры: одиночные TPO внутри профиля. По сути «длинные неэффективные свечи», формируются на трендовых движениях (имбаланс)</li>
+        </ul>
+
+        <div class="diagram">
+          <div class="mpchart" data-tail-story></div>
+          <div class="diagram-cap">Рынок аукционит вниз (buying tail · дисконт) и вверх (selling tail · премиум). Excess = демонстрация убеждённости, которую потом проверяют на ретесте.</div>
+        </div>
+
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Как excess показывает conviction:</strong> участники верят, что цена — крутой дисконт (buying tail) или премиум (selling tail), и агрессивно бьют. След остаётся как зона S/R на будущее</li>
+          <li><strong>Эти зоны перетестируются</strong> — рынок проверяет убеждённость: «это правда был дисконт/премиум или блеф?»</li>
+          <li><strong>Single prints, два сценария на ретесте:</strong>
+            <br>1) хочешь видеть, что они <strong>держат</strong> как S/R → продолжение;
+            <br>2) иначе — как быстро цена прошла, так же быстро вернётся <strong>сквозь</strong> них (ретрейс)</li>
+        </ul>
+
+        <p style="margin-top:12px;"><strong>Double distribution</strong> — частая форма пробоя баланса: две консолидации, между ними имбаланс, оставляющий single print / LVN.</p>
+        <div class="diagram">
+          <div class="mpchart" data-singleprint-story></div>
+          <div class="diagram-cap">Баланс → имбаланс (single print / LVN) → новый баланс. Тонкая зона между распределениями должна держать для продолжения, иначе цену протащит насквозь.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Не залипай на терминах</span>Хвост, single print, LVN — по сути одно: <strong>след агрессии / неэффективность</strong>, где рынок проверяет, conviction это или блеф. Важны импликации и динамика, а не названия.</div>
+        <div class="hl red"><span class="hl-label">Механика блефа</span>Если за зоной заперты позиции, а убеждённость была ложной — достаточно лёгкого толчка сквозь неё, чтобы всё размотало. «Поджёг дорожку из бензина»: один импульс — и каскад.</div>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Подтверждай потоком: footprint (объём, дельта) на ретесте хвоста/single print говорит, держат уровень или сдают. Excess без подтверждения — это гипотеза, а не сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. АНОМАЛИИ: POOR H/L И LEDGES ─────── -->
+  <section class="section visual-wide" id="anomalies">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Аномалии: poor highs/lows и ledges</span>
+      <span class="section-badge">inefficiency</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Две родственные аномалии профиля — обе про <strong>резкий обрыв двустороннего аукциона</strong> и обе дают S/R (1 буква = 30-мин свеча):</p>
+        <ul>
+          <li><strong>Poor high / poor low</strong> — плоский <em>экстремум</em> из 2+ TPO-блоков (без хвоста). Незавершённый аукцион → exhaustion + запертые позиции</li>
+          <li><strong>Ledge (полка)</strong> — плоская «полка» не на экстремуме, а <em>на уровне в теле</em>: аукцион многократно обрывался в одном месте. 2+ TPO вровень</li>
+        </ul>
+
+        <div class="diagram">
+          <div class="mpchart" data-anomalies-story></div>
+          <div class="diagram-cap">Poor H/L — незавершённый экстремум, ledge — плоская полка внутри структуры. Оба объекта важны только как зоны интереса: дальше решает ретест и поток.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p><strong>Poor high / low:</strong></p>
+        <ul>
+          <li>Часто возвращаются «<strong>починить аукцион</strong>» (repair) — рынок идёт снять (run them) плохой экстремум, разматывая запертых</li>
+          <li>Означает потерю моментума (exhaustion) и потенциально запертых лонгов/шортов</li>
+        </ul>
+        <p style="margin-top:10px;"><strong>Ledge:</strong></p>
+        <ul>
+          <li>Появляется, когда рынок многократно тестит уровень, не пробивая его</li>
+          <li><strong>Пробой с объёмом</strong> = breakout-сделка. <strong>Отказ от полки на подходе</strong> = fade (участники не готовы торговать снаружи)</li>
+          <li>Ретест и удержание позже = больше доверия к S/R-флипу</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl green"><span class="hl-label">Сила уровня</span>Больше TPO-блоков в аномалии = сильнее уровень. Механика «run them»: за poor high заперты продавцы и стопы; проход через регион разматывает их → топливо для толчка. Удержанный ретест = подтверждённый S/R-флип.</div>
+        <div class="hl red"><span class="hl-label">Ловушка</span>И poor H/L, и ledge — <strong>зоны интереса, а не таймеры</strong>. «Снимут» или «пробьют» — решает поток и контекст. Без подтверждения дельтой/объёмом не входи: магнит может молчать неделями.</div>
+        <div class="hl azure"><span class="hl-label">На рынке</span>На крипте таких аномалий много из-за ликвидационных простреливаний. В MMT в слое TPO single prints размечаются голубым, а poor high/low — белыми лучами автоматически.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. ПАРАМЕТРЫ ─────── -->
+  <section class="section visual-wide" id="params">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Параметры профиля: RF · ACR · VAR</span>
+      <span class="section-badge">parameters</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Как трейдер ты всё время отвечаешь на два вопроса. На них отвечают три классических параметра Market Profile:</p>
+        <div class="param-q">
+          <div class="q"><b>Вопрос 1</b>Куда рынок пытается идти?</div>
+          <div class="q"><b>Вопрос 2</b>Хорошо ли у него это получается?</div>
+        </div>
+        <ul>
+          <li><strong>Rotation Factor (RF)</strong> — мера направленной попытки → отвечает на вопрос 1</li>
+          <li><strong>Average Candle Range (ACR)</strong> — средний размах свечи → тренд или рейндж</li>
+          <li><strong>Value Area Range (VAR) + Placement</strong> — ширина и смещение стоимости → компрессия/экспансия и bias</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+
+        <p><strong>1. Rotation Factor (RF)</strong> — он же «Split Counts». Считается приращениями по 1: для каждого 30-мин периода хай и лоу сравниваются с предыдущим (выше/ниже). Плюс = контроль покупателей, минус = продавцов. По сути — измеримое «куда рынок пытается идти».</p>
+
+        <p><strong>2. Average Candle Range (ACR)</strong> — средний размер 30-мин свечи. Базлайн под тренд/рейндж: растёт ACR (крупные свечи) = переход в тренд; падает = баланс.</p>
+        <div class="hl note"><span class="hl-label">Пример эвристики</span>«ACR подходит к диапазону 35–50 — статистически ~65% вероятность, что рынок позиционируется на разворот». Цифры — это <strong>базлайн под инструмент/ТФ</strong>, который калибруют на истории, а не магия.</div>
+
+        <p style="margin-top:14px;"><strong>3. Value Area Range (VAR) и Value Area Placement.</strong> VAR — ширина (магнитуда) value area сессии. Серия сужающихся VA = <strong>компрессия</strong> (часто перед импульсом); резкое расширение = <strong>экспансия</strong> (трендовый день).</p>
+
+        <div class="diagram">
+          <div class="mpchart" data-params-story></div>
+          <div class="diagram-cap">RF отвечает за направление попытки, ACR — за качество движения, VAR/Placement — за сжатие, расширение и перенос стоимости между сессиями.</div>
+        </div>
+
+        <p><strong>Value Area Placement</strong> — как VA смещается относительно прошлых сессий: вверх сессия за сессией = бычий контроль; перекрытие (overlapping value) = баланс/нерешительность; резкий сдвиг = имбаланс.</p>
+        <div class="hl note"><span class="hl-label">В MMT</span>RF/ACR/VAR — классические статистики Market Profile (у @Stoiiic на скриншотах это Exocharts). Отдельных тогглов этих метрик в MMT нет, но то же читается прямо с профиля: <strong>VAR</strong> = ширина Value Area (компрессия/экспансия), <strong>ACR</strong> = размах свечей, <strong>RF</strong> = направленность баров. Подтверждаешь footprint и дельтой.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <ul>
+          <li><strong>RF</strong> — смотри не одну сессию, а серию: переход из шума около нуля в устойчивый знак = ранний сигнал смены рейндж → тренд</li>
+          <li><strong>ACR</strong> — экстремально большой ACR = истощение (импульс на исходе); сжатие ACR + сжатие VAR вместе = классическое преддверие пробоя</li>
+          <li><strong>VAR/Placement</strong> — связка отвечает на «куда и насколько уверенно» численно: то же, что глаз видит в форме профиля, но измеримо и сравнимо между сессиями</li>
+        </ul>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Не лови абсолютные пороги — лови <strong>динамику и сочетания</strong>: RF разворачивается + ACR падает + VA перестаёт смещаться = имбаланс выдыхается, рынок ищет баланс. Это и есть «хорошо ли получается идти».</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. ФОРМЫ ПРОФИЛЯ ─────── -->
+  <section class="section visual-wide" id="shapes">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Формы профиля</span>
+      <span class="section-badge">shapes</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Форма — моментальный портрет режима (§02). Четыре базовые + трендовый день:</p>
+
+        <div class="shapes-grid">
+          <div class="shape-card">
+            <div class="mpmini" data-rows="30,55,80,100,80,55,30"></div>
+            <div class="s-name">D-shape</div>
+            <div class="s-sub">баланс</div>
+            <div class="s-desc">Симметричный «колокол», POC в центре. Согласие, рейндж.</div>
+          </div>
+          <div class="shape-card">
+            <div class="mpmini" data-rows="100,100,88,58,34,20,12"></div>
+            <div class="s-name">P-shape</div>
+            <div class="s-sub">инициатива вверх</div>
+            <div class="s-desc">Толстый верх, хвост вниз. Покупатели / short covering.</div>
+          </div>
+          <div class="shape-card">
+            <div class="mpmini" data-rows="12,20,34,58,88,100,100"></div>
+            <div class="s-name">b-shape</div>
+            <div class="s-sub">инициатива вниз</div>
+            <div class="s-desc">Тонкий верх, толстый низ. Продавцы / long liquidation.</div>
+          </div>
+          <div class="shape-card">
+            <div class="mpmini" data-rows="78,100,52,28,52,100,78"></div>
+            <div class="s-name">B-shape</div>
+            <div class="s-sub">double distribution</div>
+            <div class="s-desc">Два «пузыря» через тонкую зону (LVN, §05). Две разные стоимости.</div>
+          </div>
+          <div class="shape-card">
+            <div class="mpmini" data-rows="24,27,25,28,26,27,24"></div>
+            <div class="s-name">Trend</div>
+            <div class="s-sub">имбаланс</div>
+            <div class="s-desc">Тонкий, ровный по всей высоте. Цена едет в одну сторону без баланса.</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>D</strong> = баланс → фейд краёв. <strong>Trend</strong> = имбаланс → по тренду. <strong>P / b</strong> = переход/инициатива</li>
+          <li><strong>P после падения</strong> = short covering (не обязательно разворот вверх). <strong>b после роста</strong> = фиксация/ликвидация лонгов</li>
+          <li><strong>B / double distribution</strong> = две зоны согласия; тонкая зона между ними (LVN) часто перепроходится</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Контекст решает</span>Форму читают вместе с тем, <em>где она в тренде</em>. P-shape на вершине многомесячного движения и P-shape в начале импульса — разные истории.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>P-shape на вершине легко принять за «быки сильны» — а это часто финальное закрытие шортов <em>перед</em> разворотом. Сверяй с OI: рост на падающем Open Interest (крутят шорты, не открывают лонги) — слабое топливо.</div>
+        <div class="hl azure"><span class="hl-label">На рынке</span>Чистые D/P/b редки, чаще гибриды. Ценность формы — задать <strong>гипотезу режима</strong> («баланс или инициатива?»), которую подтверждаешь дельтой, OI, объёмом и параметрами (§07).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 10. КОМПОЗИТЫ ─────── -->
+  <section class="section visual-wide" id="composite">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Композиты профиля</span>
+      <span class="section-badge">composite</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Composite</strong> — просто объединение нескольких сессий в один профиль (агрегация данных). 6-дневный, недельный, месячный композит.</p>
+        <p>Зачем: увидеть крайности стоимости (<strong>VAH / VAL</strong>) и <strong>POC</strong> за всё окно — это HTF reference levels, вокруг которых строишь идеи.</p>
+
+        <div class="diagram">
+          <div class="mpchart composite-story" data-composite-story></div>
+          <div class="diagram-cap">6 сессий в относительном балансе → объединяем профили → получаем HTF-уровни VAH / POC / VAL и читаем реакцию цены вокруг них.</div>
+        </div>
+
+        <div class="hl azure"><span class="hl-label">Как собрать в MMT</span><strong>Merge</strong> — выделяешь соседние сессии и объединяешь в один композитный TPO-профиль (для рейнджа; число строк не ограничено). <strong>Expand / Split</strong> — обратные операции. Для объёма: <strong>VPVR / VPSV → правый клик → вкладка Aggregate</strong> собирает блендед-профиль по нескольким рынкам/сессиям. Нативно есть недельные и месячные сессии. Merge / Split / Expand сохраняются между сессиями.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Главное чтение — <strong>как мало смещается value</strong> от сессии к сессии. Много дней в относительном балансе (компрессия) → дедукция: на горизонте трендовое движение</li>
+          <li>Композитные <strong>VAH / POC / VAL</strong> — уровни для идей: реакция от нижней границы composite value = лонг-интерес; неспособность удержаться выше composite VAH → ротация к низу стоимости; <strong>VAL как сопротивление</strong> → дальнейший слом</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>Наблюдай поведение у крайностей композита и исполняй в реальном времени через другие параметры как конфлюэнс (order flow, RF/ACR/VAR из §07). Композит даёт <em>контекст</em>, триггер — поток.</p>
+        <div class="hl azure"><span class="hl-label">На рынке</span>То же делаешь для недельных и месячных окон → долгосрочные референс-уровни. Композит = «где мы в большой картине», внутри которого работают дневные сетапы (failed auction, nPOC, аномалии).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. СТАРТ СЕССИИ ─────── -->
+  <section class="section" id="session">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Старт сессии: IB и открытие</span>
+      <span class="section-badge">session</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Initial Balance (IB)</strong> — диапазон первого часа (первые два 30-мин периода сессии; в MMT на крипте это 00:00–01:00 UTC). «Стартовая комната» дня</li>
+          <li><strong>Range Extension</strong> — выход за IB позже в сессии: в игру вошёл более крупный участник</li>
+        </ul>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>Узкий IB → выше шанс трендового дня (большое расширение). Широкий IB → день, скорее, останется в балансе (крупные сразу обозначили границы).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Как открылась сессия относительно <strong>вчерашней Value Area</strong> — сильный намёк на убеждённость (4 типа открытия по Далтону):</p>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Open-Drive</div>
+            Открылись и сразу поехали без возврата. Максимальная убеждённость → часто трендовый день. Не жди отката.
+          </div>
+          <div class="card">
+            <div class="card-title">Open-Test-Drive</div>
+            Открылись, сходили проверить уровень против ожидаемого, отказ → развернулись и поехали. Ложный тест подтвердил направление.
+          </div>
+          <div class="card">
+            <div class="card-title">Open-Rejection-Reverse</div>
+            Пошли в одну сторону, отвергнуты, развернулись через открытие. Менее убеждённо, борьба.
+          </div>
+          <div class="card">
+            <div class="card-title">Open-Auction</div>
+            Болтанка вокруг открытия без направления. Низкая убеждённость, чаще баланс.
+          </div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>Открытие <strong>вне</strong> вчерашней VA + Open-Drive прочь от неё = сильная инициатива (gap-and-go). Открытие вне VA, но <strong>возврат внутрь</strong> = «принятие назад» = ловушка для пробойщиков (часто начало failed auction — см. раздел AMT).</p>
+        <div class="hl azure"><span class="hl-label">На рынке</span>На крипте «открытие» условно (24/7) — аналог это реакция на старте дневной свечи (UTC) или на крупном событии (новость, каскад ликвидаций). Тип открытия = первая считываемая убеждённость дня.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. TPO vs VOLUME PROFILE ─────── -->
+  <section class="section" id="vs-vp">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">TPO vs Volume Profile</span>
+      <span class="section-badge">vs</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Оба строят горизонтальную гистограмму по цене. Разница — <strong>что</strong> измеряют:</p>
+        <ul>
+          <li><strong>TPO:</strong> <em>время</em> на цене (сколько 30-мин периодов)</li>
+          <li><strong>Volume Profile:</strong> <em>объём</em> на цене (сколько наторговано)</li>
+        </ul>
+        <div class="hl green"><span class="hl-label">Аналогия</span>TPO считает, сколько ты <strong>простоял</strong> на этаже. Volume Profile — сколько народу <strong>прошло</strong>. Обычно совпадает, но расхождение информативно.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th></th><th>TPO</th><th>Volume Profile</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Метрика</strong></td><td>время</td><td>объём</td></tr>
+            <tr><td><strong>POC</strong></td><td>уровень с макс. временем</td><td>макс. объём (VPOC)</td></tr>
+            <tr><td><strong>Данные</strong></td><td>только цена+время (есть всегда)</td><td>нужны тиковые объёмы</td></tr>
+            <tr><td><strong>Сила</strong></td><td>структура аукциона, формы</td><td>где реально стоял капитал</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p><strong>Дивергенция информативна:</strong> много времени + мало объёма = цена зависла без участия (слабое согласие). Мало времени + много объёма = быстрый, но мощный пролив (сильный уровень, сменился контроль).</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>На крипте объём надёжен → VP чаще практичнее. Рабочий подход — наложить оба. В MMT объёмный профиль есть в трёх видах: <strong>VPVR</strong> (Visible Range), <strong>VPSV</strong> (Session Volume) и <strong>FRVP</strong> (Fixed Range — свой диапазон high–low). У всех есть POC и VAH/VAL, режимы Buy / Sell / Total / Delta.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 13. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Как торговать: playbook</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Порядок действий</span>1) Определи <strong>режим</strong> (баланс/имбаланс, §02). 2) Найди <strong>уровни</strong> профиля (POC, VA, nPOC, excess, аномалии, композитные крайности). 3) Жди <strong>триггер</strong> от order flow на уровне. Профиль отвечает «где и почему», поток — «когда».</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Базовые сетапы вокруг профиля:</p>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Фейд края VA (баланс)</div>
+            Продажа у VAH / покупка у VAL с отказом (хвост, поглощение, дельта-дивергенция). Цель — POC, затем противоположный край.
+          </div>
+          <div class="card">
+            <div class="card-title">Failed auction (раздел AMT)</div>
+            Пробой value без принятия → возврат внутрь. Вход на принятии назад, цель — прежняя стоимость / противоположный край.
+          </div>
+          <div class="card">
+            <div class="card-title">Магнит nPOC (§04)</div>
+            Незакрытый POC как цель и место реакции. Sweep+отказ = разворот, sweep+проход = продолжение.
+          </div>
+          <div class="card">
+            <div class="card-title">Run the poor high/low (§06)</div>
+            Незавершённый экстремум как цель. «Снятие» разматывает запертых → толчок через зону.
+          </div>
+          <div class="card">
+            <div class="card-title">Ledge: breakout / fade (§06)</div>
+            Пробой полки с объёмом = breakout. Отказ от полки на подходе = fade (нежелание торговать снаружи).
+          </div>
+          <div class="card">
+            <div class="card-title">Excess-ретест (§05)</div>
+            Возврат к хвосту / single print: держит = продолжение, не держит = протащит насквозь.
+          </div>
+        </div>
+        <div class="hl green"><span class="hl-label">Правило 80%</span>Открылись вне вчерашней VA, вернулись внутрь и провели там <strong>2 периода подряд</strong> → высокий шанс пройти всю VA до противоположного края.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка №1</span>Фейдить край в имбаланс/трендовый день. Фейд VAH/VAL — балансовая тактика; в Open-Drive / Trend day тот же вход работает против импульса. Сначала режим (§02, §07), потом сетап.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>(1) Композит + HTF-уровни (§09) → (2) режим + параметры RF/ACR/VAR (§02, §07) → (3) уровни профиля (POC, VA, nPOC, excess, poor H/L, ledge) → (4) триггер на уровне через footprint и дельту.</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Сильнейшие зоны — где сходится несколько слоёв: nPOC + ключевой уровень + poor high + дельта-дивергенция + разворот RF. Один сигнал — гипотеза; стек сигналов — сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── Market-profile renderer (cleaner TPO blocks + candlesticks) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function heat(f){f=Math.max(0,Math.min(1,f));
+    var s=[[0,[64,30,96]],[0.25,[124,42,140]],[0.45,[178,62,128]],[0.65,[226,98,70]],[0.82,[255,140,58]],[1,[255,210,63]]];
+    var a=s[0],b=s[s.length-1],i;
+    for(i=0;i<s.length-1;i++){if(f>=s[i][0]&&f<=s[i+1][0]){a=s[i];b=s[i+1];break;}}
+    var u=(f-a[0])/((b[0]-a[0])||1),c=a[1].map(function(v,j){return Math.round(v+(b[1][j]-v)*u);});
+    return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight);
+    if(o.anchor)tx.setAttribute('text-anchor',o.anchor);
+    if(o.rotate)tx.setAttribute('transform','rotate('+o.rotate+' '+x+' '+y+')');
+    tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){
+    var defs=E('defs',{}),m=E('marker',{id:'arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));
+    defs.appendChild(m);svg.appendChild(defs);
+  }
+
+  var Viz={
+    canvas:function(o){
+      var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg);
+      svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){
+        for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){
+          svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));
+        }
+      }
+      return svg;
+    },
+    line:function(svg,o){
+      var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash;
+      if(o.arrow)a['marker-end']='url(#arrow)';
+      svg.appendChild(E('line',a));
+    },
+    path:function(svg,o){
+      svg.appendChild(E('path',{d:o.d,fill:'none',stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity}));
+    },
+    text:function(svg,text,x,y,o){
+      addText(svg,text,x,y,o||{});
+    },
+    label:function(svg,text,x,y,o){
+      o=o||{};
+      var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':o.strokeWidth||1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});
+    },
+    note:function(svg,o){
+      var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':o.strokeWidth||1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title){
+        addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      }
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){
+        addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});
+      });
+    },
+    profile:function(svg,o){
+      var rows=o.rows,bw=o.bw||5,bh=o.bh||5,g=o.g==null?1:o.g,maxB=o.maxB||14,dir=o.dir||1,fade=o.fade==null?0.95:o.fade;
+      var max=Math.max.apply(null,rows)||1;
+      rows.forEach(function(r,i){
+        var n=Math.max(1,Math.round(r/max*maxB)),yy=o.y+i*(bh+g),col=o.colorFn?o.colorFn(r/max,i,n):o.color||heat(r/max),k;
+        for(k=0;k<n;k++){
+          var xx=dir>0?o.x+k*(bw+g):o.x-(k+1)*(bw+g);
+          svg.appendChild(E('rect',{x:xx,y:yy,width:bw,height:bh,rx:o.rx==null?1.2:o.rx,fill:col,opacity:(fade*(0.52+0.48*(r/max))).toFixed(2),stroke:o.stroke||C.stroke,'stroke-width':o.strokeWidth==null?0.45:o.strokeWidth}));
+        }
+      });
+      if(o.axis){
+        var ax=o.axisX!=null?o.axisX:(dir>0?o.x-5:o.x+5);
+        Viz.line(svg,{x1:ax,y1:o.y-7,x2:ax,y2:o.y+rows.length*(bh+g)+4,color:o.axisColor||'#606069',width:o.axisWidth||1,opacity:o.axisOpacity==null?1:o.axisOpacity});
+      }
+      return {
+        height:rows.length*(bh+g),
+        width:maxB*(bw+g),
+        rowY:function(i){return o.y+i*(bh+g)+bh/2;},
+        right:o.x+maxB*(bw+g),
+        left:o.x-maxB*(bw+g)
+      };
+    },
+    level:function(svg,o){
+      Viz.line(svg,{x1:o.x1,y1:o.y,x2:o.x2,y2:o.y,color:o.color,width:o.width,opacity:o.opacity,dash:o.dash});
+      if(o.label) Viz.text(svg,o.label,o.labelX||o.x1,o.labelY||o.y-6,{size:o.labelSize||11,fill:o.color,weight:700,anchor:o.labelAnchor});
+    },
+    candle:function(svg,o){
+      var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));
+    },
+    candleWalk:function(svg,o){
+      var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){
+        var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);
+        var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);
+        var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});
+      }});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};
+    },
+    marker:function(svg,o){
+      svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6,opacity:o.opacity==null?1:o.opacity}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});
+    },
+    callout:function(svg,o){
+      if(o.ellipse) svg.appendChild(E('ellipse',{cx:o.toX,cy:o.toY,rx:o.ellipse.rx,ry:o.ellipse.ry,fill:'none',stroke:o.color||C.ink,'stroke-width':o.ellipse.width||1.4,opacity:o.ellipse.opacity==null?1:o.ellipse.opacity}));
+      if(o.toX!=null) Viz.line(svg,{x1:o.x,y1:o.y-8,x2:o.toX,y2:o.toY,color:o.color||C.ink,width:o.width||1.1,opacity:o.opacity==null?0.78:o.opacity,arrow:true});
+      Viz.text(svg,o.text,o.textX||o.x,o.textY||o.y,{size:o.size||10,fill:o.textColor||o.color||C.ink,weight:o.weight});
+    }
+  };
+
+  /* block profile from explicit row lengths */
+  function profileSVG(rows,o){o=o||{};
+    var bw=o.bw||9,bh=o.bh||10,g=o.g==null?1:o.g,maxB=o.maxB||12;
+    var max=Math.max.apply(null,rows)||1;
+    var W=maxB*(bw+g)+2,H=rows.length*(bh+g)+2;
+    var svg=E('svg',{viewBox:'0 0 '+W+' '+H,width:W,height:H});
+    rows.forEach(function(r,i){
+      var n=Math.max(1,Math.round(r/max*maxB)),col=heat(r/max),y=i*(bh+g)+1,k;
+      for(k=0;k<n;k++) svg.appendChild(E('rect',{x:k*(bw+g)+1,y:y,width:bw,height:bh,rx:1.5,fill:col,opacity:(0.56+0.44*(r/max)).toFixed(2),stroke:C.stroke,'stroke-width':0.7}));
+    });
+    return svg;}
+
+  document.querySelectorAll('.mpmini').forEach(function(d){
+    if(!d.dataset.rows) return;
+    var rows=d.dataset.rows.split(',').map(Number);
+    var sizes={sm:{bw:5,bh:5,maxB:10,g:1},lg:{bw:9,bh:8,maxB:18,g:1}};
+    d.appendChild(profileSVG(rows,sizes[d.dataset.size]||{bw:9,bh:10,maxB:13,g:1}));
+  });
+
+  function pocStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'POC и Value Area: профиль, уровни и реакция цены',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'POC / Value Area: где рынок принял цену',34,36,{w:322,size:13});
+
+    var rows=[4,6,10,16,24,34,45,58,70,82,88,78,62,48,34,22,15,9,5,3];
+    var profile=Viz.profile(svg,{rows:rows,x:82,y:84,bw:7,bh:10,g:1,maxB:42,fade:0.96,axis:true,axisColor:'#74747d',axisWidth:1.2});
+    var vahY=profile.rowY(5),pocY=profile.rowY(10),valY=profile.rowY(15);
+    svg.appendChild(E('rect',{x:76,y:vahY-11,width:352,height:valY-vahY+22,rx:4,fill:'#ffffff',opacity:0.028}));
+    Viz.level(svg,{x1:58,x2:1148,y:vahY,color:'#c98bff',width:1.9,opacity:0.95,label:'VAH',labelX:420,labelY:vahY-7,labelW:44,labelSize:12});
+    Viz.level(svg,{x1:58,x2:1148,y:pocY,color:'#ffd23f',width:3.2,opacity:0.98,label:'vPOC / POC',labelX:404,labelY:pocY-8,labelW:94,labelSize:12});
+    Viz.level(svg,{x1:58,x2:1148,y:valY,color:'#c98bff',width:1.9,opacity:0.95,label:'VAL',labelX:420,labelY:valY-7,labelW:44,labelSize:12});
+
+    Viz.callout(svg,{text:'value area = ~70% активности',x:26,y:190,toX:210,toY:valY-8,color:'#c6c6ce',size:12});
+    Viz.callout(svg,{text:'самый толстый HVN = POC',x:306,y:292,toX:360,toY:pocY,color:'#ffd23f',size:12,weight:700});
+    Viz.callout(svg,{text:'LVN: тонкая зона, рынок проходит быстрее',x:76,y:392,toX:192,toY:profile.rowY(2),color:'#9fb6d8',size:12});
+
+    var candles=[
+      [520,390,358,420,370],[542,372,334,390,342],[564,344,306,366,316],[586,318,282,340,292],
+      [608,292,250,316,260],[630,262,218,286,238],[652,240,204,274,264],[674,264,230,292,248],
+      [696,250,220,286,278],[718,280,242,312,256],[740,258,226,296,288],[762,290,254,322,304],
+      [784,306,272,340,318],[806,320,284,352,294],[828,296,258,330,270],[850,272,236,304,250],
+      [872,252,224,288,280],[894,282,244,318,300],[916,302,260,330,274],[938,276,238,312,248],
+      [960,250,214,284,222],[982,224,196,260,208],[1004,210,178,240,188],[1026,190,154,216,162],
+      [1048,164,126,186,134],[1070,136,96,156,104],[1092,106,72,128,82]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:11});});
+    svg.appendChild(E('ellipse',{cx:640,cy:pocY,rx:40,ry:22,fill:'none',stroke:'#ffd23f','stroke-width':1.4,opacity:0.92}));
+    svg.appendChild(E('ellipse',{cx:860,cy:vahY,rx:62,ry:26,fill:'none',stroke:'#c98bff','stroke-width':1.3,opacity:0.82}));
+    svg.appendChild(E('ellipse',{cx:1026,cy:valY,rx:54,ry:24,fill:'none',stroke:'#c98bff','stroke-width':1.3,opacity:0.82}));
+    Viz.callout(svg,{text:'принятие обратно в value → магнит к POC',x:565,y:436,toX:640,toY:pocY,color:'#ffd23f',size:12,weight:700});
+    Viz.callout(svg,{text:'отказ от VAH: поддержка не стала принятием',x:760,y:118,toX:860,toY:vahY,color:'#c6c6ce',size:12});
+    Viz.callout(svg,{text:'VAL flip: край value стал сопротивлением',x:842,y:510,toX:1026,toY:valY,color:'#ffc599',size:12,weight:700});
+
+    Viz.note(svg,{x:58,y:448,w:336,h:116,title:'Как читать уровни',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,
+      lines:[
+        'POC = место максимального согласия.',
+        'VAH/VAL = края принятой стоимости.',
+        'Возврат внутрь value часто тянет к POC.',
+        'Отказ от края даёт идею ротации.'
+      ]});
+    Viz.note(svg,{x:842,y:364,w:330,h:116,title:'Что важно для сделки',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Профиль отвечает: где ждать реакцию.',
+        'Order flow отвечает: есть ли вход.',
+        'POC/HVN без контекста — зона, не сигнал.',
+        'LVN полезен как граница между режимами.'
+      ],stroke:'#3a2a24'});
+    return svg;
+  }
+
+  function npocStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'nPOC: оставленный POC как магнит и зона проверки',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'nPOC: POC, оставленный трендовым движением',34,36,{w:344,size:13});
+
+    var p1=Viz.profile(svg,{rows:[3,5,9,15,24,36,48,54,43,28,15,8,4],x:82,y:306,bw:7,bh:10,g:1,maxB:30,fade:0.7,axis:true,axisColor:'#666671'});
+    var p2=Viz.profile(svg,{rows:[4,8,13,22,34,48,58,50,36,21,12,6,3],x:408,y:92,bw:7,bh:10,g:1,maxB:28,fade:0.55,axis:true,axisColor:'#666671'});
+    var p3=Viz.profile(svg,{rows:[3,6,10,18,30,42,50,44,31,18,10,5,3],x:838,y:322,bw:7,bh:10,g:1,maxB:28,fade:0.55,axis:true,axisColor:'#666671'});
+    var npoc1=p1.rowY(6),npoc2=p2.rowY(6),npoc3=p3.rowY(6);
+    Viz.level(svg,{x1:82,x2:530,y:npoc1,color:'#ffd23f',width:3,opacity:0.94,label:'nPOC',labelX:430,labelY:npoc1-8,labelW:58,labelSize:12});
+    Viz.level(svg,{x1:408,x2:930,y:npoc2,color:'#ffd23f',width:3,opacity:0.82,label:'nPOC',labelX:820,labelY:npoc2-8,labelW:58,labelSize:12});
+    Viz.level(svg,{x1:838,x2:1164,y:npoc3,color:'#ffd23f',width:3,opacity:0.82,label:'nPOC',labelX:1050,labelY:npoc3-8,labelW:58,labelSize:12});
+
+    var candles=[
+      [170,396,370,420,384],[192,382,340,398,348],[214,348,304,364,312],[236,312,260,332,270],
+      [258,270,218,292,228],[280,230,184,252,194],[302,194,156,218,168],[324,170,134,196,148],
+      [346,150,124,178,166],[368,166,138,192,178],[390,180,150,210,204],
+      [510,162,128,188,142],[532,144,118,176,166],[554,168,144,206,198],[576,200,172,238,232],
+      [598,234,204,282,274],[620,276,246,326,316],[642,318,290,370,360],[664,362,334,414,404],
+      [686,406,380,458,446],[708,448,420,500,486],[730,486,454,536,520],
+      [878,430,394,460,408],[900,410,372,438,386],[922,388,352,418,360],[944,360,314,382,326],
+      [966,328,282,350,292],[988,294,248,316,258],[1010,260,214,282,226],[1032,228,190,252,202],
+      [1054,204,166,236,178],[1076,180,142,210,154],[1098,156,118,178,128]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:10});});
+    Viz.line(svg,{x1:292,y1:230,x2:620,y2:430,color:'#c6c6ce',width:1.2,opacity:0.7,arrow:true});
+    Viz.line(svg,{x1:730,y1:500,x2:1008,y2:222,color:'#c6c6ce',width:1.2,opacity:0.7,arrow:true});
+    Viz.callout(svg,{text:'имбаланс оставил центр принятия позади',x:246,y:134,toX:296,toY:npoc1,color:'#c6c6ce',size:12});
+    Viz.callout(svg,{text:'sweep nPOC → реакция',x:468,y:322,toX:520,toY:npoc1,color:'#ffd23f',ellipse:{rx:20,ry:22,width:1.4},size:12,weight:700});
+    Viz.callout(svg,{text:'сильный тренд может оставить nPOC нетронутым',x:770,y:116,toX:842,toY:npoc2,color:'#ffc599',size:12,weight:700});
+    Viz.callout(svg,{text:'поздний sweep',x:1014,y:376,toX:1032,toY:npoc3,color:'#ffd23f',ellipse:{rx:24,ry:22,width:1.4},size:12,weight:700});
+
+    Viz.note(svg,{x:54,y:72,w:302,h:112,title:'Почему это магнит',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,
+      lines:[
+        'POC = где было максимум времени/объёма.',
+        'Если цену резко унесло, уровень остался',
+        'непроверенным. Рынок часто возвращается',
+        'проверить старую комфортную цену.'
+      ]});
+    Viz.note(svg,{x:818,y:452,w:348,h:108,title:'Как использовать',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'nPOC — зона интереса, не кнопка входа.',
+        'Sweep + отказ = разворотная идея.',
+        'Sweep + принятие = продолжение.',
+        'В сильном тренде nPOC могут висеть долго.'
+      ],stroke:'#3a2a24'});
+    return svg;
+  }
+
+  function singlePrintStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'Single prints и double distribution: имбаланс между двумя балансами',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Single prints: тонкая неэффективная зона внутри структуры',34,36,{w:420,size:13});
+
+    var rows=[5,10,20,32,42,48,44,34,20,6,3,3,4,8,18,30,42,50,46,34,20,10,5];
+    var profile=Viz.profile(svg,{rows:rows,x:86,y:80,bw:8,bh:10,g:1,maxB:34,fade:0.96,axis:true,axisColor:'#74747d',axisWidth:1.2,
+      colorFn:function(f,i){return (i>=9&&i<=12)?'#ffc599':heat(f);}
+    });
+    var spTop=profile.rowY(9),spBot=profile.rowY(12);
+    svg.appendChild(E('rect',{x:78,y:spTop-12,width:330,height:spBot-spTop+24,rx:5,fill:'#ffc599',opacity:0.08,stroke:'#ffc599','stroke-width':1.2,'stroke-dasharray':'5 4'}));
+    Viz.callout(svg,{text:'single print / LVN: рынок прошёл быстро',x:250,y:230,toX:332,toY:(spTop+spBot)/2,color:'#ffc599',size:12,weight:700});
+    Viz.text(svg,'верхняя консолидация',70,76,{size:12,fill:'#c6c6ce'});
+    Viz.text(svg,'нижняя консолидация',70,374,{size:12,fill:'#c6c6ce'});
+
+    var candles=[
+      [488,410,380,436,394],[512,394,364,420,372],[536,374,340,398,350],[560,350,314,372,326],
+      [584,328,290,350,300],[608,300,248,320,260],[632,260,200,282,214],[656,214,162,238,178],
+      [680,178,126,202,140],[704,142,108,170,160],[728,160,132,190,178],
+      [752,180,150,214,204],[776,206,176,240,228],[800,230,200,264,248],[824,250,220,286,276],
+      [848,278,250,312,294],[872,296,264,326,282],[896,282,252,318,306],[920,308,274,342,330],
+      [944,332,302,370,358],[968,360,330,398,386],[992,388,358,430,418]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:11});});
+    Viz.line(svg,{x1:462,y1:360,x2:1018,y2:360,color:'#c6c6ce',width:1.4,opacity:0.75});
+    Viz.line(svg,{x1:462,y1:184,x2:1018,y2:184,color:'#c6c6ce',width:1.4,opacity:0.75});
+    Viz.line(svg,{x1:536,y1:330,x2:670,y2:152,color:'#ffc599',width:1.4,opacity:0.85,arrow:true});
+    Viz.label(svg,'имбаланс / trending move',548,288,{w:190,size:12,fill:'#ffc599',stroke:'#ffc599',bg:'#15100d'});
+    Viz.callout(svg,{text:'ретест держит → continuation',x:822,y:120,toX:800,y2:120,toY:184,color:'#ffe08a',ellipse:{rx:38,ry:22,width:1.3},size:12,weight:700});
+    Viz.callout(svg,{text:'ломается → retrace через single prints',x:794,y:514,toX:700,toY:230,color:'#ffc599',ellipse:{rx:34,ry:20,width:1.3},size:12,weight:700});
+
+    Viz.note(svg,{x:54,y:444,w:348,h:102,title:'Смысл',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Single print = один TPO на уровне внутри профиля.',
+        'Это след быстрого directional auction.',
+        'Зона должна держать для продолжения.',
+        'Если не держит — цену протаскивает насквозь.'
+      ]});
+    Viz.note(svg,{x:862,y:76,w:322,h:116,title:'Double distribution',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Две зоны стоимости разделены тонкой областью.',
+        'Верхний и нижний баланс торгуются как разные',
+        'справедливые цены. Single print между ними',
+        'становится S/R и местом проверки conviction.'
+      ]});
+    return svg;
+  }
+
+  function anomaliesStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'Poor highs/lows и ledges: TPO аномалии и ретесты',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Poor H/L и Ledges: незавершённый аукцион против полки',34,36,{w:420,size:13});
+
+    var poorRows=[14,14,14,10,7,5,3,2,4,7,12,20,28,34,30,22,12,6,3];
+    var pp=Viz.profile(svg,{rows:poorRows,x:74,y:92,bw:8,bh:10,g:1,maxB:26,fade:0.96,axis:true,axisColor:'#74747d',
+      colorFn:function(f,i){return i<=2?'#b33a36':heat(f);}
+    });
+    var poorY=pp.rowY(1);
+    svg.appendChild(E('ellipse',{cx:130,cy:poorY,rx:54,ry:28,fill:'none',stroke:'#c6c6ce','stroke-width':1.4}));
+    Viz.callout(svg,{text:'poor high: 2+ TPO на одном экстремуме',x:220,y:100,toX:130,toY:poorY,color:'#c6c6ce',size:12});
+    Viz.callout(svg,{text:'repair / run them',x:86,y:342,toX:130,toY:poorY,color:'#ffe08a',size:12,weight:700});
+
+    var ledgeRows=[2,4,7,11,18,26,26,26,26,16,10,8,14,24,34,42,38,28,16,8,4];
+    var lp=Viz.profile(svg,{rows:ledgeRows,x:438,y:80,bw:8,bh:10,g:1,maxB:24,fade:0.96,axis:true,axisColor:'#74747d',
+      colorFn:function(f,i){return (i>=5&&i<=8)?'#7fb0bf':heat(f);}
+    });
+    var ledgeY=lp.rowY(6);
+    Viz.line(svg,{x1:386,y1:ledgeY,x2:624,y2:ledgeY,color:'#c6c6ce',width:1.4,dash:'4 4',opacity:0.82});
+    svg.appendChild(E('ellipse',{cx:548,cy:ledgeY,rx:72,ry:26,fill:'none',stroke:'#c6c6ce','stroke-width':1.4}));
+    Viz.callout(svg,{text:'ledge: плоская полка внутри профиля',x:520,y:354,toX:548,toY:ledgeY,color:'#c6c6ce',size:12});
+
+    var candles=[
+      [780,232,184,260,196],[804,198,150,224,170],[828,172,134,204,190],[852,190,152,226,210],
+      [876,210,172,256,246],[900,246,214,292,282],[924,284,250,330,316],[948,318,286,364,352],
+      [972,354,322,400,386],[996,388,356,438,426],[1020,428,394,486,472],[1044,472,430,532,516],
+      [1068,516,480,552,492]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:12});});
+    Viz.line(svg,{x1:758,y1:184,x2:1128,y2:184,color:'#c6c6ce',width:1.4,opacity:0.8});
+    Viz.text(svg,'resistance / retest',856,170,{size:13,fill:'#c6c6ce',weight:700});
+    Viz.line(svg,{x1:1002,y1:220,x2:1080,y2:552,color:'#ff6b6b',width:1.5,opacity:0.85,arrow:true});
+    Viz.callout(svg,{text:'отказ от полки → fade',x:920,y:118,toX:850,toY:184,color:'#ffc599',ellipse:{rx:50,ry:23,width:1.3},size:12,weight:700});
+
+    Viz.note(svg,{x:54,y:420,w:334,h:106,title:'Poor high / low',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Плоский экстремум без хвоста.',
+        'Означает exhaustion и незавершённость.',
+        'Часто становится целью для “repair”.',
+        'После снятия смотри принятие или отказ.'
+      ]});
+    Viz.note(svg,{x:430,y:420,w:334,h:106,title:'Ledge',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Полка = повторный обрыв аукциона на уровне.',
+        'Чем больше TPO в ряд, тем важнее S/R.',
+        'Пробой с объёмом = breakout.',
+        'Отказ на подходе = fade.'
+      ],stroke:'#3a2a24'});
+    Viz.note(svg,{x:824,y:420,w:330,h:106,title:'Практика',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Аномалия сама по себе не вход.',
+        'Нужен ретест и подтверждение потоком.',
+        'Удержание = S/R flip.',
+        'Принятие за уровнем = продолжение.'
+      ]});
+    return svg;
+  }
+
+  function paramsStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'Параметры профиля RF ACR VAR: compression, expansion и value placement',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Параметры профиля: отвечает не один уровень, а динамика',34,36,{w:428,size:13});
+
+    var xs=[110,300,490],ys=[118,144,166],profiles=[
+      [20,34,48,54,46,30,18],
+      [16,26,36,40,34,23,14],
+      [10,18,24,28,24,16,10]
+    ];
+    profiles.forEach(function(rows,i){
+      var p=Viz.profile(svg,{rows:rows,x:xs[i],y:ys[i],bw:8,bh:10,g:1,maxB:20,fade:0.9,axis:true,axisColor:'#666671'});
+      Viz.text(svg,'RF '+(i===0?'+1':i===1?'+2':'+4'),xs[i],ys[i]-14,{size:11,fill:'#c6c6ce'});
+      Viz.line(svg,{x1:xs[i]-10,y1:p.rowY(1),x2:xs[i]+190,y2:p.rowY(1),color:'#c98bff',width:1,dash:'4 4',opacity:0.7});
+      Viz.line(svg,{x1:xs[i]-10,y1:p.rowY(5),x2:xs[i]+190,y2:p.rowY(5),color:'#c98bff',width:1,dash:'4 4',opacity:0.7});
+    });
+    Viz.line(svg,{x1:92,y1:96,x2:682,y2:146,color:'#c6c6ce',width:1.4,opacity:0.75});
+    Viz.line(svg,{x1:92,y1:244,x2:682,y2:212,color:'#c6c6ce',width:1.4,opacity:0.75});
+    Viz.text(svg,'compression: value area сужается',270,284,{size:13,fill:'#c6c6ce',weight:700});
+
+    var erows=[3,5,8,14,24,36,50,64,54,36,22,12,6,3];
+    var ep=Viz.profile(svg,{rows:erows,x:730,y:112,bw:8,bh:10,g:1,maxB:27,fade:0.96,axis:true,axisColor:'#74747d'});
+    Viz.line(svg,{x1:714,y1:94,x2:888,y2:280,color:'#ff6b6b',width:1.4,opacity:0.85,arrow:true});
+    Viz.text(svg,'expansion',782,104,{size:14,fill:'#ff9a9a',weight:700});
+
+    var candles=[
+      [970,390,360,418,370],[992,372,334,394,344],[1014,344,306,366,316],[1036,316,274,340,286],
+      [1058,286,238,310,250],[1080,252,208,278,220],[1102,222,180,252,192],[1124,194,156,226,166],
+      [1146,168,132,198,146],[1168,148,116,178,166]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:11});});
+    Viz.callout(svg,{text:'ACR растёт: свечи расширяются',x:944,y:112,toX:1080,toY:220,color:'#ffe08a',size:12,weight:700});
+    Viz.callout(svg,{text:'VAR расширяется: рынок переносит стоимость',x:796,y:342,toX:798,toY:180,color:'#ffc599',size:12,weight:700});
+
+    Viz.note(svg,{x:58,y:378,w:320,h:112,title:'1. Rotation Factor',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Показывает, в какую сторону рынок',
+        'пытается идти. Важна серия значений:',
+        'шум около нуля = баланс, устойчивый',
+        'знак = попытка тренда.'
+      ]});
+    Viz.note(svg,{x:430,y:378,w:320,h:112,title:'2. Average Candle Range',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'ACR измеряет качество движения.',
+        'Растёт вместе с импульсом — тренд.',
+        'Падает после рывка — exhaustion.',
+        'Сравнивай с базлайном инструмента.'
+      ],stroke:'#3a2a24'});
+    Viz.note(svg,{x:802,y:378,w:330,h:112,title:'3. VAR / Value placement',titleColor:'#c98bff',size:13,lineH:19,titleSize:13,
+      lines:[
+        'VAR = ширина value area.',
+        'Сужение = compression перед движением.',
+        'Расширение = acceptance новых цен.',
+        'Смещение VA показывает контроль.'
+      ],stroke:'#30243a'});
+    return svg;
+  }
+
+  /* candlestick generator + derived profile */
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function gen(cf){var rnd=mb32(cf.seed||7),p=cf.start!=null?cf.start:50,out=[];
+    cf.list.forEach(function(s){var i;for(i=0;i<s.n;i++){var o=p,c=o+(s.dir||0)*(s.step||0)+(rnd()-0.5)*(s.noise||4);
+      var h=Math.max(o,c)+rnd()*(s.wick||3),l=Math.min(o,c)-rnd()*(s.wick||3);
+      if(s.tailAt===i){if((s.tailDir||-1)<0)l=Math.min(o,c)-(s.tailLen||22);else h=Math.max(o,c)+(s.tailLen||22);}
+      out.push({o:o,h:h,l:l,c:c});p=c;}});
+    return out;}
+  function prof(cs,nb){nb=nb||22;var lo=Math.min.apply(null,cs.map(function(c){return c.l;})),hi=Math.max.apply(null,cs.map(function(c){return c.h;}));
+    var bs=(hi-lo)/nb||1,bins=new Array(nb).fill(0);
+    cs.forEach(function(c){var a=Math.floor((c.l-lo)/bs),b=Math.ceil((c.h-lo)/bs),k;for(k=a;k<b;k++)if(k>=0&&k<nb)bins[k]++;});
+    var poc=bins.indexOf(Math.max.apply(null,bins)),tot=bins.reduce(function(x,y){return x+y;},0),loi=poc,hii=poc,acc=bins[poc];
+    while(acc<tot*0.7&&(loi>0||hii<nb-1)){var up=hii<nb-1?bins[hii+1]:-1,dn=loi>0?bins[loi-1]:-1;
+      if(up>=dn){hii++;acc+=Math.max(0,up);}else{loi--;acc+=Math.max(0,dn);}}
+    return {bins:bins,lo:lo,hi:hi,bs:bs,poc:poc,vaLo:loi,vaHi:hii};}
+
+  function chart(cf){
+    var cs=gen(cf),pcs=cf.profileFrom?cs.slice(cf.profileFrom[0],cf.profileFrom[1]):cs,pr=prof(pcs,cf.nbins||22);
+    var W=700,H=cf.h||300,pad=36;
+    var lo=Math.min.apply(null,cs.map(function(c){return c.l;})),hi=Math.max.apply(null,cs.map(function(c){return c.h;})),rng=(hi-lo)||1;
+    function yOf(p){return pad+(hi-p)/rng*(H-2*pad);}
+    var profileEdge=146,cx0=184,cxW=W-cx0-18,n=cs.length,cw=Math.min(14,cxW/n*0.62);
+    var svg=E('svg',{viewBox:'0 0 '+W+' '+H,width:'100%',role:'img'});
+    addArrowDef(svg);
+    svg.appendChild(E('rect',{x:0,y:0,width:W,height:H,fill:C.paper}));
+    for(var gy=pad;gy<=H-pad+1;gy+=(H-2*pad)/5) svg.appendChild(E('line',{x1:8,y1:gy,x2:W-8,y2:gy,stroke:C.grid,'stroke-width':1,'stroke-dasharray':'3 4'}));
+
+    var vaTop=yOf(pr.lo+(pr.vaHi+1)*pr.bs),vaBot=yOf(pr.lo+pr.vaLo*pr.bs);
+    if(cf.showVA) svg.appendChild(E('rect',{x:8,y:vaTop,width:W-16,height:Math.max(1,vaBot-vaTop),fill:'#ffffff',opacity:0.035}));
+
+    var mx=Math.max.apply(null,pr.bins)||1,bw=8,g=1,maxB=15;
+    pr.bins.forEach(function(v,i){if(v<=0)return;
+      var nn=Math.max(1,Math.round(v/mx*maxB)),yT=yOf(pr.lo+(i+1)*pr.bs),yB=yOf(pr.lo+i*pr.bs),bh=Math.max(3,yB-yT-1),col=heat(v/mx),k;
+      for(k=0;k<nn;k++) svg.appendChild(E('rect',{x:profileEdge-(k+1)*(bw+g),y:yT,width:bw,height:bh,rx:1.5,fill:col,opacity:(0.56+0.44*(v/mx)).toFixed(2),stroke:C.stroke,'stroke-width':0.7}));
+    });
+    svg.appendChild(E('line',{x1:profileEdge+2,y1:pad-8,x2:profileEdge+2,y2:H-pad+8,stroke:'#54545c','stroke-width':1.1,opacity:0.85}));
+
+    if(cf.showVA){[['VAH',pr.vaHi+1],['VAL',pr.vaLo]].forEach(function(p){
+      var y=yOf(pr.lo+p[1]*pr.bs);
+      svg.appendChild(E('line',{x1:8,y1:y,x2:W-10,y2:y,stroke:C.va,'stroke-width':1,'stroke-dasharray':'6 5',opacity:0.7}));
+      addText(svg,p[0],W-12,y-3,{anchor:'end',size:10,fill:C.va,weight:700});
+    });}
+    if(cf.showPOC!==false){var pY=yOf(pr.lo+(pr.poc+0.5)*pr.bs);
+      svg.appendChild(E('line',{x1:8,y1:pY,x2:W-10,y2:pY,stroke:C.poc,'stroke-width':1.4,opacity:0.9}));
+      addText(svg,cf.pocLabel||'POC',W-12,pY-4,{anchor:'end',size:10,fill:C.poc,weight:700});}
+
+    cs.forEach(function(c,i){var x=cx0+i*(cxW/n)+(cxW/n-cw)/2,up=c.c>=c.o,col=up?C.up:C.down,xc=x+cw/2;
+      svg.appendChild(E('line',{x1:xc,y1:yOf(c.h),x2:xc,y2:yOf(c.l),stroke:col,'stroke-width':1.1}));
+      var yo=yOf(c.o),yc=yOf(c.c);
+      svg.appendChild(E('rect',{x:x,y:Math.min(yo,yc),width:cw,height:Math.max(1.4,Math.abs(yc-yo)),fill:col}));
+    });
+
+    (cf.notes||[]).forEach(function(nt){var x=nt.x,y=nt.y,px=null,py=null;
+      if(nt.atCandle!=null){var c=cs[nt.atCandle],xc=cx0+nt.atCandle*(cxW/n)+(cxW/n)/2;px=xc;
+        py=nt.side==='high'?yOf(c.h):nt.side==='low'?yOf(c.l):yOf((c.h+c.l)/2);
+        x=xc+(nt.dx!=null?nt.dx:0);y=py+(nt.dy||0);
+        if(nt.marker)svg.appendChild(E('ellipse',{cx:px,cy:py,rx:13,ry:10,fill:'none',stroke:nt.c||C.ink,'stroke-width':1.4}));
+        if(nt.arrow!==false&&Math.abs(x-px)+Math.abs(y-py)>24) svg.appendChild(E('line',{x1:x,y1:y-8,x2:px,y2:py,stroke:nt.c||C.ink,'stroke-width':1.1,'marker-end':'url(#arrow)',opacity:0.75}));
+      }
+      var fs=nt.s||11,w=nt.w||Math.max(42,nt.t.length*(fs*0.62)+14),h=nt.h||20;
+      var rx=nt.anchor==='middle'?x-w/2-2:nt.anchor==='end'?x-w+7:x-7;
+      svg.appendChild(E('rect',{x:rx,y:y-h+5,width:w,height:h,rx:4,fill:nt.bg||'#101012',stroke:nt.c||'#313137','stroke-width':1,opacity:0.94}));
+      addText(svg,nt.t,x,y,{fill:nt.c||C.ink,size:fs,weight:nt.b?700:500,anchor:nt.anchor});
+    });
+    return svg;}
+
+  function profileBlocks(svg, rows, x, y, o){o=o||{};
+    var bw=o.bw||5,bh=o.bh||5,g=o.g==null?1:o.g,maxB=o.maxB||14,dir=o.dir||1,fade=o.fade||0.95;
+    var max=Math.max.apply(null,rows)||1;
+    rows.forEach(function(r,i){
+      var n=Math.max(1,Math.round(r/max*maxB)),yy=y+i*(bh+g),col=heat(r/max),k;
+      for(k=0;k<n;k++){
+        var xx=dir>0?x+k*(bw+g):x-(k+1)*(bw+g);
+        svg.appendChild(E('rect',{x:xx,y:yy,width:bw,height:bh,rx:1.2,fill:col,opacity:(fade*(0.52+0.48*(r/max))).toFixed(2),stroke:C.stroke,'stroke-width':0.45}));
+      }
+    });
+  }
+
+  function compositeStorySVG(){
+    var W=1280,H=620,svg=Viz.canvas({
+      w:W,h:H,label:'Кейс: как композит превращает баланс в торговые уровни',
+      grid:{start:70,end:H-44,step:56,x1:18,x2:W-18}
+    });
+    Viz.line(svg,{x1:425,y1:56,x2:425,y2:468,color:'#25252a'});
+    Viz.line(svg,{x1:790,y1:56,x2:790,y2:468,color:'#25252a'});
+    Viz.label(svg,'1. Исходные сессии: баланс',32,32,{w:240,size:13});
+    Viz.label(svg,'2. Склеиваем в композит',470,32,{w:225,size:13});
+    Viz.label(svg,'3. Торговая проверка уровней',840,32,{w:270,size:13});
+
+    var sessions=[
+      [2,5,10,17,25,30,23,14,8,4,2],
+      [3,8,14,22,31,27,18,11,6,3],
+      [2,6,12,20,29,33,25,16,9,4,2],
+      [4,9,15,24,34,30,20,12,6,3],
+      [2,5,11,18,27,32,26,17,10,5,2],
+      [3,7,13,21,33,28,19,11,6,3]
+    ];
+    var sessionYs=[96,124,80,136,68,110],sessionPocs=[5,4,5,4,5,4];
+    sessions.forEach(function(rows,idx){
+      var x=38+idx*61,y=sessionYs[idx],profile=Viz.profile(svg,{rows:rows,x:x,y:y,bw:5,bh:6,g:1,maxB:13,fade:0.88,axis:true});
+      var pocY=profile.rowY(sessionPocs[idx]);
+      Viz.line(svg,{x1:x-10,y1:pocY,x2:x+104,y2:pocY,color:C.poc,width:2.4,opacity:0.9});
+      Viz.line(svg,{x1:x-12,y1:profile.rowY(2),x2:x+92,y2:profile.rowY(2),color:C.va,width:1,dash:'4 4',opacity:0.68});
+      Viz.line(svg,{x1:x-12,y1:profile.rowY(8),x2:x+92,y2:profile.rowY(8),color:C.va,width:1,dash:'4 4',opacity:0.68});
+      Viz.text(svg,'D'+(idx+1),x+15,238,{size:10,fill:'#8a8a92'});
+    });
+    Viz.callout(svg,{text:'попытка выйти из баланса',x:160,y:68,toX:224,toY:108,color:'#c6c6ce',size:12});
+    Viz.callout(svg,{text:'область стоимости смещается мало',x:64,y:280,toX:292,toY:178,color:'#c6c6ce',size:12});
+    Viz.note(svg,{
+      x:36,y:338,w:350,h:116,title:'Что наблюдаем',
+      size:13,lineH:19,titleSize:13,
+      lines:[
+        '6 сессий торгуются в одном диапазоне.',
+        'POC и value area почти не мигрируют.',
+        'Вывод: рынок строит HTF balance,',
+        'а не начинает новый тренд.'
+      ]
+    });
+
+    Viz.label(svg,'=',427,164,{w:44,h:38,size:34,fill:'#ffffff',bg:'#08080a',stroke:'#313137'});
+    var compRows=[3,5,8,12,18,25,34,44,55,63,60,54,45,35,26,18,12,7,4];
+    Viz.profile(svg,{rows:compRows,x:492,y:84,bw:8,bh:9,g:1,maxB:30,fade:0.98,axis:true,axisColor:'#73737b',axisWidth:1.2});
+    Viz.profile(svg,{rows:[2,4,7,11,16,23,31,39,47,52,48,41,33,25,18,12,7,4,2],x:755,y:84,bw:5,bh:9,g:1,maxB:17,dir:-1,fade:0.34});
+    var vahY=154,pocY=198,valY=248;
+    svg.appendChild(E('rect',{x:474,y:144,width:300,height:112,fill:'#ffffff',opacity:0.026}));
+    Viz.level(svg,{x1:464,x2:1210,y:vahY,color:C.va,width:1.8,opacity:0.96,label:'VAH = верх стоимости',labelX:650,labelY:vahY-8,labelW:150,labelSize:12});
+    Viz.level(svg,{x1:464,x2:1210,y:pocY,color:C.poc,width:3,opacity:0.98,label:'POC / Point of Control',labelX:570,labelY:pocY-8,labelW:188,labelSize:12});
+    Viz.level(svg,{x1:464,x2:1210,y:valY,color:C.va,width:1.8,opacity:0.96,label:'VAL = низ стоимости',labelX:650,labelY:valY-8,labelW:150,labelSize:12});
+    Viz.text(svg,'6-дневный композитный профиль',520,318,{size:12,fill:'#c6c6ce'});
+    Viz.note(svg,{
+      x:474,y:360,w:288,h:136,title:'Зачем это нужно',
+      size:13,lineH:19,titleSize:13,
+      titleColor:C.poc,
+      lines:[
+        'Агрегация показывает края value area',
+        'и центр принятия за всё окно.',
+        'Идея: смотреть, принимает ли',
+        'цена торговлю выше/ниже value area.',
+        'Отказ у края = ротация обратно.'
+      ]
+    });
+
+    var pts=[
+      [835,255,230,276,238],[855,230,196,253,204],[875,202,164,222,173],[895,171,128,190,139],
+      [915,136,96,158,108],[935,110,74,136,128],[955,130,106,162,154],[975,156,132,190,181],
+      [995,184,156,222,212],[1015,216,186,252,199],[1035,202,150,228,164],[1055,166,138,204,196],
+      [1075,198,168,238,229],[1095,233,198,280,270],[1115,274,238,330,316],[1135,320,282,402,382],
+      [1155,388,346,520,496]
+    ];
+    pts.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:11});});
+    Viz.callout(svg,{text:'1) реакция от VAL: покупатель защищает value area',x:805,y:360,toX:835,toY:238,color:'#c6c6ce',ellipse:{rx:18,ry:25,width:1.5},size:12});
+    Viz.callout(svg,{text:'2) выше VAH нет принятия: возврат в value area',x:930,y:76,toX:1000,toY:190,color:'#c6c6ce',ellipse:{rx:70,ry:35,width:1.5},size:12});
+    Viz.callout(svg,{text:'3) VAL-флип → риск пробоя вниз',x:964,y:560,toX:1135,toY:320,color:'#ffc599',ellipse:{rx:18,ry:25,width:1.5},size:12,weight:700});
+    Viz.note(svg,{
+      x:842,y:370,w:310,h:120,title:'Торговой вывод',
+      size:13,lineH:19,titleSize:13,
+      titleColor:'#ffc599',
+      lines:[
+        'Принятие выше VAH → продолжение.',
+        'Отказ выше VAH → ротация к POC/VAL.',
+        'Ретест VAL снизу и отказ →',
+        'уровень стал сопротивлением, ждём слом.'
+      ],
+      stroke:'#3a2a24'
+    });
+    return svg;
+  }
+
+  function tailStorySVG(){
+    var W=1280,H=650,svg=Viz.canvas({
+      w:W,h:H,label:'TPO excess: buying tail и selling tail на профиле',
+      grid:{start:76,end:H-48,step:62,x1:20,x2:W-20}
+    });
+    Viz.label(svg,'Хвосты читаются на TPO-профиле, не только по свечному wick',34,34,{w:430,size:13});
+
+    var rows=[1,1,2,3,6,12,20,29,35,38,34,27,18,11,7,4,2,1,1,1,1];
+    var profile=Viz.profile(svg,{
+      rows:rows,x:102,y:76,bw:9,bh:10,g:2,maxB:34,fade:0.98,axis:true,axisColor:'#6f6f78',axisWidth:1.2,
+      colorFn:function(f,i,n){
+        if(i<=3) return '#ffc599';
+        if(i>=17) return '#ffe08a';
+        return heat(f);
+      }
+    });
+    var topY=profile.rowY(1),botY=profile.rowY(18),vahY=profile.rowY(6),pocY=profile.rowY(9),valY=profile.rowY(14);
+    svg.appendChild(E('rect',{x:90,y:68,width:96,height:52,rx:5,fill:'none',stroke:'#ffc599','stroke-width':1.4,'stroke-dasharray':'5 4'}));
+    svg.appendChild(E('rect',{x:90,y:274,width:72,height:60,rx:5,fill:'none',stroke:'#ffe08a','stroke-width':1.4,'stroke-dasharray':'5 4'}));
+    Viz.level(svg,{x1:74,x2:492,y:vahY,color:C.va,width:1.3,opacity:0.78,label:'VAH',labelX:386,labelY:vahY-7,labelW:42,labelSize:11});
+    Viz.level(svg,{x1:74,x2:492,y:pocY,color:C.poc,width:2.4,opacity:0.92,label:'POC',labelX:386,labelY:pocY-7,labelW:42,labelSize:11});
+    Viz.level(svg,{x1:74,x2:492,y:valY,color:C.va,width:1.3,opacity:0.78,label:'VAL',labelX:386,labelY:valY-7,labelW:42,labelSize:11});
+    Viz.callout(svg,{text:'selling tail',x:300,y:116,toX:116,toY:topY,color:'#ffc599',ellipse:{rx:20,ry:18,width:1.4},size:12,weight:700});
+    Viz.callout(svg,{text:'buying tail',x:292,y:382,toX:113,toY:botY,color:'#ffe08a',ellipse:{rx:18,ry:20,width:1.4},size:12,weight:700});
+    Viz.note(svg,{
+      x:286,y:134,w:200,h:62,title:'Отказ от premium',
+      titleColor:'#ffc599',size:12,lineH:17,titleSize:12,
+      lines:['1–2 TPO в строке:', 'цена быстро отвергнута.'],
+      stroke:'#3a2a24'
+    });
+    Viz.note(svg,{
+      x:286,y:402,w:210,h:62,title:'Отказ от discount',
+      titleColor:'#ffe08a',size:12,lineH:17,titleSize:12,
+      lines:['1–2 TPO в строке:', 'покупатель резко принял низ.']
+    });
+    Viz.note(svg,{
+      x:535,y:86,w:320,h:132,title:'Что должно быть видно',
+      titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Хвост = серия узких строк профиля.',
+        'Это след агрессивного отказа цены.',
+        'Чем длиннее одно-двух TPO зона,',
+        'тем сильнее excess / conviction.'
+      ]
+    });
+    Viz.note(svg,{
+      x:535,y:248,w:320,h:132,title:'Не путать с Poor High / Low',
+      titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:[
+        'Poor H/L = плоский незавершённый',
+        'экстремум из 2+ TPO на уровне.',
+        'Tail = вытянутый отказ, где рынок',
+        'быстро перестал принимать цену.'
+      ],
+      stroke:'#3a2a24'
+    });
+
+    var candles=[
+      [890,255,226,278,238],[910,236,204,258,214],[930,214,188,236,199],[950,198,170,219,182],
+      [970,181,150,199,160],[990,160,122,182,135],[1010,136,92,156,104],[1030,108,74,145,132],
+      [1050,132,104,166,154],[1070,154,134,188,178],[1090,180,142,202,152],[1110,150,114,176,124],
+      [1130,126,92,170,160],[1150,162,130,224,214],[1170,216,188,252,198]
+    ];
+    candles.forEach(function(p){Viz.candle(svg,{x:p[0],o:p[1],h:p[2],l:p[3],c:p[4],w:11});});
+    svg.appendChild(E('ellipse',{cx:1030,cy:74,rx:18,ry:23,fill:'none',stroke:'#c6c6ce','stroke-width':1.4}));
+    svg.appendChild(E('ellipse',{cx:1130,cy:160,rx:18,ry:23,fill:'none',stroke:'#ffe08a','stroke-width':1.4}));
+    Viz.line(svg,{x1:900,y1:416,x2:1030,y2:74,color:'#c6c6ce',width:1.05,opacity:0.65,arrow:true});
+    Viz.line(svg,{x1:1058,y1:416,x2:1130,y2:160,color:'#ffe08a',width:1.05,opacity:0.72,arrow:true});
+    Viz.note(svg,{
+      x:850,y:420,w:382,h:108,title:'Свечи справа — только контекст',
+      titleColor:'#ffe08a',size:12,lineH:17,titleSize:12,
+      lines:[
+        'Wick показывает момент отказа.',
+        'Tail подтверждаем только по профилю.',
+        'Ретест хвоста держит = продолжение.',
+        'Ломается = retrace через excess.'
+      ]
+    });
+    return svg;
+  }
+
+  function failedAuctionStorySVG(){
+    var W=1280,H=660,svg=Viz.canvas({
+      w:W,h:H,label:'Failed auction: пробой value без принятия и возврат в баланс',
+      grid:{start:92,end:H-64,step:64,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Failed auction: пробой value без принятия',34,34,{w:344,size:13});
+
+    // ── prior balance: широкий, толстый профиль ──
+    var rows=[3,5,8,12,18,26,36,48,62,76,86,90,84,70,54,38,25,15,9,5,3];
+    var pX=66,pY=150,pBH=11,pG=1;
+    var profile=Viz.profile(svg,{rows:rows,x:pX,y:pY,bw:9,bh:pBH,g:pG,maxB:44,fade:0.95,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+    var vahY=profile.rowY(8),pocY=profile.rowY(11),valY=profile.rowY(14);
+    Viz.text(svg,'prior balance / value area',pX+2,pY+rows.length*(pBH+pG)+22,{size:11,fill:'#8a8a92'});
+
+    // value-area band через весь разбор
+    svg.appendChild(E('rect',{x:54,y:vahY-6,width:886,height:valY-vahY+12,rx:4,fill:'#ffffff',opacity:0.03}));
+
+    // ── реалистичные свечи (seeded walk по нарративу) ──
+    var walk=Viz.candleWalk(svg,{x0:536,dx:13,cw:9,seed:7,legs:[
+      {n:7,from:pocY+16,to:pocY-4,vol:24,wick:11},       // баланс у POC
+      {n:6,from:pocY-4,to:vahY-92,vol:13,wick:10},       // пробой вверх через VAH
+      {n:6,from:vahY-92,to:vahY-84,vol:18,wick:14},      // chop / poor highs
+      {n:5,from:vahY-84,to:valY+10,vol:15,wick:11},      // откат обратно через value
+      {n:6,from:valY+10,to:valY+150,vol:13,wick:11}      // пробой VAL + sell-off
+    ]});
+    var cx=walk.x,lvX2=walk.x(walk.n-1)+8;
+
+    // ── уровни: подписи простым текстом в левом поле, без боксов ──
+    Viz.level(svg,{x1:22,x2:lvX2,y:vahY,color:C.va,width:1.7,opacity:0.9,label:'VAH',labelX:24,labelY:vahY-7,labelSize:12});
+    Viz.level(svg,{x1:22,x2:lvX2,y:pocY,color:C.poc,width:2.4,opacity:0.95,label:'POC',labelX:24,labelY:pocY-7,labelSize:12});
+    Viz.level(svg,{x1:22,x2:lvX2,y:valY,color:C.va,width:1.7,opacity:0.9,label:'VAL',labelX:24,labelY:valY-7,labelSize:12});
+
+    // ── ключевые точки: эллипс poor highs + номерные маркеры (без текста поверх свечей) ──
+    svg.appendChild(E('ellipse',{cx:cx(15),cy:vahY-86,rx:58,ry:20,fill:'none',stroke:'#ffe08a','stroke-width':1.4,opacity:0.9}));
+    Viz.marker(svg,{n:1,x:cx(9),y:vahY-8,color:'#c6c6ce'});
+    Viz.marker(svg,{n:2,x:cx(15),y:vahY-114,color:'#ffe08a'});
+    Viz.marker(svg,{n:3,x:cx(21),y:vahY+12,color:'#c6c6ce'});
+    Viz.marker(svg,{n:4,x:cx(24),y:valY+22,color:'#ffc599'});
+
+    // ── чеклист (низ-лево, под профилем) ──
+    Viz.note(svg,{x:54,y:452,w:362,h:120,title:'Чеклист failed auction',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:['1. Цена выходит за VAH/VAL.','2. Нет follow-through за value.','3. Экстремум часто poor high/low.','4. Возврат внутрь value = acceptance back.']});
+
+    // ── боковые панели: гипотеза → подтверждение → инвалидация (справа за свечами) ──
+    Viz.note(svg,{x:952,y:90,w:298,h:124,title:'Гипотеза',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+      lines:['Покупатели вытолкнули цену выше value,','но рынок не принял ценник: poor highs','+ low-vol chop → аукцион не завершён.','Ждём возврат к стоимости.']});
+    Viz.note(svg,{x:952,y:236,w:298,h:124,title:'Подтверждение → вход',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:['Acceptance back внутрь value и','флип VAL в сопротивление.','Вход на возврате; цель — POC,','затем противоположный край.'],stroke:'#3a2a24'});
+    Viz.note(svg,{x:952,y:382,w:298,h:96,title:'Invalidation',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,
+      lines:['Уверенное принятие выше VAH','на растущем объёме = breakout,','а не fade. Идея отменяется.']});
+
+    // ── легенда шагов + причинно-следственная цепочка (нижняя полоса) ──
+    Viz.text(svg,'① выход выше VAH    ② нет принятия (poor highs)    ③ acceptance back    ④ VAL-флип → sell-off',640,614,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    Viz.text(svg,'Выход за value → нет follow-through → принятие обратно → пробой противоположного края → импульс к прежней стоимости.',640,638,{anchor:'middle',size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  var CH={
+    regime:{seed:5,start:48,h:280,showPOC:false,nbins:24,list:[
+      {n:7,dir:0,noise:9,wick:3},{n:6,dir:1,step:5.5,noise:3,wick:3},{n:8,dir:0,noise:9,wick:3}],
+      notes:[{atCandle:3,side:'low',dy:34,t:'баланс',anchor:'middle',w:58},
+        {atCandle:10,side:'high',dy:-30,t:'имбаланс ↑',c:'#ffe08a',b:1,anchor:'middle',w:92},
+        {atCandle:17,side:'high',dy:-28,t:'баланс',anchor:'middle',w:58}]},
+    npoc:{seed:11,start:50,h:290,nbins:22,profileFrom:[0,7],pocLabel:'nPOC',showVA:false,list:[
+      {n:7,dir:0,noise:8,wick:3},{n:7,dir:1,step:4.4,noise:3,wick:3},{n:7,dir:-1,step:4,noise:3,wick:3}],
+      notes:[{atCandle:10,side:'high',dy:-30,t:'имбаланс ↑',c:'#ffe08a',b:1,anchor:'middle',w:92},
+        {atCandle:19,side:'low',dy:34,t:'возврат → sweep',anchor:'middle',w:120}]},
+    failed:{seed:3,start:50,h:300,nbins:22,profileFrom:[0,6],showVA:true,list:[
+      {n:6,dir:0,noise:7,wick:3},{n:4,dir:1,step:5,noise:2,wick:3},{n:4,dir:0,noise:3,wick:2},{n:9,dir:-1,step:4.6,noise:3,wick:3}],
+      notes:[{atCandle:11,side:'high',dy:-32,t:'нет принятия / poor highs',c:'#ffe08a',b:1,anchor:'middle',w:170},
+        {atCandle:21,side:'low',dy:34,t:'флип VAL → sell-off',c:'#ffc599',b:1,anchor:'end',w:145}]},
+    tails:{seed:9,start:55,h:285,nbins:22,showPOC:false,list:[
+      {n:2,dir:-1,step:3,noise:3,wick:3},{n:1,dir:0,noise:1,wick:2,tailAt:0,tailDir:-1,tailLen:22},
+      {n:6,dir:1,step:3.2,noise:3,wick:3},{n:1,dir:0,noise:1,wick:2,tailAt:0,tailDir:1,tailLen:20},{n:3,dir:-1,step:3,noise:3,wick:3}],
+      notes:[{atCandle:2,side:'low',dy:34,t:'buying tail · дисконт?',c:'#ffe08a',b:1,anchor:'middle',marker:true,w:155},
+        {atCandle:9,side:'high',dy:-34,t:'selling tail · премиум?',c:'#ffe08a',b:1,anchor:'middle',marker:true,w:165}]},
+    doubledist:{seed:14,start:40,h:290,nbins:24,showPOC:false,list:[
+      {n:7,dir:0,noise:7,wick:3},{n:4,dir:1,step:6,noise:2,wick:2},{n:7,dir:0,noise:7,wick:3}],
+      notes:[{atCandle:4,side:'low',dy:42,t:'баланс',anchor:'middle',w:62},
+        {atCandle:9,side:'high',dy:-42,dx:-26,t:'имбаланс / single print',c:'#ffc599',b:1,anchor:'middle',w:170},
+        {atCandle:15,side:'high',dy:28,dx:18,t:'новый баланс',anchor:'middle',w:104}]}
+  };
+
+  document.querySelectorAll('.mpchart').forEach(function(d){var cf=CH[d.dataset.chart];if(cf)d.appendChild(chart(cf));});
+  document.querySelectorAll('[data-poc-story]').forEach(function(d){d.appendChild(pocStorySVG());});
+  document.querySelectorAll('[data-npoc-story]').forEach(function(d){d.appendChild(npocStorySVG());});
+  document.querySelectorAll('[data-singleprint-story]').forEach(function(d){d.appendChild(singlePrintStorySVG());});
+  document.querySelectorAll('[data-anomalies-story]').forEach(function(d){d.appendChild(anomaliesStorySVG());});
+  document.querySelectorAll('[data-params-story]').forEach(function(d){d.appendChild(paramsStorySVG());});
+  document.querySelectorAll('[data-composite-story]').forEach(function(d){d.appendChild(compositeStorySVG());});
+  document.querySelectorAll('[data-tail-story]').forEach(function(d){d.appendChild(tailStorySVG());});
+  document.querySelectorAll('[data-failed-story]').forEach(function(d){d.appendChild(failedAuctionStorySVG());});
+})();
+</script>
+
+<script>
+  // Level switcher
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      buttons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      body.setAttribute('data-level', btn.dataset.lvl);
+    });
+  });
+  // Scroll to top
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){
+      if (window.scrollY > 300) scrollBtn.classList.add('visible');
+      else scrollBtn.classList.remove('visible');
+    });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

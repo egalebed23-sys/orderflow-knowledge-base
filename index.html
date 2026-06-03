@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Flow · База знаний по трейдингу</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #000000;
+    --surface: #101012;
+    --surface-2: #08080a;
+    --border: #25252a;
+    --border-2: #313137;
+    --accent: #ffffff;        /* вспомогательное = бело-серый градиент */
+    --accent-azure: #b15cf0;  /* heatmap фиолетовый (На рынке) */
+    --green: #ffd23f;         /* heatmap жёлтый (Конфлюэнс) */
+    --red: #ff8c3a;           /* heatmap оранжевый (Ловушка) */
+    --text: #ececef;
+    --muted: #8a8a92;
+    --muted-2: #54545c;
+    --tag-bg: #1a1a1d;
+    --sidebar-w: 264px;
+    --content-max: 1280px;
+    --content-gutter: 80px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface-2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0 40px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-brand {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .sidebar-brand .logo {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    background: linear-gradient(90deg, #ffffff, #8a8a96);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sidebar-brand .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--muted-2);
+    letter-spacing: 1px;
+    padding: 0 12px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted-2);
+    min-width: 20px;
+  }
+  .nav-soon {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted-2);
+    background: #161618;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .toc-inner {
+    padding: 0 12px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .toc-inner a {
+    display: block;
+    padding: 5px 12px 5px 28px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    border-radius: 4px;
+    border-left: 2px solid transparent;
+    margin-left: 8px;
+  }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+
+  /* ─── MAIN ─── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 32px 40px 80px;
+    max-width: calc(100vw - var(--sidebar-w));
+  }
+  .topbar {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .crumbs {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .crumbs span { color: var(--text); }
+
+  /* ─── HOME ─── */
+  .home-hero {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 32px;
+  }
+  .home-hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #ffffff 0%, #c8c8d0 55%, #8a8a96 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .home-hero .tagline { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 760px; }
+  .home-hero .accent-line {
+    height: 3px; width: 72px; margin-top: 18px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .section-cards {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none; margin: 0 auto 40px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px;
+  }
+  .sec-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; text-decoration: none; color: var(--text); transition: all 0.15s;
+    display: block; position: relative;
+  }
+  .sec-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .sec-card.soon { opacity: 0.5; }
+  .sec-card.soon:hover { transform: none; border-color: var(--border); }
+  .sec-card .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+  .sec-card.soon .num { color: var(--muted-2); }
+  .sec-card .name { font-weight: 700; font-size: 15px; margin: 4px 0; }
+  .sec-card .desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .sec-card .ready {
+    position: absolute; top: 14px; right: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.5px;
+    color: var(--green); background: rgba(255,210,63,0.14); padding: 2px 6px; border-radius: 3px;
+  }
+  .sec-card .badge-soon {
+    position: absolute; top: 14px; right: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.5px;
+    color: var(--muted-2); background: #161618; padding: 2px 6px; border-radius: 3px;
+  }
+
+  .home-block {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none;
+    margin: 0 auto 28px;
+  }
+  .home-block h2 { font-size: 20px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .home-block > p.lead { color: var(--text); font-size: 14px; line-height: 1.7; margin-bottom: 18px; }
+  .home-block > p.lead strong { color: #fff; }
+
+  .format-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .format-badge {
+    flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 6px; min-width: 104px; text-align: center;
+  }
+  .format-row .ftxt { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+  .format-row .ftxt strong { color: #fff; }
+
+  /* ─── GLOSSARY ─── */
+  .gloss-grid { display: flex; flex-direction: column; gap: 10px; }
+  .gloss-card {
+    background: linear-gradient(180deg, var(--surface), rgba(16,16,18,0.5));
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 9px;
+    padding: 14px 18px;
+    transition: all 0.15s;
+  }
+  .gloss-card:hover { border-left-width: 5px; padding-left: 16px; transform: translateX(2px); }
+  .gloss-card .g-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 6px; }
+  .gloss-card .g-term { font-size: 15px; font-weight: 700; color: #fff; }
+  .gloss-card .g-en { font-size: 11px; color: var(--muted); font-style: italic; font-family: 'JetBrains Mono', monospace; }
+  .gloss-card .g-body { font-size: 13px; color: var(--text); line-height: 1.62; }
+  .gloss-card .g-body strong { color: #e6e6ec; }
+  .gloss-card code {
+    font-family: 'JetBrains Mono', monospace; background: var(--tag-bg);
+    border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 11.5px; color: #e4e4ea;
+  }
+
+  /* ─── PLATFORM NOTE ─── */
+  .platform-note {
+    width: min(var(--content-max), calc(100vw - var(--sidebar-w) - var(--content-gutter)));
+    max-width: none; margin: 0 auto 28px;
+    display: flex; gap: 14px; align-items: flex-start;
+    background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04));
+    border: 1px solid var(--border); border-left: 3px solid var(--accent-azure);
+    border-radius: 10px; padding: 13px 18px;
+  }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar {
+      position: static; width: 100%; height: auto;
+      border-right: none; border-bottom: 1px solid var(--border);
+    }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .topbar, .home-hero, .section-cards, .home-block, .platform-note { width: 100%; max-width: none; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+
+  /* ─── SCROLL TOP ─── */
+  .scroll-top {
+    position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: var(--text);
+    cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">Order Flow · База</div>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item active" href="#"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#how">Как читать базу</a>
+    <a href="#sections">Разделы</a>
+    <a href="#glossary">Глоссарий order flow</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="crumbs">Order Flow / <span>Старт</span></div>
+  </div>
+
+  <div class="home-hero">
+    <h1>База знаний по order flow</h1>
+    <p class="tagline">Конспект по инструментам потокового анализа рынка — от объёмов и дельты до профиля, ликвидаций и карты стопов. Каждая тема разобрана послойно: что это → как читать на графике → как из этого собрать торговую идею.</p>
+    <div class="accent-line"></div>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База ориентирована на <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) — крипто-терминал order-flow: TPO, VPVR / VPSV / FRVP, Footprint, Heatmap, CVD, Open Interest, Liquidation Map, VWAP, Volume Bubbles, NL/NS. Инструменты в темах отсылают к MMT и её <a href="https://mmt.gg/learn" target="_blank" rel="noopener">документации</a>.</div>
+  </div>
+
+  <!-- КАК ЧИТАТЬ -->
+  <div class="home-block" id="how">
+    <h2>Как читать эту базу</h2>
+    <p class="lead">
+      Каждая тема держит <strong>три слоя глубины</strong>. Переключатель <strong>L1 / L2 / L3</strong> вверху страницы управляет тем, сколько показать: уровни кумулятивные — L2 показывает L1 + детали, L3 показывает всё. Открывай нужный слой под задачу и углубляйся, когда захочешь нюансы и торговое применение.
+    </p>
+
+    <div class="format-row">
+      <span class="format-badge" style="background:rgba(255,255,255,0.10);color:#e2e2e8;">L1 / L2 / L3</span>
+      <div class="ftxt"><strong>Глубина темы.</strong> L1 — что это такое, базовое определение. L2 — как это читать на графике, интерпретация сигналов. L3 — как из этого собрать торговую идею: конфлюэнс, точки входа, контекст рынка.</div>
+    </div>
+
+    <div class="format-row">
+      <span class="format-badge" style="background:rgba(177,92,240,0.16);color:#d9b8ff;">На рынке</span>
+      <div class="ftxt"><strong>Как инструмент ведёт себя в реальности.</strong> Где теория расходится с практикой, на каком таймфрейме и инструменте работает лучше, чего от него ждать на крипте против фьючерсов.</div>
+    </div>
+
+    <div class="format-row">
+      <span class="format-badge" style="background:rgba(255,140,58,0.16);color:#ffc599;">Ловушка</span>
+      <div class="ftxt"><strong>Где сигнал врёт.</strong> Типичные ложные срабатывания, манипуляции и ситуации, в которых индикатор уводит в минус. То, что отделяет «вижу сигнал» от «понимаю контекст».</div>
+    </div>
+
+    <div class="format-row">
+      <span class="format-badge" style="background:rgba(255,210,63,0.16);color:#ffe08a;">Конфлюэнс</span>
+      <div class="ftxt"><strong>С чем сочетать.</strong> Ни один инструмент не работает в одиночку. Здесь — какие сигналы усиливают друг друга и как собирать их в одну картину рынка.</div>
+    </div>
+  </div>
+
+  <!-- РАЗДЕЛЫ -->
+  <div class="home-block" id="sections">
+    <h2>Разделы</h2>
+    <div class="section-cards">
+      <a class="sec-card" href="amt.html"><span class="ready">готово</span><div class="num">01</div><div class="name">AMT</div><div class="desc">Фундамент: аукцион, баланс/имбаланс, value, acceptance/rejection, failed auction</div></a>
+      <a class="sec-card" href="cvd.html"><span class="ready">готово</span><div class="num">02</div><div class="name">CVD</div><div class="desc">Кумулятивная дельта: агрессия покупателей против продавцов</div></a>
+      <a class="sec-card" href="volume.html"><span class="ready">готово</span><div class="num">03</div><div class="name">Volume</div><div class="desc">Объём как топливо движения, всплески и сухие зоны</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">04</div><div class="name">Volume bubbles</div><div class="desc">Пузыри и кластеры объёма, крупные принты</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">05</div><div class="name">Open Interest</div><div class="desc">Открытый интерес: приток и отток позиций</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">06</div><div class="name">Volume Profile</div><div class="desc">Профиль объёма: POC, область стоимости, ноды</div></a>
+      <a class="sec-card" href="tpo.html"><span class="ready">готово</span><div class="num">07</div><div class="name">TPO</div><div class="desc">Market Profile: время на цене, формы профиля, day types</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">08</div><div class="name">OB imbalance</div><div class="desc">Дисбаланс в стакане: перекос bid/ask</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">09</div><div class="name">Liquidations</div><div class="desc">Каскады ликвидаций, выносы плеча</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">10</div><div class="name">Orderbook heatmap</div><div class="desc">Тепловая карта лимитной ликвидности</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">11</div><div class="name">Funding rate</div><div class="desc">Ставка финансирования, перекос лонг/шорт</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">12</div><div class="name">Order blocks</div><div class="desc">Ордерблоки: зоны интереса крупного капитала</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">13</div><div class="name">VWAP</div><div class="desc">Средневзвешенная по объёму, ленты отклонений</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">14</div><div class="name">Key levels</div><div class="desc">Ключевые уровни: HTF, дневные, недельные</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">15</div><div class="name">Stacked imbalances</div><div class="desc">Стэкнутые дисбалансы в footprint</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">16</div><div class="name">HL Stops Map</div><div class="desc">Карта стопов Hyperliquid: где стоит плечо</div></a>
+      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">17</div><div class="name">Market regime</div><div class="desc">Режим рынка: тренд, баланс, переход</div></a>
+    </div>
+  </div>
+
+  <!-- ГЛОССАРИЙ -->
+  <div class="home-block" id="glossary">
+    <h2>Глоссарий order flow</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:8px;">Базовые термины потокового анализа, которые встречаются во всех разделах. Если что-то осталось непонятным — оно здесь.</p>
+    <div class="gloss-grid">
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Order flow</span><span class="g-en">поток ордеров</span></div>
+        <div class="g-body">Анализ того, <strong>как именно</strong> исполняются сделки: кто агрессор, где стоит лимитная ликвидность, куда давит объём. В отличие от классического ТА (паттерны на свечах), смотрит на «механику» движения цены, а не на её отпечаток.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Агрессор vs пассив</span><span class="g-en">aggressor / passive</span></div>
+        <div class="g-body"><strong>Агрессор</strong> — тот, кто бьёт по рынку маркет-ордером и двигает цену (taker). <strong>Пассив</strong> — тот, кто стоит лимиткой в стакане и ждёт исполнения (maker). Order flow по сути всегда про баланс этих двух сил.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Delta</span><span class="g-en">дельта</span></div>
+        <div class="g-body">Разница между объёмом агрессивных покупок и агрессивных продаж за период. <code>delta = buy_market − sell_market</code>. Положительная — давят покупатели, отрицательная — продавцы. Базовый кирпич CVD и footprint.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Absorption</span><span class="g-en">поглощение</span></div>
+        <div class="g-body">Когда агрессор бьёт в одну сторону, а цена <strong>не двигается</strong> — крупный пассив поглощает весь поток лимитками. Признак сильного уровня: одна сторона выдыхается, не сдвинув цену. Часто предшествует развороту.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Imbalance</span><span class="g-en">дисбаланс</span></div>
+        <div class="g-body">Резкий перекос объёма на одной стороне относительно другой (обычно ≥ 3:1 по диагонали в footprint). Показывает, где агрессия пробивала уровень. Несколько подряд — <em>stacked imbalance</em>, сильная зона.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">POC / Value Area</span><span class="g-en">точка контроля / область стоимости</span></div>
+        <div class="g-body"><strong>POC</strong> — цена с максимальным объёмом (или временем) — «самая справедливая». <strong>Value Area</strong> — диапазон, вмещающий ~70% активности (1 σ). Магниты и границы, вокруг которых строится торговля по профилю. Подробно — в разделах <em>Volume Profile</em> и <em>TPO</em>.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Liquidity</span><span class="g-en">ликвидность</span></div>
+        <div class="g-body">Объём лимитных заявок, готовых исполниться по данной цене. «Пулы ликвидности» — скопления стопов и лимиток (за хаями/лоями), куда цену часто <em>тянет</em>, чтобы их собрать. Видна в стакане и на heatmap.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Iceberg</span><span class="g-en">айсберг</span></div>
+        <div class="g-body">Крупная лимитная заявка, показывающая в стакане только малую часть; по мере исполнения «дорастает» новыми порциями. Создаёт absorption: в стакане «тонко», а реально стоит стена. Видно по тому, что объём исполняется, а уровень не уходит.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Spoofing</span><span class="g-en">спуфинг</span></div>
+        <div class="g-body">Манипуляция: выставление крупных заявок без намерения исполнить — чтобы создать видимость спроса/предложения и сдвинуть цену, затем снять. Поэтому «голый» стакан обманчив: heatmap и реальные принты честнее мелькающих стен.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Footprint</span><span class="g-en">футпринт</span></div>
+        <div class="g-body">Тип графика, где внутри каждой свечи виден объём bid×ask на каждом ценовом уровне. Позволяет увидеть дельту, дисбалансы и поглощение прямо в теле бара. Основной инструмент микроструктурного анализа.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Open Interest</span><span class="g-en">открытый интерес</span></div>
+        <div class="g-body">Сумма всех открытых деривативных позиций. Растёт OI + растёт цена = приток новых лонгов; падает OI на росте = закрытие шортов (short covering). Показывает, <em>чем подкреплено</em> движение — новыми деньгами или закрытием старых.</div>
+      </div>
+
+      <div class="gloss-card">
+        <div class="g-head"><span class="g-term">Funding rate</span><span class="g-en">ставка финансирования</span></div>
+        <div class="g-body">Периодический платёж между лонгами и шортами на бессрочных фьючерсах, удерживающий цену контракта у спота. Сильный перекос (дорогой лонг) — рынок перегрет в одну сторону, топливо для каскадных ликвидаций.</div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+  const scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) scrollBtn.classList.add('visible');
+      else scrollBtn.classList.remove('visible');
+    });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+</script>
+
+</body>
+</html>
