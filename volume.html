@@ -99,7 +99,7 @@
   th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
   td strong { color: #fff; }
 
-  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; overflow-x: auto; }
   .diagram svg { display: block; width: 100%; height: auto; }
   .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
 
@@ -110,6 +110,7 @@
     .grid2, .grid3 { grid-template-columns: 1fr; }
     .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
     .level-switch { margin-left: 0; }
+    .diagram svg { min-width: 760px; }
   }
 
   .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
@@ -132,13 +133,13 @@
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
     <a class="nav-item active" href="#"><span class="nav-num">03</span> Volume</a>
     <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
@@ -150,12 +151,16 @@
     <div class="nav-group-title">На этой странице</div>
     <a href="#what">01 · Что такое volume</a>
     <a href="#effort">02 · Effort vs Result</a>
-    <a href="#breakout">03 · Объём на пробое</a>
-    <a href="#climax">04 · Климакс и истощение</a>
-    <a href="#divergence">05 · Дивергенция объёма</a>
-    <a href="#dryup">06 · Сухой объём и дрифт</a>
-    <a href="#rvol">07 · Relative volume и контекст</a>
-    <a href="#trade">08 · Как торговать</a>
+    <a href="#facilitation">03 · Качество объёма и facilitation</a>
+    <a href="#absorption">04 · Absorption / stopping volume</a>
+    <a href="#location">05 · Location before volume</a>
+    <a href="#breakout">06 · Объём на пробое</a>
+    <a href="#climax">07 · Климакс и истощение</a>
+    <a href="#divergence">08 · Дивергенция объёма</a>
+    <a href="#dryup">09 · Сухой объём и дрифт</a>
+    <a href="#rvol">10 · Relative volume и контекст</a>
+    <a href="#forced">11 · Organic vs forced volume</a>
+    <a href="#trade">12 · Как торговать</a>
   </div>
 </aside>
 
@@ -177,7 +182,7 @@
 
   <div class="platform-note">
     <span class="pn-badge">MMT</span>
-    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). Объём в MMT — отдельный слой под графиком + footprint (bid/ask на уровне), VPVR/VPSV (объём по цене), CVD (направление). Объём — это «V» в <a href="amt.html" style="color:#d9b8ff;border:none;">AMT</a>: подтверждает или отрицает рекламируемое движение.</div>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). Этот раздел — про объём <strong>во времени</strong>: effort, participation и результат цены. Распределение бизнеса по цене вынесено в <a href="volumeprofile.html" style="color:#d9b8ff;border:none;">Volume Profile</a>; направление агрессии — в <a href="cvd.html" style="color:#d9b8ff;border:none;">CVD</a>.</div>
   </div>
 
 
@@ -202,11 +207,12 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li><strong>Объём относителен.</strong> «Много» или «мало» — только в сравнении со средним по инструменту/ТФ (см. RVOL, §07). Абсолютное число бесполезно</li>
-          <li><strong>Где прошёл объём — там делали бизнес.</strong> Уровни с большим объёмом значимы (это уже Volume Profile, §06)</li>
+          <li><strong>Объём относителен.</strong> «Много» или «мало» — только в сравнении со средним по инструменту/ТФ (см. RVOL, §10). Абсолютное число бесполезно</li>
+          <li><strong>Качество важнее количества.</strong> Смотри, получает ли цена прогресс на приложенном объёме, где сосредоточен turnover и не является ли поток вынужденным</li>
+          <li><strong>Где прошёл объём — там делали бизнес.</strong> Уровни с большим объёмом значимы (это уже отдельный слой Volume Profile)</li>
           <li><strong>На крипте</strong> различай spot и perp объём, и объём по биржам — он фрагментирован</li>
         </ul>
-        <div class="hl note"><span class="hl-label">Не путать</span>Этот раздел — про «сырой» объём (бары во времени). Распределение объёма <em>по цене</em> — это Volume Profile (§06); направление объёма (агрессия покупателей/продавцов) — CVD (§02); крупные принты — Volume bubbles (§04).</div>
+        <div class="hl note"><span class="hl-label">Не путать</span>Этот раздел — про «сырой» объём (бары во времени). Распределение объёма <em>по цене</em> — это Volume Profile; направление объёма (агрессия покупателей/продавцов) — CVD; крупные принты — Volume bubbles.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -266,10 +272,148 @@
   </section>
 
 
-  <!-- ─────── 03. ОБЪЁМ НА ПРОБОЕ ─────── -->
-  <section class="section" id="breakout">
+  <!-- ─────── 03. КАЧЕСТВО ОБЪЁМА И TRADE FACILITATION ─────── -->
+  <section class="section" id="facilitation">
     <div class="section-header">
       <span class="section-num">03</span>
+      <span class="section-title">Качество объёма и trade facilitation</span>
+      <span class="section-badge">quality</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Объём помогает ответить на два главных вопроса: <strong>куда рынок пытается идти</strong> и <strong>насколько хорошо у него получается идти туда</strong>. Второй вопрос и есть проверка качества движения.</p>
+        <p><strong>Trade facilitation</strong> — способность рынка проводить сделки и принимать новую цену без постоянного встречного отказа. Здоровое движение получает результат на приложенном объёме; плохое тратит всё больше effort, но почти не продвигается.</p>
+
+        <div class="diagram">
+          <div data-vol-facilitation></div>
+          <div class="diagram-cap">Одинаковый рост объёма имеет разный смысл: он может подтверждать движение, выявлять поглощение или быть сосредоточен в одном сегменте рынка.</div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Два вопроса</span><strong>Direction:</strong> куда пытается идти цена? <strong>Quality:</strong> цена получает соразмерный результат на приложенном объёме или встречает сопротивление?</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Режим</th><th>Что видно</th><th>Практический вывод</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Constructive continuation</strong></td><td>На импульсах объём и ценовой прогресс растут; откаты проходят на меньшем объёме.</td><td>Рынок хорошо проводит сделки по направлению движения. Ищи continuation после удержания отката.</td></tr>
+            <tr><td><strong>Effort without result</strong></td><td>Объём растёт у важной зоны, но диапазон свечей и ценовой прогресс сжимаются.</td><td>Встречный пассив принимает поток. Это absorption/exhaustion, пока follow-through не докажет обратное.</td></tr>
+            <tr><td><strong>Source composition</strong></td><td>Сравнение spot/perp/venue volume показывает, где сосредоточен turnover.</td><td>Это не определяет направление агрессии. Чтобы понять, кто ведёт и кто подтверждает, переходи к <a href="cvd.html#spotperp" style="color:#9cc5ec;">Spot vs Perp CVD</a>.</td></tr>
+            <tr><td><strong>Low-volume drift</strong></td><td>Цена движется, но участие сокращается.</td><td>Это может быть лёгкий проход через тонкий рынок, но движение хрупкое без нового объёма и follow-through.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Качество важнее количества</span>Перед выводом проверь пять слоёв: <strong>location → price result → relative volume → source composition → follow-through</strong>. Большой бар объёма без этих ответов остаётся просто большим баром.</div>
+        <div class="hl note"><span class="hl-label">Граница с CVD</span>Volume показывает, <strong>сколько</strong> наторговано на spot/perp и как цена ответила на участие. <a href="cvd.html#spotperp" style="color:#9cc5ec;">CVD</a> показывает, <strong>кто агрессивно давил</strong> внутри каждого сегмента и расходятся ли они по направлению.</div>
+        <div class="hl red"><span class="hl-label">Не упрощай</span>Рост объёма не означает автоматически лучшую trade facilitation. Если effort растёт быстрее результата, рынок может приближаться к turning point, а не к продолжению.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. ABSORPTION / STOPPING VOLUME ─────── -->
+  <section class="section" id="absorption">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Absorption / stopping volume</span>
+      <span class="section-badge">absorption</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Absorption</strong> = большой объём проходит, но цена почти не двигается. Агрессивные участники бьют по рынку, а крупный пассивный участник принимает поток лимитками.</p>
+        <p><strong>Stopping volume</strong> = разновидность absorption после импульса: рынок резко увеличивает объём, но прогресс останавливается. Часто это первая подсказка, что ход выдыхается.</p>
+        <div class="hl note"><span class="hl-label">Граница с CVD</span>Raw volume обнаруживает <strong>effort без result</strong>, но не показывает сторону агрессора. Направленную версию поглощения разбирает <a href="cvd.html#absorption" style="color:#9cc5ec;">CVD → Absorption</a>; точное исполнение внутри свечи — footprint.</div>
+
+        <div class="diagram">
+          <div data-vol="absorption"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>На хаях:</strong> покупатели агрессивно покупают, но цена не идёт выше → supply absorbs demand → риск разворота вниз</li>
+          <li><strong>На лоях:</strong> продавцы агрессивно продают, но цена не идёт ниже → demand absorbs supply → риск разворота вверх</li>
+          <li><strong>В середине диапазона</strong> absorption слабее как сигнал: нет хорошего location, слишком много шума</li>
+          <li>Подтверждение: повторный тест зоны, меньше объёма/дельты, невозможность обновить экстремум, acceptance back в value</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Важно</span>Absorption не означает мгновенный разворот. Крупный участник может поглощать поток несколько свечей, а цена ещё сделает marginal high/low. Вход лучше после failed follow-through или возврата под/над зону.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Raw volume показывает “много сделок”, но не показывает, кто давит. Подтверждай footprint'ом: агрессивная дельта есть, а результата нет = поток поглощён. CVD divergence усиливает идею.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. LOCATION BEFORE VOLUME ─────── -->
+  <section class="section" id="location">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Location before volume</span>
+      <span class="section-badge">where</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Объём имеет смысл только в месте. Этот раздел отвечает на вопрос <strong>«какой результат дал всплеск объёма здесь?»</strong>. Саму карту мест — POC, VAH/VAL, HVN и LVN — строит отдельный раздел <a href="volumeprofile.html" style="color:#9cc5ec;">Volume Profile</a>.</p>
+
+        <div class="diagram">
+          <div data-vol="location"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Тип места</th><th>Что спрашивать у объёма</th><th>Что не делать</th></tr></thead>
+          <tbody>
+            <tr><td>Край прошлого value / balance</td><td>Новый объём строит acceptance или не получает follow-through?</td><td>Не считать касание линии сигналом</td></tr>
+            <tr><td>Центр бизнеса / узел</td><td>Объём создаёт ротацию, поглощение или новый импульс?</td><td>Не путать большой бизнес с направлением</td></tr>
+            <tr><td>Тонкий коридор / быстрый ход</td><td>Начал ли рынок строить объём или продолжает проход?</td><td>Не считать прошлую пустоту вечной</td></tr>
+            <tr><td>Новый high/low</td><td>Есть ли follow-through после effort?</td><td>Не путать climax с мгновенным разворотом</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Граница разделов</span><strong>Volume Profile</strong> выбирает и описывает место. <strong>Volume</strong> измеряет effort и результат в момент взаимодействия. <strong>CVD/footprint</strong> показывают направление и качество исполнения.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. ОБЪЁМ НА ПРОБОЕ ─────── -->
+  <section class="section" id="breakout">
+    <div class="section-header">
+      <span class="section-num">06</span>
       <span class="section-title">Объём на пробое</span>
       <span class="section-badge">breakout</span>
     </div>
@@ -277,7 +421,7 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Пробой уровня/границы баланса — главный момент, где объём решает. Пробой на <strong>высоком</strong> объёме = принятие (acceptance). На <strong>низком</strong> = подозрительно, часто возврат.</p>
+        <p>Пробой уровня/границы баланса — главный момент, где объём помогает оценить результат. Рост объёма подтверждает пробой только тогда, когда цена получает <strong>прогресс и удержание</strong>. Без follow-through тот же всплеск может быть absorption или stop-run.</p>
 
         <div class="diagram">
           <div data-vol="breakout"></div>
@@ -289,9 +433,10 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li><strong>Тык за край без объёма</strong> → нет follow-through → возврат в диапазон. Это сырьё для <em>failed auction</em> (см. AMT)</li>
-          <li><strong>Прорыв со всплеском объёма</strong> → участники согласились на новую цену → движению можно верить</li>
-          <li>Смотри не только на момент пробоя, но и на <strong>объём при ретесте</strong>: удержание края на низком объёме = принятие подтверждено</li>
+          <li><strong>Тык за край без участия и follow-through</strong> → возврат в диапазон. Это сырьё для <em>failed auction</em> (см. AMT)</li>
+          <li><strong>Прорыв со всплеском объёма + ценовой прогресс</strong> → рынок проводит сделки за границей; acceptance становится рабочей гипотезой</li>
+          <li><strong>Прорыв на низком объёме</strong> может пройти далеко в тонком рынке, но остаётся хрупким до строительства нового объёма</li>
+          <li>Смотри не только на момент пробоя, но и на <strong>объём при ретесте</strong>: тихий ретест поддерживает acceptance, если край удержан и цена не возвращается внутрь</li>
         </ul>
         <div class="hl note"><span class="hl-label">Связь с AMT</span>Объём — это и есть инструмент, которым отличают <strong>acceptance</strong> от <strong>rejection</strong> на краю стоимости (раздел AMT). Без объёма пробой — просто линия, которую проткнули.</div>
       </div>
@@ -308,10 +453,10 @@
   </section>
 
 
-  <!-- ─────── 04. КЛИМАКС И ИСТОЩЕНИЕ ─────── -->
+  <!-- ─────── 07. КЛИМАКС И ИСТОЩЕНИЕ ─────── -->
   <section class="section" id="climax">
     <div class="section-header">
-      <span class="section-num">04</span>
+      <span class="section-num">07</span>
       <span class="section-title">Климакс и истощение</span>
       <span class="section-badge">exhaustion</span>
     </div>
@@ -350,10 +495,10 @@
   </section>
 
 
-  <!-- ─────── 05. ДИВЕРГЕНЦИЯ ОБЪЁМА ─────── -->
+  <!-- ─────── 08. ДИВЕРГЕНЦИЯ ОБЪЁМА ─────── -->
   <section class="section" id="divergence">
     <div class="section-header">
-      <span class="section-num">05</span>
+      <span class="section-num">08</span>
       <span class="section-title">Дивергенция объёма</span>
       <span class="section-badge">divergence</span>
     </div>
@@ -362,6 +507,7 @@
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
         <p>Когда цена ставит новые экстремумы, а объём на каждом импульсе <strong>падает</strong> — за движением всё меньше участников. Тренд <strong>слабеет</strong>: нет подтверждения усилием.</p>
+        <div class="hl note"><span class="hl-label">Граница с CVD</span>Volume divergence сравнивает <strong>общую активность</strong> между импульсами. <a href="cvd.html#divergence" style="color:#9cc5ec;">CVD divergence</a> сравнивает направленную агрессию покупателей и продавцов. Эти сигналы могут совпадать или расходиться.</div>
 
         <div class="diagram">
           <div data-vol="divergence"></div>
@@ -384,17 +530,17 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl azure"><span class="hl-label">В MMT / конфлюэнс</span>Объёмная дивергенция сильнее в связке с OI и CVD: цена ↑, объём ↓, OI ↓ = закрытие шортов (слабое топливо), а не приток лонгов. CVD-дивергенция (цена ↑, дельта ↓) — тот же сигнал на уровне агрессии.</div>
-        <div class="hl note"><span class="hl-label">Нюанс</span>На крипте 24/7 объём сильно зависит от времени суток/сессии. «Падение объёма» ночью ≠ дивергенция. Сравнивай сопоставимые периоды (RVOL, §07).</div>
+        <div class="hl note"><span class="hl-label">Нюанс</span>На крипте 24/7 объём сильно зависит от времени суток/сессии. «Падение объёма» ночью ≠ дивергенция. Сравнивай сопоставимые периоды (RVOL, §10).</div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 06. СУХОЙ ОБЪЁМ И ДРИФТ ─────── -->
+  <!-- ─────── 09. СУХОЙ ОБЪЁМ И ДРИФТ ─────── -->
   <section class="section" id="dryup">
     <div class="section-header">
-      <span class="section-num">06</span>
+      <span class="section-num">09</span>
       <span class="section-title">Сухой объём и дрифт</span>
       <span class="section-badge">dry-up</span>
     </div>
@@ -406,6 +552,9 @@
           <li><strong>Дрифт на низком объёме</strong> — цена медленно ползёт без участников. Конвикции нет, такой ход легко и резко разворачивается</li>
           <li><strong>Volume dry-up</strong> — пересыхание объёма в консолидации: часто предшествует импульсу (энергия копится, см. пружину в AMT)</li>
         </ul>
+        <div class="diagram">
+          <div data-vol="dryup"></div>
+        </div>
         <div class="hl green"><span class="hl-label">Аналогия</span>Низкообъёмный дрейф вверх — как машина, катящаяся по инерции с заглохшим двигателем: едет, пока есть инерция, но первый же встречный объём её останавливает и разворачивает.</div>
       </div>
 
@@ -414,7 +563,7 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Низкообъёмные зоны (в профиле — LVN) цена проходит быстро: там не было бизнеса</li>
+          <li>В тонких зонах профиля цена может пройти быстро, <em>если</em> новый объём не начинает строиться; подробная логика — в Volume Profile</li>
           <li>Сжатие объёма + сжатие диапазона = компрессия → жди расширение (пробой)</li>
           <li>Откат на сухом объёме внутри тренда = здоровый (нет агрессии против тренда) → продолжение вероятнее</li>
         </ul>
@@ -431,10 +580,10 @@
   </section>
 
 
-  <!-- ─────── 07. RELATIVE VOLUME ─────── -->
+  <!-- ─────── 10. RELATIVE VOLUME ─────── -->
   <section class="section" id="rvol">
     <div class="section-header">
-      <span class="section-num">07</span>
+      <span class="section-num">10</span>
       <span class="section-title">Relative volume (RVOL) и контекст</span>
       <span class="section-badge">context</span>
     </div>
@@ -447,6 +596,9 @@
           <li>RVOL &gt; 1 — объём выше нормы (событие, интерес)</li>
           <li>RVOL &lt; 1 — затишье, низкий интерес</li>
         </ul>
+        <div class="diagram">
+          <div data-vol="rvol"></div>
+        </div>
       </div>
 
       <hr class="lvl-divider">
@@ -471,10 +623,51 @@
   </section>
 
 
-  <!-- ─────── 08. КАК ТОРГОВАТЬ ─────── -->
+  <!-- ─────── 11. ORGANIC VS FORCED VOLUME ─────── -->
+  <section class="section" id="forced">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Organic vs forced volume</span>
+      <span class="section-badge">crypto context</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Не весь объём одинаков. <strong>Organic volume</strong> — участники добровольно входят/выходят по идее. <strong>Forced volume</strong> — вынужденные сделки: стопы, ликвидации, margin calls, cascading liquidations.</p>
+
+        <div class="diagram">
+          <div data-vol="forced"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Organic breakout:</strong> объём растёт, цена удерживает пробой, ретест сухой, OI может расти — новые деньги принимают цену</li>
+          <li><strong>Forced cascade:</strong> резкий вертикальный ход, огромный объём, длинный wick, ликвидации, после всплеска нет follow-through</li>
+          <li><strong>Stop run:</strong> короткий вынос за очевидный high/low, объём вспыхивает, цена быстро возвращается в диапазон</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Разделяй volume + liquidations + OI. Объём вверх при росте OI и удержании уровня = здоровее. Объём вверх на массовых short liquidations с быстрым откатом = часто конец импульса, а не начало тренда.</div>
+        <div class="hl red"><span class="hl-label">Ошибка</span>Не путай “много сделок” с “новый спрос/предложение”. Forced volume может быть просто закрытием проигравших, после чего топливо исчезает.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. КАК ТОРГОВАТЬ ─────── -->
   <section class="section" id="trade">
     <div class="section-header">
-      <span class="section-num">08</span>
+      <span class="section-num">12</span>
       <span class="section-title">Как торговать по объёму</span>
       <span class="section-badge">playbook</span>
     </div>
@@ -490,10 +683,14 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <div class="grid2">
-          <div class="card"><div class="card-title">Пробой + объём</div>Прорыв края на всплеске объёма = принятие. Вход по направлению, подтверждение — объём на ретесте.</div>
-          <div class="card"><div class="card-title">Поглощение (effort/result)</div>Большой объём, цена не идёт → разворот рядом. Фейд в сторону поглощения с подтверждением потоком.</div>
+          <div class="card"><div class="card-title">Пробой + объём</div>Прорыв края с объёмом, ценовым прогрессом и удержанием делает acceptance рабочей гипотезой. Проверка — поведение на ретесте.</div>
+          <div class="card"><div class="card-title">Quality check</div>Направление цены → effort/result → source composition → organic/forced → follow-through. Направление агрессии spot/perp проверяй уже через CVD.</div>
+          <div class="card"><div class="card-title">Absorption / stopping</div>Большой объём, цена не идёт → поток принят лимитками. Жди failed follow-through и ретест зоны.</div>
+          <div class="card"><div class="card-title">Location before volume</div>Карту места даёт Volume Profile; здесь оцени effort, follow-through и результат взаимодействия.</div>
           <div class="card"><div class="card-title">Климакс</div>Всплеск на экстремуме + хвост = истощение. Фейд после подтверждения разворота.</div>
           <div class="card"><div class="card-title">Дивергенция</div>Цена ↑, объём ↓ = слабый тренд. Готовься к развороту, ужесточай риск.</div>
+          <div class="card"><div class="card-title">Dry pullback</div>Откат на низком объёме внутри тренда = здоровый. Агрессии против тренда нет, continuation вероятнее.</div>
+          <div class="card"><div class="card-title">Forced volume</div>Ликвидационный всплеск без follow-through часто финал импульса, а не начало органического спроса.</div>
         </div>
       </div>
 
@@ -588,6 +785,58 @@
     return svg;
   }
 
+  function tradeFacilitationSVG(){
+    var W=1280,H=500,svg=Viz.canvas({w:W,h:H,label:'Качество объёма и trade facilitation'});
+    Viz.label(svg,'Качество объёма: получает ли effort соразмерный result?',34,34,{w:560,size:13});
+
+    function panel(x,title,color,subtitle){
+      svg.appendChild(E('rect',{x:x,y:68,width:386,height:354,rx:8,fill:'#101012',stroke:color,'stroke-width':1.2,opacity:0.98}));
+      addText(svg,title,x+18,98,{size:13,fill:color,weight:700});
+      addText(svg,subtitle,x+18,120,{size:10,fill:'#8a8a92'});
+      [162,214,266].forEach(function(y){Viz.line(svg,{x1:x+18,y1:y,x2:x+368,y2:y,color:'#24242a',width:1,dash:'3 5'});});
+      Viz.line(svg,{x1:x+18,y1:334,x2:x+368,y2:334,color:'#313137',width:1});
+      addText(svg,'VOLUME',x+18,350,{size:9,fill:'#8a8a92',weight:700});
+    }
+    function poly(points,color,width,dash){
+      var a={points:points.map(function(p){return p[0]+','+p[1];}).join(' '),fill:'none',stroke:color,'stroke-width':width||2,'stroke-linecap':'round','stroke-linejoin':'round'};
+      if(dash)a['stroke-dasharray']=dash;
+      svg.appendChild(E('polyline',a));
+    }
+    function bars(x,vals,color){
+      var base=332,max=Math.max.apply(null,vals),bw=16,g=9;
+      vals.forEach(function(v,i){var h=Math.max(4,v/max*66);svg.appendChild(E('rect',{x:x+i*(bw+g),y:base-h,width:bw,height:h,rx:1,fill:color,opacity:0.78}));});
+    }
+
+    panel(26,'01 · CONSTRUCTIVE CONTINUATION','#ffe08a','импульс активный · откат тихий');
+    poly([[52,258],[92,224],[132,238],[172,192],[212,206],[252,158],[292,176],[352,130]],'#e2e5ea',2.4);
+    bars(52,[48,72,24,82,28,94,30,88],'#ffd23f');
+    addText(svg,'progress + participation',52,384,{size:11,fill:'#ffe08a',weight:700});
+    addText(svg,'рынок проводит сделки в сторону хода',52,404,{size:10,fill:'#c6c6ce'});
+
+    panel(447,'02 · EFFORT WITHOUT RESULT','#ffc599','объём растёт · прогресс сжимается');
+    Viz.level(svg,{x1:465,x2:815,y:190,color:'#c98bff',width:1.6,dash:'5 4',label:'key level',labelX:467,labelY:180,labelSize:10});
+    poly([[473,258],[513,224],[553,202],[593,190],[633,204],[673,186],[713,198],[773,188]],'#e2e5ea',2.4);
+    bars(473,[30,42,56,70,82,94,100,98],'#ff8c3a');
+    addText(svg,'effort растёт быстрее result',473,384,{size:11,fill:'#ffc599',weight:700});
+    addText(svg,'absorption / exhaustion до подтверждения',473,404,{size:10,fill:'#c6c6ce'});
+
+    panel(868,'03 · SOURCE COMPOSITION','#d9b8ff','где сосредоточен turnover');
+    poly([[894,260],[934,242],[974,218],[1014,202],[1054,176],[1094,158],[1134,136],[1214,112]],'#e2e5ea',2.3);
+    var spot=[18,22,20,26,24,30,28,32],perp=[44,52,58,62,70,76,82,88],base=332,bw=16,g=20,maxV=120;
+    spot.forEach(function(v,i){
+      var x=894+i*(bw+g),hs=v/maxV*86,hp=perp[i]/maxV*86;
+      svg.appendChild(E('rect',{x:x,y:base-hs,width:bw,height:hs,rx:1,fill:'#c98bff',opacity:0.82}));
+      svg.appendChild(E('rect',{x:x,y:base-hs-hp,width:bw,height:hp,rx:1,fill:'#ff8c3a',opacity:0.82}));
+    });
+    addText(svg,'PERP VOLUME',1132,244,{size:9,fill:'#ff8c3a',weight:700});
+    addText(svg,'SPOT VOLUME',1132,308,{size:9,fill:'#c98bff',weight:700});
+    addText(svg,'показывает источник участия',894,384,{size:11,fill:'#d9b8ff',weight:700});
+    addText(svg,'направление агрессии → смотри CVD',894,404,{size:10,fill:'#c6c6ce'});
+
+    Viz.text(svg,'Direction отвечает “куда?”. Quality отвечает “насколько хорошо?”. Объём не выбирает сторону — он проверяет работу рынка.',640,466,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
   var VOLS={
     effort:{label:'Effort vs Result',title:'Effort vs Result: усилие против результата',h:560,x0:130,dx:42,cw:15,seed:5,
       legs:[{n:6,from:300,to:296,vol:7,wick:10},{n:5,from:296,to:182,vol:11,wick:9},{n:6,from:182,to:362,vol:15,wick:11}],
@@ -599,6 +848,27 @@
         {x:952,y:364,w:298,h:120,title:'3 · усилие = результат',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Объём и ход совпали =','здоровая конвикция.','Движению можно верить.']}],
       legend:['Объём = усилие (effort), цена = результат (result). Их рассинхрон — главный сигнал.','Принцип Уайкоффа: всегда сопоставляй приложенное усилие с полученным результатом.']},
 
+    absorption:{label:'Absorption / stopping volume',title:'Absorption: большой объём, но мало результата',h:580,x0:120,dx:40,cw:15,seed:17,
+      legs:[{n:6,from:210,to:334,vol:12,wick:12},{n:5,from:334,to:328,vol:10,wick:18},{n:5,from:328,to:226,vol:14,wick:12}],
+      vols:[34,42,50,58,66,72, 98,104,100,92,86, 74,66,58,50,44],
+      volColors:[null,null,null,null,null,null,'#ffe08a','#ffe08a','#ffe08a','#ffe08a','#ffe08a'],
+      levels:[{y:328,color:'#c98bff',label:'зона поглощения / defended low'}],
+      ellipses:[{at:8,cy:328,rx:88,ry:30,color:'#ffe08a'}],
+      markers:[{n:1,at:8,y:326,color:'#ffe08a'},{n:2,at:12,y:246,color:'#c6c6ce'}],
+      notes:[{x:952,y:92,w:298,h:132,title:'1 · поток поглощён',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Продавцы давят маркетами, объём высокий,','но цена не обновляет low. Лимитный спрос','принимает поток = stopping volume.']},
+        {x:952,y:250,w:298,h:132,title:'2 · подтверждение',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,lines:['Ретест зоны слабее, нет follow-through,','затем возврат выше defended level.','Вход не на первом всплеске, а после отказа.']}],
+      legend:['Absorption = много сделок, но мало прогресса. Это не “сила объёма”, а конфликт агрессии и пассивной ликвидности.','Лучший location: high/low, край value, очевидный stop-run уровень. В середине диапазона сигнал слабее.']},
+
+    location:{label:'Location before volume',title:'Location before volume: место задаёт вопрос, объём показывает результат',h:600,x0:126,dx:38,cw:14,seed:23,
+      legs:[{n:6,from:252,to:176,vol:18,wick:12},{n:4,from:176,to:248,vol:18,wick:14},{n:5,from:248,to:328,vol:16,wick:12},{n:5,from:328,to:184,vol:18,wick:13}],
+      vols:[48,52,58,62,66,72, 88,82,76,70, 46,50,54,60,64, 82,86,78,72,66],
+      levels:[{y:176,color:'#c98bff',label:'край прошлого value'},{y:252,color:'#ffd23f',label:'центр исторического бизнеса',width:2.2},{y:328,color:'#c98bff',label:'край прошлого value'}],
+      ellipses:[{at:5,cy:176,rx:34,ry:24,color:'#c98bff'},{at:9,cy:252,rx:34,ry:24,color:'#ffd23f'},{at:14,cy:328,rx:34,ry:24,color:'#c98bff'}],
+      markers:[{n:1,at:5,y:176,color:'#c98bff'},{n:2,at:9,y:252,color:'#ffd23f'},{n:3,at:14,y:328,color:'#c98bff'}],
+      notes:[{x:952,y:84,w:298,h:144,title:'Сначала место',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Край: acceptance или rejection?', 'Узел: ротация или новая инициатива?', 'High/Low: climax, absorption, failed auction?', 'Середина баланса: чаще просто бизнес.']},
+        {x:952,y:260,w:298,h:122,title:'Один объём — разные выводы',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,lines:['Всплеск у края может решить аукцион.', 'Всплеск в центре может ничего не значить.', 'Контекст уровня важнее абсолютного числа.']}],
+      legend:['Location задаёт гипотезу; volume измеряет effort и результат взаимодействия с этой зоной.','Подробную карту POC / VA / HVN / LVN строит отдельный раздел Volume Profile.']},
+
     breakout:{label:'Объём на пробое',title:'Объём на пробое: acceptance vs тык',h:540,x0:120,dx:40,cw:15,seed:11,
       legs:[{n:6,from:300,to:300,vol:7,wick:10},{n:3,from:300,to:248,vol:7,wick:8},{n:3,from:248,to:300,vol:7,wick:8},{n:6,from:300,to:150,vol:12,wick:10}],
       vols:[44,40,48,42,46,40, 18,14,16, 20,16,14, 70,88,96,90,84,78],
@@ -607,7 +877,7 @@
       markers:[{n:1,at:7,y:214,color:'#ffc599'},{n:2,at:14,y:118,color:'#ffd23f'}],
       notes:[{x:952,y:92,w:298,h:118,title:'1 · тык без объёма',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Выход за край на низком объёме →','нет принятия → возврат.','Сырьё для failed auction (AMT).']},
         {x:952,y:236,w:298,h:118,title:'2 · пробой на объёме',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,lines:['Прорыв со всплеском объёма →','acceptance. Подтверждение —','объём на ретесте края.']}],
-      legend:['Пробой на ВЫСОКОМ объёме = принятие; на НИЗКОМ = подозрительно (возврат).','Объём — инструмент, которым отличают acceptance от rejection (раздел AMT).']},
+      legend:['Пробой подтверждается связкой: участие + ценовой прогресс + удержание. Один высокий объём ещё не равен acceptance.','Объём помогает отличать acceptance от rejection, но окончательный ответ даёт follow-through (раздел AMT).']},
 
     climax:{label:'Климакс и истощение',title:'Климакс: пик усилия = истощение',h:540,x0:140,dx:44,cw:15,seed:3,
       legs:[{n:8,from:380,to:172,vol:10,wick:11},{n:1,from:172,to:152,vol:4,wick:26},{n:7,from:152,to:336,vol:13,wick:12}],
@@ -626,10 +896,43 @@
       lines:[{x1:150,y1:352,x2:728,y2:152,color:'#9cc5ec',dash:'6 5',opacity:0.8},{x1:150,y1:382,x2:728,y2:436,color:'#ffc599',dash:'6 5',opacity:0.85}],
       markers:[{n:1,at:10,y:124,color:'#ffc599'}],
       notes:[{x:952,y:110,w:298,h:150,title:'Слабеющий тренд',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Цена ставит новые хаи (синяя),','а объём на импульсах падает','(оранжевая). За движением','всё меньше участников.']}],
-      legend:['Цена ↑ + объём ↓ = тренд слабеет: нет подтверждения усилием.','Это предупреждение, не вход. Усиль связкой с OI и CVD.']}
+      legend:['Цена ↑ + объём ↓ = тренд слабеет: нет подтверждения усилием.','Это предупреждение, не вход. Усиль связкой с OI и CVD.']},
+
+    dryup:{label:'Volume dry-up and drift',title:'Dry-up: объём сжимается перед расширением',h:540,x0:122,dx:40,cw:14,seed:29,
+      legs:[{n:12,from:286,to:278,vol:16,wick:10},{n:6,from:278,to:164,vol:12,wick:10}],
+      vols:[52,46,40,34,28,22,18,15,13,12,13,16, 72,86,92,88,78,70],
+      volColors:[null,null,null,null,null,null,'#565660','#565660','#565660','#565660','#565660','#565660','#ffd23f','#ffd23f','#ffd23f','#ffd23f','#ffd23f','#ffd23f'],
+      levels:[{y:244,color:'#c98bff',label:'compression range',dash:'5 4'}],
+      ellipses:[{at:8,cy:432,rx:120,ry:28,color:'#c6c6ce'}],
+      markers:[{n:1,at:8,y:274,color:'#c6c6ce'},{n:2,at:14,y:168,color:'#ffd23f'}],
+      notes:[{x:952,y:92,w:298,h:132,title:'1 · объём пересыхает',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,lines:['Цена сжимается, объём падает.', 'Участников меньше, энергия копится.', 'Это не вход, а подготовка к расширению.']},
+        {x:952,y:250,w:298,h:132,title:'2 · expansion',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,lines:['Пробой диапазона на росте объёма.', 'Если ретест сухой и держит край,', 'движение подтверждено.']}],
+      legend:['Dry-up внутри range = сжатие интереса; расширение начинается, когда объём возвращается на пробое.','Dry pullback внутри тренда часто здоровый: агрессии против тренда нет.']},
+
+    rvol:{label:'Relative volume',title:'RVOL: много или мало относительно нормы',h:500,x0:118,dx:38,cw:14,seed:31,
+      legs:[{n:18,from:286,to:206,vol:32,wick:14}],
+      vols:[38,42,36,40,44,39,41,37,43,40, 88,96,92,84, 52,48,44,42],
+      volColors:[null,null,null,null,null,null,null,null,null,null,'#ffd23f','#ffd23f','#ffd23f','#ffd23f',null,null,null,null],
+      lines:[{x1:88,y1:390,x2:820,y2:390,color:'#8a8a92',dash:'4 5',opacity:0.8}],
+      markers:[{n:1,at:11,y:164,color:'#ffd23f'}],
+      notes:[{x:952,y:96,w:298,h:132,title:'RVOL = текущий / средний',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Сравнивай сопоставимое:', 'час к часу, сессию к сессии,', 'инструмент к самому себе.']},
+        {x:952,y:252,w:298,h:132,title:'Что значит spike',titleColor:'#c6c6ce',size:13,lineH:19,titleSize:13,lines:['Новость, ликвидации, открытие сессии,', 'важный уровень или настоящий интерес.', 'Контекст решает, что именно.']}],
+      legend:['RVOL делает “много/мало” объективным. Абсолютный объём без среднего почти бесполезен.','На крипте 24/7 сравнивай одинаковые часы/сессии, иначе ночной спад выглядит как ложная дивергенция.']},
+
+    forced:{label:'Organic vs forced volume',title:'Organic vs forced volume: интерес или вынужденный поток',h:580,x0:120,dx:40,cw:15,seed:41,
+      legs:[{n:6,from:330,to:230,vol:12,wick:11},{n:3,from:230,to:118,vol:10,wick:18},{n:4,from:118,to:136,vol:18,wick:22},{n:5,from:136,to:282,vol:16,wick:16}],
+      vols:[38,44,50,56,62,68, 96,108,118, 112,104,98,90, 78,70,62,54,48],
+      volColors:[null,null,null,null,null,null,'#ff8c3a','#ff8c3a','#ff8c3a','#ff8c3a','#ff8c3a','#ff8c3a','#ff8c3a'],
+      levels:[{y:150,color:'#c98bff',label:'obvious high / stops'}],
+      ellipses:[{at:9,cy:128,rx:82,ry:34,color:'#ff8c3a'}],
+      markers:[{n:1,at:8,y:112,color:'#ff8c3a'},{n:2,at:13,y:204,color:'#c6c6ce'}],
+      notes:[{x:952,y:92,w:298,h:132,title:'Forced flow',titleColor:'#ff8c3a',size:13,lineH:19,titleSize:13,lines:['Стопы / ликвидации дают огромный объём,', 'но это вынужденные сделки.', 'Если нет follow-through — топливо исчезло.']},
+        {x:952,y:250,w:298,h:132,title:'Organic flow',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Здоровее: объём растёт, уровень держится,', 'ретест сухой, OI поддерживает идею.', 'Это больше похоже на новый интерес.']}],
+      legend:['Forced volume часто выглядит как сила, но по смыслу может быть финальным выносом проигравших.','Разделяй volume + liquidations + OI: так понятнее, это органический спрос или вынужденный каскад.']}
   };
 
   document.querySelectorAll('[data-vol]').forEach(function(d){var cf=VOLS[d.dataset.vol];if(cf)d.appendChild(volStory(cf));});
+  document.querySelectorAll('[data-vol-facilitation]').forEach(function(d){d.appendChild(tradeFacilitationSVG());});
 })();
 </script>
 

@@ -498,13 +498,13 @@
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
     <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
     <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item active" href="#"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
@@ -525,7 +525,11 @@
     <a href="#composite">09 · Композиты</a>
     <a href="#session">10 · Старт сессии</a>
     <a href="#vs-vp">11 · TPO vs Volume Profile</a>
-    <a href="#trade">12 · Как торговать</a>
+    <a href="#workflow">12 · Live TPO workflow</a>
+    <a href="#lifecycle">13 · Lifecycle уровня</a>
+    <a href="#flow-confirm">14 · TPO + Flow matrix</a>
+    <a href="#crypto-real">15 · Crypto / когда TPO слаб</a>
+    <a href="#trade">16 · Как торговать</a>
   </div>
 </aside>
 
@@ -590,7 +594,7 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <p>Под TPO лежит <strong>Auction Market Theory</strong>: рынок — двусторонний аукцион, который ищет цену, устраивающую обе стороны. Профиль — визуализация этого поиска. Отсюда главный вопрос ко всему дальше: <em>цена принята (баланс) или отвергнута (имбаланс)?</em> — см. §02.</p>
-        <div class="hl azure"><span class="hl-label">На рынке</span>TPO считает <strong>время</strong>, Volume Profile — <strong>объём</strong> (§12). На крипте объём надёжен, поэтому многие смотрят VP. Но язык один (POC, VA, ноды), и весь разбор ниже работает для обоих.</div>
+        <div class="hl azure"><span class="hl-label">На рынке</span>TPO считает <strong>время</strong>, Volume Profile — <strong>объём</strong> (§12). На крипте VP популярен, но объём фрагментирован между биржами, поэтому источник данных важен. Язык один (POC, VA, ноды), однако расхождение TPO и VP само по себе может быть информативно.</div>
       </div>
 
     </div>
@@ -664,17 +668,17 @@
         <span class="lvl-tag">L1 · База</span>
         <p>Три главных ориентира + два типа нод:</p>
         <ul>
-          <li><strong>POC</strong> (Point of Control) — уровень с максимумом времени/объёма. Самая «справедливая» цена, главный магнит</li>
-          <li><strong>Value Area</strong> — диапазон ~70% активности (≈1σ). Границы: <strong>VAH</strong> сверху, <strong>VAL</strong> снизу</li>
-          <li><strong>HVN</strong> (High Volume Node) — утолщение профиля = принятая цена. <strong>LVN</strong> (Low Volume Node) — провал = отвергнутая цена. POC = самый крупный HVN</li>
+          <li><strong>POC</strong> (Point of Control) — ряд с максимумом активности выбранного профиля: времени в TPO или объёма в VP. Возможный destination, но не гарантированный магнит</li>
+          <li><strong>Value Area</strong> — алгоритмически собранный диапазон заданной доли активности, обычно ~70%. Границы: <strong>VAH</strong> сверху, <strong>VAL</strong> снизу</li>
+          <li><strong>HVN</strong> — утолщение с высоким историческим участием. <strong>LVN</strong> — провал с низким участием. Их актуальность показывает только реакция текущего аукциона</li>
         </ul>
 
         <div class="diagram">
           <div class="mpchart" data-poc-story></div>
-          <div class="diagram-cap">POC = самый крупный HVN и центр принятия. VAH/VAL задают границы value area; реакция вокруг них говорит, рынок принимает цену или возвращается к справедливой зоне.</div>
+          <div class="diagram-cap">POC отмечает максимум активности выбранного профиля. VAH/VAL задают границы value area; реакция вокруг них показывает acceptance, rejection или строительство нового value.</div>
         </div>
 
-        <div class="hl green"><span class="hl-label">Аналогия</span>POC — центр тяжести. VAH/VAL — стены комнаты, где рынок «договорился». HVN — обжитые этажи (магниты), LVN — пролёты между ними, которые проскакивают быстро.</div>
+        <div class="hl green"><span class="hl-label">Аналогия</span>POC и HVN отмечают исторические центры участия; VAH/VAL — края выбранной value; LVN — тонкие коридоры между узлами. Но destination, rejection или быстрый проход определяет уже текущий аукцион.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -1129,18 +1133,202 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <p><strong>Дивергенция информативна:</strong> много времени + мало объёма = цена зависла без участия (слабое согласие). Мало времени + много объёма = быстрый, но мощный пролив (сильный уровень, сменился контроль).</p>
-        <div class="hl azure"><span class="hl-label">В MMT</span>На крипте объём надёжен → VP чаще практичнее. Рабочий подход — наложить оба. В MMT объёмный профиль есть в трёх видах: <strong>VPVR</strong> (Visible Range), <strong>VPSV</strong> (Session Volume) и <strong>FRVP</strong> (Fixed Range — свой диапазон high–low). У всех есть POC и VAH/VAL, режимы Buy / Sell / Total / Delta.</div>
+        <p><strong>Дивергенция информативна:</strong> много времени + мало объёма может означать зависание без сильного участия; мало времени + много объёма — быстрое исполнение. Вывод подтверждай последующей реакцией, а не самой формой.</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>На крипте VP часто практичен, но объём фрагментирован между площадками, поэтому источник данных важен. Рабочий подход — наложить TPO и VP и изучить расхождения. В MMT объёмный профиль есть в трёх видах: <strong>VPVR</strong> (Visible Range), <strong>VPSV</strong> (Session Volume) и <strong>FRVP</strong> (Fixed Range — свой диапазон high–low). У всех есть POC и VAH/VAL, режимы Buy / Sell / Total / Delta.</div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 13. КАК ТОРГОВАТЬ ─────── -->
-  <section class="section" id="trade">
+  <!-- ─────── 12. LIVE WORKFLOW ─────── -->
+  <section class="section visual-wide" id="workflow">
     <div class="section-header">
       <span class="section-num">12</span>
+      <span class="section-title">Live TPO workflow</span>
+      <span class="section-badge">process</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Практический TPO начинается не с поиска сетапа, а с карты: <strong>где старшая стоимость</strong>, где цена относительно вчерашней/композитной value, и какой режим формируется сегодня.</p>
+        <div class="diagram">
+          <div class="mpchart" data-workflow-story></div>
+          <div class="diagram-cap">Рабочий порядок: HTF composite → prior day VA/POC → overnight/Asia/EU/NY контекст → IB/range extension → реакция у уровня → flow-trigger.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Шаг</th><th>Что отметить</th><th>Практический вопрос</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. HTF map</strong></td><td>Composite VAH/POC/VAL, nPOC, poor H/L, single prints, prior balance.</td><td>Где я хочу видеть реакцию, а где не должен торговать в середине?</td></tr>
+            <tr><td><strong>2. Prior session</strong></td><td>Вчерашние VAH/POC/VAL, close, excess, migrated value.</td><td>Сегодня цена открылась внутри value, выше/ниже, или у края?</td></tr>
+            <tr><td><strong>3. Current auction</strong></td><td>IB, range extension, acceptance/rejection у VA, value placement.</td><td>Это баланс, попытка имбаланса или failed auction?</td></tr>
+            <tr><td><strong>4. Execution</strong></td><td>Footprint, volume, delta, CVD, OI/funding при подходе к зоне.</td><td>Поток подтверждает идею или просто цена дошла до красивой линии?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Фраза перед входом</span>«Я торгую [реакцию/принятие/пробой] у [HTF/TPO zone], потому что [режим + location], подтверждение [flow], invalidation [структура/VA edge]». Если фраза не собирается — это не сетап, а желание нажать кнопку.</div>
+        <div class="hl red"><span class="hl-label">Не делай наоборот</span>Не начинай с LTF-свечки и не натягивай на неё TPO задним числом. TPO даёт контекст и location; flow даёт тайминг.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 13. LIFECYCLE УРОВНЯ ─────── -->
+  <section class="section visual-wide" id="lifecycle">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <span class="section-title">Lifecycle уровня: когда зона жива и когда умерла</span>
+      <span class="section-badge">validation</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>nPOC, single print, poor high/low, ledge и VA edge — это <strong>не вечные уровни</strong>. У каждой зоны есть жизненный цикл: появилась → цена подошла → первый тест → ретест → принятие/отказ → зона либо подтверждена, либо поглощена рынком.</p>
+        <div class="diagram">
+          <div class="mpchart" data-lifecycle-story></div>
+          <div class="diagram-cap">Уровень полезен, пока рынок реагирует на него как на информацию. После acceptance-through зона перестаёт быть “магнитом” и становится историей.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Fresh level</div>Свежий excess / nPOC / poor H/L ещё не протестирован. Это зона интереса, но входа нет до реакции.</div>
+          <div class="card"><div class="card-title">First touch</div>Первое касание самое информативное: резкий отказ = уровень подтверждён; медленное проталкивание = уровень слабнет.</div>
+          <div class="card"><div class="card-title">Retest</div>Удержание ретеста даёт S/R flip. Чем больше чистых удержаний, тем больше доверия, но тем хуже R:R при позднем входе.</div>
+          <div class="card"><div class="card-title">Acceptance-through</div>Цена проводит время за уровнем, value строится с другой стороны, поток не откатывает обратно — уровень “умер” как сопротивление/поддержка.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <table>
+          <thead><tr><th>Объект</th><th>Живой, если...</th><th>Умер / переоценён, если...</th></tr></thead>
+          <tbody>
+            <tr><td><strong>nPOC</strong></td><td>Sweep даёт отказ, absorption, возврат от старой цены.</td><td>Цена принимает уровень и строит value вокруг него.</td></tr>
+            <tr><td><strong>Single print</strong></td><td>Ретест держит как S/R и цена не заполняет тонкую зону.</td><td>Заполнение идёт легко, без реакции и с continuation volume.</td></tr>
+            <tr><td><strong>Poor H/L</strong></td><td>Run them → exhaustion / delta divergence / failure to continue.</td><td>Сняли и приняли выше/ниже, новые участники поддержали пробой.</td></tr>
+            <tr><td><strong>Ledge</strong></td><td>Отказ на подходе или clean retest после breakout.</td><td>Полку прошли с объёмом и она больше не даёт реакции.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 14. TPO + FLOW MATRIX ─────── -->
+  <section class="section visual-wide" id="flow-confirm">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <span class="section-title">TPO + Flow confirmation matrix</span>
+      <span class="section-badge">execution</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>TPO отвечает <strong>где</strong> и <strong>почему</strong>. Flow отвечает <strong>когда</strong> и <strong>есть ли участник</strong>. Сетап появляется только когда location и поведение потока говорят одно и то же.</p>
+        <div class="diagram">
+          <div class="mpchart" data-flow-matrix-story></div>
+          <div class="diagram-cap">Один и тот же TPO-уровень может дать fade, continuation или no trade. Разницу делает поток: absorption, delta, volume, OI, скорость возврата.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>TPO location</th><th>Flow подтверждает</th><th>Идея</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Tail retest</strong></td><td>Absorption + слабая дельта против уровня.</td><td>Хвост держит → continuation от excess.</td></tr>
+            <tr><td><strong>Single print fill</strong></td><td>Нет реакции, объём проходит сквозь LVN.</td><td>Conviction был блефом → retrace через тонкую зону.</td></tr>
+            <tr><td><strong>Poor high run</strong></td><td>Снятие + delta exhaustion / CVD divergence.</td><td>Run them → fade, если нет acceptance выше.</td></tr>
+            <tr><td><strong>Ledge breakout</strong></td><td>Volume/OI expansion + retest держит.</td><td>Breakout / S/R flip.</td></tr>
+            <tr><td><strong>nPOC sweep</strong></td><td>Sweep + отказ = reaction; sweep + acceptance = continuation.</td><td>Сначала смотри реакцию, потом выбирай сторону.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Стек сигналов</span>Лучшие сделки обычно не от “уровня”, а от стека: HTF composite edge + TPO anomaly + volume/OI confirmation + чистая invalidation. Если есть только один элемент — это наблюдение, не сделка.</div>
+        <div class="hl red"><span class="hl-label">No trade тоже решение</span>Если цена пришла к TPO-зоне, но flow нейтрален, уровень не обязан работать прямо сейчас. Не превращай every touch в entry.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 15. CRYPTO / LIMITS ─────── -->
+  <section class="section" id="crypto-real">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <span class="section-title">Crypto 24/7: адаптация и слабые места TPO</span>
+      <span class="section-badge">real market</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Крипта не имеет классического pit open/close, поэтому TPO нужно читать через <strong>условные сессии</strong>: UTC day, Asia / Europe / US handoff, weekend balance, funding windows, news / liquidation impulses.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">UTC daily open</div>Не “магический open”, а якорь дня. Смотри, принимает ли цена выше/ниже prior day value после старта нового окна.</div>
+          <div class="card"><div class="card-title">Asia / EU / US handoff</div>Часто один регион строит balance, другой делает range extension. Важно, кто принимает цену после импульса.</div>
+          <div class="card"><div class="card-title">Weekend balance</div>Тонкая ликвидность часто строит аккуратный рейндж. Реальная проверка — понедельник/US, когда возвращается объём.</div>
+          <div class="card"><div class="card-title">Liquidation impulse</div>Большая свеча может оставить single prints, но это не всегда organic trend. Проверяй OI: выбило позиции или пришёл новый участник?</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Когда TPO слаб</span>
+        <ul>
+          <li><strong>Неверный session split</strong> ломает картину: VA/POC меняются от того, где ты разрезал 24/7 рынок</li>
+          <li><strong>Слишком мелкий row size</strong> делает профиль шумным; слишком крупный прячет single prints / poor H/L</li>
+          <li><strong>News/liquidation candles</strong> могут создать “красивый” TPO-след, который без OI/volume не имеет устойчивой логики</li>
+          <li><strong>Blind nPOC magnets</strong> опасны: уровень может висеть долго, особенно в сильном тренде</li>
+          <li><strong>Low-liquidity chop</strong> создаёт много poor H/L и ledges, но большая часть из них не даёт качественного R:R</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Практичная настройка</span>Калибруй row size и session template под инструмент. Если профиль начинает “рисовать всё подряд”, он перестал фильтровать информацию.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 16. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">16</span>
       <span class="section-title">Как торговать: playbook</span>
       <span class="section-badge">playbook</span>
     </div>
@@ -1952,6 +2140,153 @@
         {atCandle:15,side:'high',dy:28,dx:18,t:'новый баланс',anchor:'middle',w:104}]}
   };
 
+  function workflowStorySVG(){
+    var W=1280,H=660,svg=Viz.canvas({
+      w:W,h:H,label:'Live TPO workflow: HTF map to flow trigger',
+      grid:{start:86,end:H-70,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Live TPO workflow: от карты к исполнению',34,36,{w:360,size:13});
+    Viz.line(svg,{x1:318,y1:86,x2:318,y2:498,color:'#25252a'});
+    Viz.line(svg,{x1:626,y1:86,x2:626,y2:498,color:'#25252a'});
+    Viz.line(svg,{x1:936,y1:86,x2:936,y2:498,color:'#25252a'});
+
+    Viz.label(svg,'1. HTF composite',42,76,{w:166,size:12,fill:'#c98bff'});
+    var prof=Viz.profile(svg,{rows:[2,4,7,12,20,32,48,64,78,86,80,66,50,34,21,12,6,3],x:68,y:112,bw:8,bh:9,g:1,maxB:34,fade:0.96,axis:true,axisColor:'#6a6a72'});
+    var vah=prof.rowY(6),poc=prof.rowY(9),val=prof.rowY(13);
+    Viz.level(svg,{x1:60,x2:284,y:vah,color:C.va,width:1.5,label:'VAH',labelX:238,labelY:vah-8,labelSize:11});
+    Viz.level(svg,{x1:60,x2:284,y:poc,color:C.poc,width:2.8,label:'POC',labelX:238,labelY:poc-8,labelSize:11});
+    Viz.level(svg,{x1:60,x2:284,y:val,color:C.va,width:1.5,label:'VAL',labelX:238,labelY:val+16,labelSize:11});
+    Viz.text(svg,'old value / nPOC / anomalies',72,354,{size:11,fill:'#c6c6ce'});
+    Viz.note(svg,{x:42,y:430,w:254,h:92,title:'Question',titleColor:'#c98bff',size:12,lineH:18,titleSize:12,
+      lines:['Where do I expect response?', 'What area should not be traded', 'in the middle?']});
+
+    Viz.label(svg,'2. Prior day + current session',348,76,{w:252,size:12,fill:'#ffd23f'});
+    Viz.level(svg,{x1:352,x2:596,y:vah,color:C.va,width:1.3,label:'prior VAH',labelX:514,labelY:vah-8,labelSize:11});
+    Viz.level(svg,{x1:352,x2:596,y:poc,color:C.poc,width:2.4,label:'prior POC',labelX:514,labelY:poc-8,labelSize:11});
+    Viz.level(svg,{x1:352,x2:596,y:val,color:C.va,width:1.3,label:'prior VAL',labelX:514,labelY:val+16,labelSize:11});
+    Viz.candleWalk(svg,{x0:374,dx:14,cw:9,seed:41,legs:[
+      {n:5,from:val+8,to:poc+8,vol:12,wick:12},
+      {n:5,from:poc+8,to:vah-10,vol:10,wick:11},
+      {n:4,from:vah-10,to:vah+18,vol:8,wick:10},
+      {n:5,from:vah+18,to:poc+12,vol:9,wick:10}
+    ]});
+    svg.appendChild(E('rect',{x:374,y:286,width:124,height:38,rx:4,fill:'#ffd23f',opacity:0.08,stroke:'#ffd23f','stroke-width':1,'stroke-dasharray':'5 4'}));
+    Viz.text(svg,'IB / opening range',382,346,{size:11,fill:'#ffd23f'});
+    Viz.note(svg,{x:352,y:430,w:254,h:92,title:'Question',titleColor:'#ffd23f',size:12,lineH:18,titleSize:12,
+      lines:['Inside prior value?', 'Accepted outside?', 'Range extension or chop?'],stroke:'#3a2a24'});
+
+    Viz.label(svg,'3. Location for trade',666,76,{w:198,size:12,fill:'#9cc5ec'});
+    var zY=val+4;
+    svg.appendChild(E('rect',{x:662,y:zY-18,width:250,height:60,rx:5,fill:'#c98bff',opacity:0.08,stroke:'#c98bff','stroke-width':1,'stroke-dasharray':'6 5'}));
+    Viz.text(svg,'zone: prior VAL / single print',682,zY-28,{size:11,fill:'#c98bff'});
+    Viz.candleWalk(svg,{x0:688,dx:15,cw:9,seed:84,legs:[
+      {n:5,from:poc+34,to:zY+22,vol:13,wick:12},
+      {n:4,from:zY+22,to:zY-6,vol:9,wick:12},
+      {n:5,from:zY-6,to:zY+28,vol:8,wick:13},
+      {n:4,from:zY+28,to:poc+18,vol:11,wick:12}
+    ]});
+    Viz.callout(svg,{text:'reaction or acceptance?',x:742,y:236,toX:798,toY:zY,color:'#9cc5ec',size:12,weight:700});
+    Viz.note(svg,{x:662,y:430,w:254,h:92,title:'Decision',titleColor:'#9cc5ec',size:12,lineH:18,titleSize:12,
+      lines:['Fade if rejected.', 'Continue if accepted.', 'Skip if flow is neutral.']});
+
+    Viz.label(svg,'4. Flow trigger + risk',972,76,{w:214,size:12,fill:'#ffc599'});
+    Viz.candleWalk(svg,{x0:1004,dx:15,cw:9,seed:103,legs:[
+      {n:4,from:zY+38,to:zY+10,vol:12,wick:11},
+      {n:4,from:zY+10,to:zY-24,vol:9,wick:12},
+      {n:4,from:zY-24,to:zY+18,vol:8,wick:12},
+      {n:5,from:zY+18,to:poc+10,vol:13,wick:14}
+    ]});
+    Viz.line(svg,{x1:988,y1:zY+48,x2:1210,y2:zY+48,color:'#ffc599',width:1.4,dash:'6 4'});
+    Viz.label(svg,'invalid',990,zY+72,{w:76,size:11,fill:'#ffc599',stroke:'#ffc599'});
+    Viz.label(svg,'entry',1052,zY+4,{w:64,size:11,fill:'#9cc5ec',stroke:'#9cc5ec'});
+    Viz.label(svg,'target: POC / other edge',1070,190,{w:190,size:11,fill:'#ffd23f',stroke:'#ffd23f'});
+    Viz.note(svg,{x:972,y:430,w:254,h:92,title:'Trigger',titleColor:'#ffc599',size:12,lineH:18,titleSize:12,
+      lines:['Absorption / delta divergence', 'volume response / OI context', 'clear invalidation first.'],stroke:'#3a2a24'});
+
+    Viz.line(svg,{x1:302,y1:302,x2:342,y2:302,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:610,y1:302,x2:650,y2:302,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:920,y1:302,x2:960,y2:302,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.note(svg,{x:210,y:556,w:860,h:54,title:'Practical rule',titleColor:'#ffd23f',size:12,lineH:18,titleSize:12,
+      lines:['Start with context, not candles. TPO gives location and scenario; order flow decides whether the level is tradable now.']});
+    return svg;
+  }
+
+  function lifecycleStorySVG(){
+    var W=1280,H=640,svg=Viz.canvas({
+      w:W,h:H,label:'TPO level lifecycle: fresh, tested, confirmed, accepted through',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'Lifecycle уровня: от свежей зоны до acceptance-through',34,36,{w:430,size:13});
+    var levelY=284;
+    Viz.level(svg,{x1:58,x2:1190,y:levelY,color:C.poc,width:2.6,label:'TPO zone',labelX:78,labelY:levelY-10,labelSize:12});
+    svg.appendChild(E('rect',{x:58,y:levelY-24,width:1132,height:48,rx:6,fill:'#ffd23f',opacity:0.05,stroke:'#ffd23f','stroke-width':1,'stroke-dasharray':'7 5'}));
+
+    function phase(x,n,title,body,color){
+      Viz.marker(svg,{n:n,x:x,y:96,color:color,size:11});
+      Viz.label(svg,title,x-58,138,{w:132,size:11,fill:color,stroke:color});
+      Viz.line(svg,{x1:x,y1:154,x2:x,y2:levelY-30,color:color,width:1,opacity:0.65,arrow:true});
+      Viz.note(svg,{x:x-112,y:420,w:224,h:86,title:title,titleColor:color,size:11,lineH:16,titleSize:11,lines:body});
+    }
+    phase(180,1,'Fresh',['Level exists, no entry yet.', 'Mark it, then wait for', 'first real response.'],'#c98bff');
+    phase(430,2,'First touch',['Fast rejection confirms', 'the level as information.', 'Slow grind weakens it.'],'#9cc5ec');
+    phase(680,3,'Retest / S-R flip',['Hold on retest = usable.', 'Late entries often have', 'worse R:R.'],'#ffd23f');
+    phase(930,4,'Acceptance',['Time builds beyond level.', 'Value migrates through it.', 'Old level is repriced.'],'#ffc599');
+    phase(1130,5,'Dead / recycled',['No reaction anymore.', 'Use it only as context,', 'not as a trigger.'],'#6fcb7f');
+
+    Viz.profile(svg,{rows:[2,4,7,12,20,30,42,52,46,34,20,10,5,3],x:72,y:176,bw:7,bh:8,g:1,maxB:22,fade:0.82,axis:true,axisColor:'#6a6a72'});
+    Viz.candleWalk(svg,{x0:350,dx:17,cw:10,seed:162,legs:[
+      {n:5,from:360,to:levelY+16,vol:12,wick:12},
+      {n:5,from:levelY+16,to:levelY-38,vol:10,wick:13},
+      {n:5,from:levelY-38,to:levelY+10,vol:8,wick:12},
+      {n:6,from:levelY+10,to:levelY-76,vol:12,wick:13},
+      {n:6,from:levelY-76,to:levelY-18,vol:10,wick:12},
+      {n:6,from:levelY-18,to:levelY+74,vol:15,wick:14}
+    ]});
+    svg.appendChild(E('ellipse',{cx:430,cy:levelY,rx:36,ry:24,fill:'none',stroke:'#9cc5ec','stroke-width':1.4}));
+    svg.appendChild(E('ellipse',{cx:680,cy:levelY-18,rx:38,ry:24,fill:'none',stroke:'#ffd23f','stroke-width':1.4}));
+    svg.appendChild(E('ellipse',{cx:930,cy:levelY+20,rx:44,ry:28,fill:'none',stroke:'#ffc599','stroke-width':1.5}));
+    Viz.text(svg,'accepted value starts building on the other side',800,364,{size:12,fill:'#ffc599',weight:700});
+    return svg;
+  }
+
+  function flowMatrixStorySVG(){
+    var W=1280,H=660,svg=Viz.canvas({
+      w:W,h:H,label:'TPO plus order flow confirmation matrix',
+      grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
+    });
+    Viz.label(svg,'TPO + Flow confirmation matrix',34,36,{w:318,size:13});
+    Viz.text(svg,'TPO location',88,86,{size:12,fill:'#c98bff',weight:700});
+    Viz.text(svg,'Flow behavior',430,86,{size:12,fill:'#9cc5ec',weight:700});
+    Viz.text(svg,'Trade decision',842,86,{size:12,fill:'#ffd23f',weight:700});
+
+    function row(y,title,flow,decision,color,kind){
+      svg.appendChild(E('rect',{x:58,y:y-24,width:1120,height:74,rx:7,fill:'#101012',stroke:'#25252a','stroke-width':1,opacity:0.96}));
+      if(kind==='tail'){
+        Viz.profile(svg,{rows:[1,1,2,5,10,18,24,20,12,6,3,1],x:86,y:y-14,bw:5,bh:4,g:1,maxB:18,fade:0.88,axis:true,axisColor:'#606069'});
+        Viz.line(svg,{x1:80,y1:y-6,x2:190,y2:y-6,color:color,width:2});
+      } else if(kind==='sp'){
+        Viz.profile(svg,{rows:[8,14,22,26,18,3,2,3,16,24,20,10],x:86,y:y-14,bw:5,bh:4,g:1,maxB:18,fade:0.88,axis:true,axisColor:'#606069'});
+        svg.appendChild(E('rect',{x:84,y:y+10,width:124,height:14,rx:3,fill:color,opacity:0.12,stroke:color,'stroke-width':1,'stroke-dasharray':'4 3'}));
+      } else {
+        Viz.profile(svg,{rows:[3,7,13,22,30,26,18,10,5,2],x:86,y:y-10,bw:5,bh:5,g:1,maxB:18,fade:0.88,axis:true,axisColor:'#606069'});
+        Viz.line(svg,{x1:80,y1:y+14,x2:208,y2:y+14,color:color,width:2});
+      }
+      Viz.text(svg,title,232,y+5,{size:12,fill:'#ececef',weight:700});
+      Viz.line(svg,{x1:392,y1:y+8,x2:410,y2:y+8,color:'#8a8a92',width:1.2,arrow:true});
+      Viz.text(svg,flow,430,y+5,{size:12,fill:'#c6c6ce'});
+      Viz.line(svg,{x1:804,y1:y+8,x2:824,y2:y+8,color:'#8a8a92',width:1.2,arrow:true});
+      Viz.text(svg,decision,842,y+5,{size:12,fill:color,weight:700});
+    }
+    row(130,'Tail retest','absorption + weak opposite delta','tail holds → continuation','#ffd23f','tail');
+    row(224,'Single print fill','no response, volume passes through LVN','conviction failed → retrace','#ffc599','sp');
+    row(318,'Poor high run','stops swept + delta/CVD exhaustion','fade unless accepted above','#c98bff','flat');
+    row(412,'Ledge breakout','volume/OI expansion + retest holds','breakout / S-R flip','#9cc5ec','flat');
+    row(506,'nPOC sweep','reject = reaction; accept = continuation','wait for response, then choose','#6fcb7f','flat');
+    Viz.note(svg,{x:118,y:586,w:980,h:50,title:'Rule',titleColor:'#ffd23f',size:12,lineH:18,titleSize:12,
+      lines:['Same TPO level can produce opposite trades. The flow around the level decides whether it is fade, continuation, or no trade.']});
+    return svg;
+  }
+
   document.querySelectorAll('.mpchart').forEach(function(d){var cf=CH[d.dataset.chart];if(cf)d.appendChild(chart(cf));});
   document.querySelectorAll('[data-poc-story]').forEach(function(d){d.appendChild(pocStorySVG());});
   document.querySelectorAll('[data-npoc-story]').forEach(function(d){d.appendChild(npocStorySVG());});
@@ -1961,6 +2296,9 @@
   document.querySelectorAll('[data-composite-story]').forEach(function(d){d.appendChild(compositeStorySVG());});
   document.querySelectorAll('[data-tail-story]').forEach(function(d){d.appendChild(tailStorySVG());});
   document.querySelectorAll('[data-failed-story]').forEach(function(d){d.appendChild(failedAuctionStorySVG());});
+  document.querySelectorAll('[data-workflow-story]').forEach(function(d){d.appendChild(workflowStorySVG());});
+  document.querySelectorAll('[data-lifecycle-story]').forEach(function(d){d.appendChild(lifecycleStorySVG());});
+  document.querySelectorAll('[data-flow-matrix-story]').forEach(function(d){d.appendChild(flowMatrixStorySVG());});
 })();
 </script>
 

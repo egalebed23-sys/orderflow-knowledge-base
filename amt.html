@@ -144,7 +144,7 @@
   td strong { color: #fff; }
 
   /* ─── DIAGRAM WRAPPER ─── */
-  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; overflow-x: auto; }
   .diagram svg { display: block; width: 100%; height: auto; }
   .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
 
@@ -161,6 +161,7 @@
     .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
     .topbar, .header, .platform-note, .section { width: 100%; max-width: none; }
     .grid2, .grid3 { grid-template-columns: 1fr; }
+    .diagram svg { min-width: 900px; }
     .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
     .level-switch { margin-left: 0; }
   }
@@ -187,13 +188,13 @@
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
     <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
     <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
@@ -210,7 +211,8 @@
     <a href="#scenarios">05 · Сценарии AMT</a>
     <a href="#failed">06 · Failed auction</a>
     <a href="#cheat">07 · Cheat sheet динамики</a>
-    <a href="#trade">08 · Как торговать</a>
+    <a href="#topdown">08 · Top-down workflow</a>
+    <a href="#trade">09 · Как торговать</a>
   </div>
 </aside>
 
@@ -567,10 +569,60 @@
   </section>
 
 
-  <!-- ─────── 08. КАК ТОРГОВАТЬ ─────── -->
-  <section class="section" id="trade">
+  <!-- ─────── 08. TOP-DOWN WORKFLOW ─────── -->
+  <section class="section" id="topdown">
     <div class="section-header">
       <span class="section-num">08</span>
+      <span class="section-title">Top-down workflow</span>
+      <span class="section-badge">process</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Top-down</strong> — это порядок мышления: сначала старший контекст, потом текущий режим, потом младший триггер, и только после этого риск. LTF-сигнал без HTF-карты — просто шумный вход.</p>
+        <div class="diagram">
+          <div data-topdown-story></div>
+          <div class="diagram-cap">HTF задаёт карту и зоны интереса; дневной контекст отвечает, где рынок относительно value; LTF даёт тайминг; риск-план говорит, где идея становится неверной.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Шаг</th><th>Вопрос</th><th>Что должно быть видно</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. HTF value</strong></td><td>Где старшая стоимость?</td><td>Composite / weekly / daily VAH, POC, VAL; prior balance; nPOC; очевидные rejected/accepted areas.</td></tr>
+            <tr><td><strong>2. Regime</strong></td><td>Рынок в balance или imbalance?</td><td>Цена внутри value, принимает край, отвергает край, мигрирует value или ищет новый баланс.</td></tr>
+            <tr><td><strong>3. LTF trigger</strong></td><td>Есть ли подтверждение у зоны?</td><td>Absorption, failed auction, delta divergence, dry-up на откате, continuation volume, clean retest.</td></tr>
+            <tr><td><strong>4. Risk</strong></td><td>Где тезис сломан?</td><td>Инвалидация за структурой / value edge / ATR; цель у POC, противоположного края или старой balance area.</td></tr>
+          </tbody>
+        </table>
+        <div class="hl"><span class="hl-label">Смысл</span>Top-down не делает сделку сам. Он отсекает слабые идеи: если HTF говорит «мы у сопротивления value», а LTF даёт запоздалый long без acceptance, это не setup, а погоня.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="grid3">
+          <div class="card"><div class="card-title">Зоны, не пиксели</div>VAH/VAL/POC на HTF — области реакции. На LTF ищешь поведение внутри зоны, а не идеальный тик в линию.</div>
+          <div class="card"><div class="card-title">Trigger ≠ thesis</div>Footprint/CVD/volume дают тайминг. Тезис строится на контексте: режим, location, acceptance/rejection.</div>
+          <div class="card"><div class="card-title">Несогласие ТФ</div>Если LTF-сигнал идёт против нерешённого HTF-location, нужен явный повод: failed auction, сильное поглощение, новости/импульс, sweep + acceptance back.</div>
+        </div>
+        <div class="hl azure"><span class="hl-label">Практика</span>Перед входом проговаривай одну фразу: «Я торгую реакцию от [HTF zone], потому что [режим/acceptance], вход по [LTF trigger], неправ если [invalidation]». Если фраза распадается — сетап ещё сырой.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">09</span>
       <span class="section-title">Как торговать по AMT</span>
       <span class="section-badge">playbook</span>
     </div>
@@ -722,48 +774,64 @@
 
   /* ── §01: price + time + volume = market profile ── */
   var BELL=[3,5,8,12,18,26,36,48,62,76,86,90,84,70,54,38,25,15,9,5,3];
+  function realisticCandles(svg,o){
+    var x=o.x0,dx=o.dx||14,cw=o.cw||8,prev=o.start,seq=o.seq||[];
+    seq.forEach(function(c,i){
+      var open=(i===0?prev:prev)+(c.gap||0);
+      var close=c.close;
+      var wick=c.wick||12;
+      var high=Math.min(open,close)-(c.upWick==null?wick*0.55:c.upWick);
+      var low=Math.max(open,close)+(c.downWick==null?wick*0.65:c.downWick);
+      Viz.candle(svg,{x:x+i*dx,o:open,c:close,h:high,l:low,w:cw,wickWidth:o.wickWidth||0.85});
+      prev=close;
+    });
+  }
   function triadSVG(){
-    var W=1280,H=620,svg=Viz.canvas({w:W,h:H,label:'Applied AMT: price plus time plus volume equals market profile',grid:{start:82,end:500,step:58,x1:26,x2:1248}});
+    var W=1280,H=660,svg=Viz.canvas({w:W,h:H,label:'Applied AMT: price plus time plus volume equals market profile',grid:{start:88,end:536,step:58,x1:26,x2:1248}});
     Viz.label(svg,'Applied AMT: price + time + volume = Market Profile',34,34,{w:430,size:13});
 
-    Viz.pill(svg,{text:'PRICE',x:64,y:72,w:92,color:'#e8e8ee'});
-    Viz.text(svg,'session candlestick chart',64,106,{size:11,fill:'#8a8a92'});
-    Viz.candleWalk(svg,{x0:68,dx:14,cw:9,seed:5,legs:[
-      {n:7,from:360,to:300,vol:18,wick:14},
-      {n:7,from:300,to:176,vol:16,wick:13},
-      {n:7,from:176,to:260,vol:20,wick:16}
-    ]});
-    Viz.text(svg,'+',300,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+    Viz.pill(svg,{text:'PRICE',x:66,y:78,w:92,color:'#e8e8ee'});
+    Viz.text(svg,'session candlestick chart',66,112,{size:11,fill:'#8a8a92'});
+    var priceCloses=[166,184,208,232,210,190,174,188,216,236,224,202,176,154,132,146,160,152,170,160,146,134,128,142,150,144,156,166,158,172,180,174,188,196,184,176,166,160,174,190,184,198,210,204,192,184,176,170,188,202,194,210,218,206,226,252,282,270,296,318,292,274,286,260];
+    var wickPattern=[15,10,18,28,14,12,16,10,20,16,12,18,14,12,24,16,10,14,12,10,14,12,18,12,10,12,14,10,16,12,14,10];
+    var gapPattern=[0,2,-1,1,-2,0,2,-1,0,1,-2,1,0,-1,2,-2,0,1,-1,0,2,-1,0,1,-1,0,2,-2,1,0,-1,1];
+    realisticCandles(svg,{x0:56,dx:4.35,cw:3.2,wickWidth:0.7,start:152,seq:priceCloses.map(function(close,i){
+      return {close:close,gap:gapPattern[i%gapPattern.length],wick:wickPattern[i%wickPattern.length]};
+    })});
+    Viz.text(svg,'+',344,236,{size:30,fill:'#54545c',anchor:'middle',weight:700});
 
-    Viz.pill(svg,{text:'TIME / TPO',x:350,y:72,w:118,color:'#c98bff'});
-    var tpo=Viz.profile(svg,{rows:BELL,x:356,y:112,bw:8,bh:10,g:1,maxB:34,fade:0.96,axis:true,axisColor:'#6f6f78',axisWidth:1.2,
+    Viz.pill(svg,{text:'TIME / TPO',x:362,y:78,w:118,color:'#c98bff'});
+    var tpo=Viz.profile(svg,{rows:BELL,x:366,y:118,bw:8,bh:10,g:1,maxB:30,fade:0.96,axis:true,axisColor:'#6f6f78',axisWidth:1.2,
       colorFn:function(f,i){return i<8?'#5c2e75':(i<14?'#ff8c3a':'#2d6f7c');}});
-    var tvah=tpo.rowY(8),tpoc=tpo.rowY(11),tval=tpo.rowY(14);
-    Viz.level(svg,{x1:348,x2:636,y:tvah,color:C.va,width:1.3,opacity:0.85,label:'VAH',labelX:568,labelY:tvah-7,labelSize:11});
-    Viz.level(svg,{x1:348,x2:636,y:tpoc,color:C.poc,width:2.3,opacity:0.95,label:'time-based POC',labelX:470,labelY:tpoc-7,labelSize:10});
-    Viz.level(svg,{x1:348,x2:636,y:tval,color:C.va,width:1.3,opacity:0.85,label:'VAL',labelX:568,labelY:tval+15,labelSize:11});
-    Viz.text(svg,'session time distribution',480,106,{size:11,fill:'#8a8a92'});
-    Viz.text(svg,'+',674,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+    var tPocRow=BELL.indexOf(Math.max.apply(null,BELL));
+    var tvah=tpo.rowY(8),tpoc=tpo.rowY(tPocRow),tval=tpo.rowY(14);
+    Viz.level(svg,{x1:356,x2:632,y:tvah,color:C.va,width:1.3,opacity:0.85,label:'VAH',labelX:596,labelY:tvah-7,labelSize:11});
+    Viz.level(svg,{x1:356,x2:632,y:tpoc,color:C.poc,width:2.3,opacity:0.95,label:'time-based POC',labelX:470,labelY:tpoc-7,labelSize:10});
+    Viz.level(svg,{x1:356,x2:632,y:tval,color:C.va,width:1.3,opacity:0.85,label:'VAL',labelX:596,labelY:tval+15,labelSize:11});
+    Viz.text(svg,'session time distribution',484,112,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'+',666,236,{size:30,fill:'#54545c',anchor:'middle',weight:700});
 
-    Viz.pill(svg,{text:'VOLUME',x:734,y:72,w:104,color:'#ffc599'});
+    Viz.pill(svg,{text:'VOLUME',x:724,y:78,w:104,color:'#ffc599'});
     var volRows=[4,7,11,17,24,34,48,66,84,96,90,70,45,28,18,13,22,36,54,62,46,25,12];
-    Viz.profile(svg,{rows:volRows,x:742,y:100,bw:7,bh:8,g:1,maxB:42,fade:0.9,axis:true,axisColor:'#6f6f78',axisWidth:1.1,
+    Viz.profile(svg,{rows:volRows,x:732,y:106,bw:7,bh:8,g:1,maxB:32,fade:0.9,axis:true,axisColor:'#6f6f78',axisWidth:1.1,
       colorFn:function(f){return f>0.82?'#9e2f25':(f>0.55?'#c65d40':'#8b8b92');}});
-    Viz.text(svg,'session volume profile',846,122,{size:11,fill:'#8a8a92'});
-    Viz.text(svg,'=',1002,230,{size:30,fill:'#54545c',anchor:'middle',weight:700});
+    Viz.text(svg,'session volume profile',838,128,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'=',1002,236,{size:30,fill:'#54545c',anchor:'middle',weight:700});
 
-    Viz.pill(svg,{text:'MARKET PROFILE',x:1050,y:72,w:166,color:'#ffe08a'});
-    var mp=Viz.profile(svg,{rows:[1,2,3,5,8,13,21,29,37,45,50,42,32,21,15,10,7,4,2],x:1076,y:120,bw:8,bh:9,g:1,maxB:20,fade:0.98,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+    Viz.pill(svg,{text:'MARKET PROFILE',x:1068,y:78,w:166,color:'#ffe08a'});
+    var mp=Viz.profile(svg,{rows:[1,2,3,5,8,13,21,29,37,45,50,42,32,21,15,10,7,4,2],x:1084,y:126,bw:8,bh:9,g:1,maxB:20,fade:0.98,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
     Viz.line(svg,{x1:1070,y1:mp.rowY(10),x2:1214,y2:mp.rowY(10),color:C.poc,width:3});
-    Viz.text(svg,'3D view of value',1128,332,{size:12,fill:'#ececef',weight:700,anchor:'middle'});
-    Viz.text(svg,'price + time + volume',1128,350,{size:10,fill:'#8a8a92',anchor:'middle'});
+    Viz.text(svg,'3D view of value',1128,338,{size:12,fill:'#ececef',weight:700,anchor:'middle'});
+    Viz.text(svg,'price + time + volume',1128,356,{size:10,fill:'#8a8a92',anchor:'middle'});
 
-    Viz.line(svg,{x1:460,y1:360,x2:460,y2:392,color:'#c6c6ce',width:1.2,arrow:true});
-    Viz.pill(svg,{text:'expanded TPO cluster',x:342,y:408,w:196,color:'#c6c6ce'});
-    Viz.profile(svg,{rows:[1,1,2,3,5,8,12,18,25,32,38,34,28,22,17,13,9,6,3,2,1],x:356,y:430,bw:8,bh:6,g:1,maxB:22,fade:0.95,axis:true,axisColor:'#6f6f78'});
-    Viz.level(svg,{x1:352,x2:548,y:467,color:C.poc,width:2.4,opacity:0.9,label:'tPOC',labelX:500,labelY:462,labelSize:10});
+    Viz.line(svg,{x1:460,y1:374,x2:460,y2:410,color:'#c6c6ce',width:1.2,arrow:true});
+    Viz.pill(svg,{text:'expanded TPO cluster',x:342,y:424,w:196,color:'#c6c6ce'});
+    var expRows=[1,1,2,3,5,8,12,18,25,32,38,34,28,22,17,13,9,6,3,2,1];
+    var exp=Viz.profile(svg,{rows:expRows,x:356,y:462,bw:8,bh:6,g:1,maxB:22,fade:0.95,axis:true,axisColor:'#6f6f78'});
+    var expPoc=exp.rowY(expRows.indexOf(Math.max.apply(null,expRows)));
+    Viz.level(svg,{x1:352,x2:548,y:expPoc,color:C.poc,width:2.4,opacity:0.9,label:'tPOC',labelX:500,labelY:expPoc-8,labelSize:10});
 
-    Viz.note(svg,{x:736,y:388,w:408,h:126,title:'Что даёт Market Profile',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+    Viz.note(svg,{x:716,y:406,w:432,h:126,title:'Что даёт Market Profile',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
       lines:['• где рынок реально тратил время и объём;', '• ключевые уровни VAH / POC / VAL;', '• контекст для directional bias;', '• поиск inefficiencies внутри TPO distribution.']});
     return svg;
   }
@@ -820,28 +888,27 @@
     Viz.pill(svg,{text:'balance',x:116,y:342,w:92,color:'#9cc5ec'});
     Viz.text(svg,'rotational / indecision',100,378,{size:11,fill:'#8a8a92'});
 
-    Viz.candleWalk(svg,{x0:402,dx:15,cw:10,seed:21,legs:[
-      {n:6,from:poc+24,to:poc-20,vol:26,wick:14},
-      {n:5,from:poc-20,to:vah-92,vol:16,wick:12},
-      {n:6,from:vah-92,to:vah-132,vol:18,wick:13},
-      {n:6,from:vah-132,to:vah-30,vol:22,wick:14}
-    ]});
-    Viz.poly(svg,{points:[[392,poc+14],[446,val-8],[500,poc-18],[552,vah-88],[610,vah-126],[666,vah-58]],color:'#dfe3ea',width:1.1,opacity:0.45});
-    Viz.line(svg,{x1:358,y1:poc,x2:398,y2:poc-10,color:'#8a8a92',width:1.1,arrow:true});
-    Viz.pill(svg,{text:'imbalance',x:492,y:84,w:112,color:'#ffe08a'});
-    Viz.text(svg,'aggressive conviction: takers overwhelm makers',414,118,{size:11,fill:'#ffc599'});
+    var cycleCloses=[244,236,242,232,238,226,234,220,228,214,224,218,226,210,216,204,212,206,218,222,214,208,216,204,198,188,194,178,166,172,148,136,144,122,112,118,104,96,102,92,98,90,96,104,100,108,116,112,124,132,128,140,150,146,158,166,160,174,184,178,194,204,198,214];
+    var cycleWicks=[12,9,10,11,8,12,10,9,11,10,13,9,12,10,11,9,10,12,15,11,9,12,10,9,12,14,10,12,16,11,13,15,11,14,12,10,13,11,12,10,14,11,10,12,11,13,10,11,14,10,12,10,13,11,12,10,14,11,13,10,15,12,10,14];
+    var cycleGaps=[0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0];
+    realisticCandles(svg,{x0:394,dx:4.55,cw:3.2,wickWidth:0.7,start:246,seq:cycleCloses.map(function(close,i){
+      return {close:close,gap:cycleGaps[i%cycleGaps.length],wick:cycleWicks[i%cycleWicks.length]};
+    })});
+    Viz.line(svg,{x1:358,y1:poc,x2:388,y2:poc-8,color:'#8a8a92',width:1.1,arrow:true});
+    Viz.pill(svg,{text:'imbalance',x:498,y:326,w:112,color:'#ffe08a'});
+    Viz.text(svg,'one-sided auction: value search outside balance',410,358,{size:11,fill:'#ffc599'});
 
     Viz.note(svg,{x:734,y:92,w:332,h:116,title:'1. Determine current value',titleColor:'#9cc5ec',size:12,lineH:18,titleSize:12,
       lines:['Price advertises opportunity.', 'Time shows where opportunity was accepted.', 'Volume confirms or denies the auction.']});
     Viz.note(svg,{x:734,y:236,w:332,h:112,title:'2. Ask what happens outside value',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
       lines:['One-sided participants push price away.', 'Does the market accept the new price,', 'or rotate back into prior value?']});
 
-    Viz.poly(svg,{points:[[782,470],[844,402],[900,452],[952,366],[1018,310]],color:'#6fcb7f',width:2.2,arrow:true});
-    Viz.poly(svg,{points:[[980,472],[1038,392],[1098,428],[1148,384],[1210,494]],color:'#ff8c3a',width:2.2,arrow:true});
-    Viz.pill(svg,{text:'acceptance',x:758,y:492,w:132,color:'#6fcb7f'});
-    Viz.pill(svg,{text:'rejection',x:1000,y:492,w:112,color:'#ffc599'});
-    Viz.text(svg,'new value builds outside the old range',720,536,{size:11,fill:'#8a8a92'});
-    Viz.text(svg,'auction fails and returns inside',998,536,{size:11,fill:'#8a8a92'});
+    Viz.poly(svg,{points:[[782,482],[842,424],[898,462],[952,398],[1010,366]],color:'#6fcb7f',width:2.2,arrow:true});
+    Viz.poly(svg,{points:[[980,482],[1038,408],[1098,444],[1148,402],[1210,504]],color:'#ff8c3a',width:2.2,arrow:true});
+    Viz.pill(svg,{text:'acceptance',x:758,y:510,w:132,color:'#6fcb7f'});
+    Viz.pill(svg,{text:'rejection',x:1000,y:510,w:112,color:'#ffc599'});
+    Viz.text(svg,'new value builds outside the old range',720,552,{size:11,fill:'#8a8a92'});
+    Viz.text(svg,'auction fails and returns inside',998,552,{size:11,fill:'#8a8a92'});
     Viz.text(svg,'AMT is not a strategy: it is a regime lens. First locate value, then judge acceptance/rejection at its edges.',640,616,{anchor:'middle',size:12,fill:'#c6c6ce'});
     return svg;
   }
@@ -1043,11 +1110,98 @@
     return svg;
   }
 
+  function amtTopDownStorySVG(){
+    var W=1280,H=720,svg=Viz.canvas({w:W,h:H,label:'Top-down AMT workflow',grid:{start:92,end:H-74,step:56,x1:30,x2:W-30}});
+    Viz.label(svg,'Top-down workflow: context first, trigger last',34,34,{w:430,size:13});
+
+    function stage(x,y,w,h,n,title,sub,color){
+      svg.appendChild(E('rect',{x:x,y:y,width:w,height:h,rx:7,fill:'#101012',stroke:'#25252a','stroke-width':1}));
+      Viz.marker(svg,{n:n,x:x+22,y:y+24,color:color,size:10});
+      Viz.text(svg,title,x+46,y+29,{size:13,fill:'#f2f2f5',weight:700});
+      Viz.text(svg,sub,x+18,y+54,{size:10.5,fill:'#9a9aa2'});
+    }
+
+    var y=86,h=470;
+    stage(42,y,282,h,1,'HTF map','weekly / daily / composite value','#c98bff');
+    stage(350,y,282,h,2,'Session context','where is price vs value?','#ffd23f');
+    stage(658,y,282,h,3,'LTF trigger','timing at the zone','#9cc5ec');
+    stage(966,y,282,h,4,'Risk plan','invalidation before entry','#ffc599');
+
+    var prof=Viz.profile(svg,{rows:[3,5,9,16,26,42,60,76,88,92,80,58,38,22,12,7,4],x:82,y:150,bw:8,bh:10,g:1,maxB:42,axis:true,axisColor:'#686872'});
+    var vah=prof.rowY(6),poc=prof.rowY(9),val=prof.rowY(13);
+    Viz.level(svg,{x1:70,x2:292,y:vah,color:C.va,width:1.8,label:'HTF VAH',labelX:226,labelY:vah-8,labelSize:11});
+    Viz.level(svg,{x1:70,x2:292,y:poc,color:C.poc,width:2.7,label:'HTF POC',labelX:224,labelY:poc-8,labelSize:11});
+    Viz.level(svg,{x1:70,x2:292,y:val,color:C.va,width:1.8,label:'HTF VAL',labelX:226,labelY:val+16,labelSize:11});
+    svg.appendChild(E('rect',{x:70,y:vah-7,width:220,height:val-vah+14,rx:4,fill:'#ffffff',opacity:0.035}));
+    Viz.pill(svg,{text:'macro location',x:86,y:424,w:138,color:'#c98bff'});
+    Viz.note(svg,{x:66,y:474,w:238,h:76,title:'Question',titleColor:'#c98bff',size:11,lineH:16,titleSize:11,
+      lines:['Where is accepted value?', 'What old area can react?', 'Which edge is nearby?']});
+
+    var sx=386;
+    Viz.level(svg,{x1:sx-12,x2:sx+224,y:vah,color:C.va,width:1.4,label:'VAH',labelX:sx+194,labelY:vah-8,labelSize:11});
+    Viz.level(svg,{x1:sx-12,x2:sx+224,y:poc,color:C.poc,width:2.4,label:'POC',labelX:sx+194,labelY:poc-8,labelSize:11});
+    Viz.level(svg,{x1:sx-12,x2:sx+224,y:val,color:C.va,width:1.4,label:'VAL',labelX:sx+194,labelY:val+16,labelSize:11});
+    Viz.candleWalk(svg,{x0:sx+8,dx:14,cw:9,seed:72,legs:[
+      {n:5,from:val+12,to:poc+10,vol:11,wick:12},
+      {n:5,from:poc+10,to:vah-8,vol:10,wick:11},
+      {n:5,from:vah-8,to:vah+20,vol:8,wick:10},
+      {n:5,from:vah+20,to:poc+4,vol:8,wick:10}
+    ]});
+    Viz.marker(svg,{n:'B',x:sx+76,y:poc+8,color:'#ffd23f',size:10});
+    Viz.marker(svg,{n:'R',x:sx+174,y:vah+16,color:'#ffc599',size:10});
+    Viz.text(svg,'inside value = rotational',sx+24,410,{size:11,fill:'#c6c6ce'});
+    Viz.note(svg,{x:374,y:474,w:238,h:76,title:'Decision',titleColor:'#ffd23f',size:11,lineH:16,titleSize:11,
+      lines:['Balance: fade edges.', 'Acceptance: go with move.', 'Rejection: back to value.'],stroke:'#3a2a24'});
+
+    var lZoneY=vah+10;
+    svg.appendChild(E('rect',{x:686,y:lZoneY-18,width:218,height:58,rx:5,fill:'#c98bff',opacity:0.08,stroke:'#c98bff','stroke-width':1,'stroke-dasharray':'6 5'}));
+    Viz.text(svg,'HTF zone on LTF',704,lZoneY-26,{size:11,fill:'#c98bff'});
+    Viz.candleWalk(svg,{x0:704,dx:15,cw:9,seed:91,legs:[
+      {n:4,from:poc+46,to:lZoneY+22,vol:12,wick:12},
+      {n:4,from:lZoneY+22,to:lZoneY-6,vol:8,wick:13},
+      {n:5,from:lZoneY-6,to:lZoneY+22,vol:7,wick:12},
+      {n:4,from:lZoneY+22,to:poc+26,vol:12,wick:14}
+    ]});
+    Viz.line(svg,{x1:790,y1:lZoneY-16,x2:790,y2:lZoneY+38,color:'#ffe08a',width:1.1,dash:'4 4'});
+    Viz.pill(svg,{text:'absorption / rejection',x:706,y:422,w:188,color:'#9cc5ec'});
+    Viz.note(svg,{x:682,y:474,w:238,h:76,title:'Trigger is timing',titleColor:'#9cc5ec',size:11,lineH:16,titleSize:11,
+      lines:['Footprint / CVD / volume', 'confirms the reaction.', 'It is not the full thesis.']});
+
+    Viz.level(svg,{x1:1000,x2:1224,y:vah,color:C.va,width:1.3,label:'zone',labelX:1178,labelY:vah-8,labelSize:11});
+    Viz.candleWalk(svg,{x0:1018,dx:16,cw:10,seed:108,legs:[
+      {n:4,from:poc+48,to:vah+10,vol:13,wick:13},
+      {n:5,from:vah+10,to:vah-48,vol:10,wick:12},
+      {n:4,from:vah-48,to:vah-18,vol:8,wick:11},
+      {n:5,from:vah-18,to:vah-82,vol:12,wick:12}
+    ]});
+    Viz.line(svg,{x1:1036,y1:vah+46,x2:1090,y2:vah+18,color:'#9cc5ec',width:1.4,arrow:true});
+    Viz.line(svg,{x1:1116,y1:vah-58,x2:1196,y2:vah-92,color:'#ffd23f',width:1.4,arrow:true});
+    Viz.line(svg,{x1:1006,y1:vah+52,x2:1216,y2:vah+52,color:'#ffc599',width:1.5,dash:'6 4'});
+    Viz.pill(svg,{text:'entry',x:1024,y:424,w:72,color:'#9cc5ec'});
+    Viz.pill(svg,{text:'target',x:1128,y:424,w:80,color:'#ffd23f'});
+    Viz.pill(svg,{text:'invalid below',x:1012,y:454,w:132,color:'#ffc599'});
+    Viz.note(svg,{x:990,y:496,w:238,h:66,title:'Before clicking',titleColor:'#ffc599',size:11,lineH:16,titleSize:11,
+      lines:['If this level fails,', 'the AMT idea is wrong.', 'Stop belongs there.'],stroke:'#3a2a24'});
+
+    Viz.line(svg,{x1:322,y1:320,x2:350,y2:320,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:630,y1:320,x2:658,y2:320,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:938,y1:320,x2:966,y2:320,color:'#8a8a92',width:1.2,arrow:true});
+
+    Viz.note(svg,{x:70,y:596,w:332,h:86,title:'Clean sentence test',titleColor:'#ffe08a',size:12,lineH:18,titleSize:12,
+      lines:['I trade reaction from [HTF zone]', 'because [regime / acceptance],', 'entry by [LTF trigger].']});
+    Viz.note(svg,{x:438,y:596,w:332,h:86,title:'Do not invert the order',titleColor:'#ffc599',size:12,lineH:18,titleSize:12,
+      lines:['A tiny LTF signal does not create HTF thesis.', 'It only times an idea that already exists.', 'No context = no edge.'],stroke:'#3a2a24'});
+    Viz.note(svg,{x:806,y:596,w:332,h:86,title:'Zones breathe',titleColor:'#c98bff',size:12,lineH:18,titleSize:12,
+      lines:['HTF levels are reaction areas.', 'Use ATR and structure for invalidation.', 'Targets are old value references.']});
+    return svg;
+  }
+
   /* ── dispatch ── */
   var STORY_SCENES={cycle:amtCycleStorySVG,value:amtValueStorySVG,accept:amtAcceptanceStorySVG,scenarios:amtScenariosStorySVG};
   document.querySelectorAll('[data-triad]').forEach(function(d){d.appendChild(triadSVG());});
   document.querySelectorAll('[data-scene]').forEach(function(d){var fn=STORY_SCENES[d.dataset.scene],cf=SCENES[d.dataset.scene];if(fn)d.appendChild(fn());else if(cf)d.appendChild(Viz.scene(cf));});
   document.querySelectorAll('[data-cheat-story]').forEach(function(d){d.appendChild(amtCheatStorySVG());});
+  document.querySelectorAll('[data-topdown-story]').forEach(function(d){d.appendChild(amtTopDownStorySVG());});
   document.querySelectorAll('[data-failed-story]').forEach(function(d){d.appendChild(failedAuctionStorySVG());});
 })();
 </script>

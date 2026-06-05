@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Interest · OI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; --content-max:1280px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: var(--content-max); margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: var(--content-max); margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: var(--content-max); margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: var(--content-max); margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item active" href="#"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое OI</a>
+    <a href="#change">02 · Как меняется OI</a>
+    <a href="#quadrants">03 · OI и цена: 4 квадранта</a>
+    <a href="#fuel">04 · OI как топливо</a>
+    <a href="#liq">05 · OI и ликвидации</a>
+    <a href="#confluence">06 · OI + funding + CVD</a>
+    <a href="#venues">07 · OI по биржам и деноминация</a>
+    <a href="#nl-ns">08 · Net Longs / Net Shorts</a>
+    <a href="#lifecycle">09 · OI lifecycle</a>
+    <a href="#workflow">10 · Live OI workflow</a>
+    <a href="#limits">11 · Когда OI врёт</a>
+    <a href="#trade">12 · Как торговать</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Open Interest · OI</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Open Interest · OI</h1>
+    <p>// сколько позиционирования и плеча в рынке — топливо движения</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). OI в MMT — отдельный слой + Net Longs / Net Shorts (NL/NS) и карта ликвидаций. OI читается в связке с ценой, <a href="cvd.html" style="color:#d9b8ff;border:none;">CVD</a> и funding: чем подкреплено движение и насколько оно перегрето.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ OI ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое OI</span>
+      <span class="section-badge">positioning</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Open Interest (OI)</strong> — общее число открытых деривативных позиций (контрактов), которые ещё не закрыты. Каждый контракт = один лонг + один шорт; OI считает эти открытые контракты.</p>
+        <p>Это про <strong>деривативы</strong> (перпы/фьючерсы), не про спот. OI меряет, <strong>сколько позиционирования и плеча</strong> сейчас в рынке.</p>
+
+        <div class="diagram">
+          <div data-oi="whatis"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Аналогия</span>Объём — это <em>поток</em> (сколько сделок прошло за период). OI — это <em>запас</em> (сколько позиций осталось открытыми). Объём показывает активность, OI — накопленное плечо, готовое разрядиться.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>OI растёт</strong> = новые позиции/деньги входят в рынок</li>
+          <li><strong>OI падает</strong> = позиции закрываются (деливеридж)</li>
+          <li><strong>OI плоский</strong> = переход (одни выходят, другие входят, контракт меняет владельца)</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">OI без направления</span>Сам OI — это просто счётчик контрактов, у него нет знака «бычий/медвежий». Чтобы понять, <strong>кто</strong> входит/выходит, OI читают вместе с ценой (§03), CVD и funding (§06).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>OI считают в <strong>контрактах/монетах</strong> или в <strong>USD (notional)</strong>. USD-OI двигается вместе с ценой (та же позиция «дороже» при росте цены), поэтому для чистого позиционирования смотри OI в монете (§07).</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>OI — отдельный слой; рядом — Net Longs / Net Shorts (NL/NS, оценка перекоса позиций) и карта ликвидаций (где плечо под угрозой).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. КАК МЕНЯЕТСЯ OI ─────── -->
+  <section class="section" id="change">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Как меняется OI</span>
+      <span class="section-badge">mechanics</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <table>
+          <thead><tr><th>Что происходит</th><th>OI</th></tr></thead>
+          <tbody>
+            <tr><td>новый лонг ↔ новый шорт открылись</td><td><strong>↑</strong> (создан контракт)</td></tr>
+            <tr><td>лонг ↔ шорт закрылись друг об друга</td><td><strong>↓</strong> (контракт уничтожен)</td></tr>
+            <tr><td>лонг продал свою позицию новому лонгу</td><td><strong>=</strong> (переход, контракт сменил владельца)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Рост OI</strong> = свежее позиционирование: в рынок заходят новой конвикцией (и новым плечом)</li>
+          <li><strong>Падение OI</strong> = деливеридж: позиции закрывают (добровольно или форсированно — ликвидации)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">OI у уровня</span>Когда OI <strong>копится</strong> у границы рейнджа/уровня — плечо стекается в одну зону. Это «заряд»: при сломе он разрядится мощным ходом или каскадом ликвидаций (параллель с пружиной в AMT).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. OI И ЦЕНА: 4 КВАДРАНТА ─────── -->
+  <section class="section" id="quadrants">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">OI и цена: 4 квадранта</span>
+      <span class="section-badge">core</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Главный read OI: что <strong>топливо</strong> движения — новое позиционирование или закрытие? Связка цена × OI даёт четыре квадранта:</p>
+
+        <div class="diagram">
+          <div data-oi="quadrants"></div>
+        </div>
+
+        <table>
+          <thead><tr><th>Цена</th><th>OI</th><th>Что это</th></tr></thead>
+          <tbody>
+            <tr><td>↑</td><td>↑</td><td><strong>новые лонги</strong> (new money long) → здоровый аптренд</td></tr>
+            <tr><td>↑</td><td>↓</td><td><strong>short covering</strong> (шорты крыли) → рост без новых лонгов, слабее</td></tr>
+            <tr><td>↓</td><td>↑</td><td><strong>новые шорты</strong> → здоровый даунтренд</td></tr>
+            <tr><td>↓</td><td>↓</td><td><strong>long liquidation</strong> (лонги выходят) → деливеридж, часто истощение/дно</td></tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top:14px;">Но рост OI <strong>не равен «бычий»</strong> — решает контекст. Один и тот же OI increase бывает <em>ловушкой</em> (fade) или <em>моментумом</em>; обвал OI бывает <em>каскадом</em> (покупка от дна):</p>
+        <div class="diagram">
+          <div data-oi-scenarios></div>
+          <div class="diagram-cap">Красная точка = фейд / шорт, зелёная = лонг. OI читается только в контексте уровня и поведения цены.</div>
+        </div>
+        <ul>
+          <li><strong>Fade OI increase</strong> — OI растёт на пробое в новый хай у сопротивления/истощения → ловушка: <em>trapped longs unwind</em> (фейд, шорт)</li>
+          <li><strong>Momentum play</strong> — пробой + ретест прежнего сопротивления как поддержки держит → новые лонги несут моментум (лонг по тренду)</li>
+          <li><strong>Liquidation cascade</strong> — резкий обвал OI = форсированное закрытие → капитуляция и <em>refill of inefficiency</em> (лонг от дна с подтверждением)</li>
+          <li><strong>OI + delta increase, что не сработал</strong> — агрессивные новые лонги открылись у уровня, но он не пустил → <em>longs unwind</em> (фейд, шорт)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>«Здоровый» тренд</strong> = OI растёт по направлению хода (свежие деньги двигают цену)</li>
+          <li><strong>Рост на падающем OI</strong> (short covering) = топливо — закрытие шортов, а не новый спрос → может выдохнуться</li>
+          <li><strong>Падение на падающем OI</strong> (long liquidation) = форсированный выход лонгов → часто капитуляция/дно</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Рост цены сам по себе не равен «силе быков». Если он на падающем OI — это short covering, а не приток лонгов: новых покупателей нет, и как только шорты докрыли — топливо кончилось. Сверяйся с OI, прежде чем верить тренду.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Накладывай OI прямо под цену. Связка с CVD уточняет: цена↑ + OI↑ + CVD↑ = агрессивные новые лонги; цена↑ + OI↓ + CVD слабый = выкуп шортов на излёте.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. OI КАК ТОПЛИВО ─────── -->
+  <section class="section" id="fuel">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">OI как топливо</span>
+      <span class="section-badge">fuel</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Высокий и растущий OI = много плеча в рынке = <strong>потенциальная энергия</strong>. Чем больше OI накоплено у уровня, тем мощнее ход при пробое — и тем сильнее каскад при сломе позиционирования.</p>
+        <div class="hl green"><span class="hl-label">Аналогия</span>OI — как сжатая пружина из заёмных денег. Она не указывает направление, но запасает силу: разрядка пойдёт в ту сторону, куда сломается переполненное позиционирование.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>OI building в компрессии</strong> (узкий рейндж, плечо копится) → жди экспансию: пробой будет резким</li>
+          <li>Чем дольше копился OI без движения — тем violentнее разрядка (как сжатие/расширение в AMT)</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Elevated ≠ много на глаз</span>Высокий OI оценивают не по абсолютному числу на панели, а относительно истории конкретного инструмента, биржи и деноминации. Сначала калибруй, потом делай вывод о перегрузе.</div>
+        <table>
+          <thead><tr><th>Окно</th><th>Что показывает</th><th>Как читать elevated</th></tr></thead>
+          <tbody>
+            <tr><td><strong>30 дней</strong></td><td>Локальный перегруз текущего свинга / недели</td><td>OI в верхнем percentile окна = свежий leverage рядом с текущей структурой</td></tr>
+            <tr><td><strong>90 дней</strong></td><td>Среднесрочный режим позиционирования</td><td>Если OI остаётся высоким и после ценового сброса не ушёл к прошлым reset-зонам — рынок ещё не полностью очистился</td></tr>
+            <tr><td><strong>180 дней</strong></td><td>Редкие экстремумы плеча и крупные deleverage-события</td><td>Помогает отличить обычный свинговый набор от действительно crowded рынка</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Заряд ≠ направление</span>Сам по себе высокий OI не говорит «вверх» или «вниз». Он говорит «будет сильно». Направление подсказывают funding (какая сторона переполнена) и слом структуры.</div>
+        <p><strong>Практическая калибровка elevated OI:</strong></p>
+        <ul>
+          <li><strong>Считай percentile, а не абсолют.</strong> Условно: 70–85 percentile = elevated, 85–95 = high, 95+ = extreme. Пороги не универсальны: для BTC, альта и отдельной биржи baseline разный</li>
+          <li><strong>Отмечай прошлые flush-зоны.</strong> На каждом сильном каскаде запиши: OI перед сбросом, OI после сброса, размер падения цены и реакцию. Это создаёт карту reset-уровней</li>
+          <li><strong>Цена ↓ + OI всё ещё высокий</strong> = падение уже произошло, но deleverage неполный. В рынке остаётся открытый риск; следующий импульс может быть либо продолжением каскада, либо squeeze после reclaim</li>
+          <li><strong>Цена ↓ + OI flush к прошлой reset-зоне</strong> = плечо реально вымыло. Это не автоматическое дно, но риск продолжения через forced selling ниже</li>
+          <li><strong>Coin-OI vs USD-OI.</strong> Для чистого позиционирования смотри OI в монете/контрактах: USD-OI может выглядеть высоким или низким просто из-за изменения цены. USD-OI полезен для оценки размера риска в деньгах</li>
+        </ul>
+        <div class="hl azure"><span class="hl-label">Мини-чек</span>Перед фразой «OI elevated» проговори: elevated относительно какого окна? в coin или USD? выше ли он прошлых reset-зон? был ли реальный OI flush после импульса цены? Если ответы не собраны, это наблюдение, а не вывод.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. OI И ЛИКВИДАЦИИ ─────── -->
+  <section class="section" id="liq">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">OI и ликвидации</span>
+      <span class="section-badge">cascade</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Резкий <strong>всплеск OI</strong> (плечо стекалось) с последующим резким <strong>падением OI</strong> = каскад ликвидаций: позиции закрывают <em>форсированно</em>. OI flush = capitulation/делеверидж.</p>
+
+        <div class="diagram">
+          <div data-oi="liquidation"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Цена ↓ резко + OI ↓ резко + спайк объёма</strong> = long liquidation cascade (лонги выбивает) → часто локальное дно</li>
+          <li><strong>Цена ↑ резко + OI ↓ резко</strong> = short squeeze (шорты ликвидируют) → часто локальный топ</li>
+          <li>Ключ — именно <strong>обвал OI</strong>: позиции уничтожаются, а не открываются</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>OI flush + карта ликвидаций (где стоял кластер плеча) + длинный хвост + поглощение в footprint = высоковероятное истощение/разворот. Делеверидж-флаши часто маркируют экстремумы — рынок «сбросил» переполненную сторону.</div>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Не лови нож на первом сбросе OI — каскад может идти волнами. Жди стабилизации OI + реакции цены (поглощение, failed auction), а не первой зелёной свечи.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. OI + FUNDING + CVD ─────── -->
+  <section class="section" id="confluence">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">OI + funding + CVD</span>
+      <span class="section-badge">confluence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>OI раскрывается в связке трёх метрик — каждая отвечает на свой вопрос:</p>
+        <div class="grid2">
+          <div class="card"><div class="card-title">OI</div><strong>Сколько</strong> позиционирования / плеча в рынке.</div>
+          <div class="card"><div class="card-title">CVD</div><strong>В какую сторону</strong> агрессия (кто давит маркетами).</div>
+          <div class="card"><div class="card-title">Funding</div><strong>Какая сторона переполнена</strong> и платит за удержание.</div>
+          <div class="card"><div class="card-title">Price</div><strong>Результат</strong> — что из этого вышло.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Цена↑ + OI↑ + funding дорогой лонг + CVD↑</strong> = агрессивные новые лонги, рынок перегрет → риск long-squeeze, если ход застопорится</li>
+          <li><strong>Цена↑ + OI↑ + спот-CVD ведёт</strong> (раздел CVD) = здоровее: подкреплено реальными деньгами, не только плечом</li>
+          <li><strong>OI↑ + экстремальный funding в одну сторону</strong> = переполненная позиция → топливо для каскада в противоположную</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Связка OI + funding + CVD отвечает на «насколько движение настоящее и насколько перегрето». Перегрев (растущий OI + экстремальный funding + дивергенция CVD) у ключевого уровня — лучший контекст для squeeze-сетапа.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. OI ПО БИРЖАМ ─────── -->
+  <section class="section" id="venues">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">OI по биржам и деноминация</span>
+      <span class="section-badge">venues</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Агрегированный OI vs per-exchange.</strong> Суммарный OI сглаживает; у отдельных бирж OI может вести (там строят позиции первыми)</li>
+          <li><strong>Coin-margined (инверс) vs USDT-margined.</strong> Разная база участников: coin-M — часто холдеры/майнеры/хедж, USDT-M — розница/спекуляция</li>
+          <li><strong>OI в USD (notional) vs в монете.</strong> USD-OI растёт вместе с ценой при той же позиции</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Для <strong>чистого позиционирования</strong> смотри OI в монете (BTC); для оценки <strong>риск-нотионала</strong> — в USD</li>
+          <li>Venue-картина честнее агрегата, когда нужно понять, <em>кто</em> строит плечо (розница на USDT-перпах vs крепкие руки на coin-M)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Нюанс</span>Не сравнивай абсолюты OI разных бирж/контрактов (разный объём и деноминация). Сравнивай <strong>динамику и тайминг</strong>: где OI растёт первым, где обваливается на каскаде.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. NET LONGS / NET SHORTS ─────── -->
+  <section class="section" id="nl-ns">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Net Longs / Net Shorts: перекос позиционирования</span>
+      <span class="section-badge">position skew</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>NL/NS</strong> — это попытка показать, какая сторона толпы перекошена: лонги или шорты. Важно: каждый фьючерсный контракт всегда имеет лонга и шорта, поэтому NL/NS — не «истина рынка», а <strong>модель/оценка позиционного перекоса</strong>.</p>
+        <div class="diagram">
+          <div data-oi-nlns></div>
+          <div class="diagram-cap">Смотри не абсолюты, а динамику: какая сторона агрессивно наращивается, даёт ли цена прогресс и что происходит после слома уровня.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">NL растёт, цена растёт</div>Лонги давят и получают прогресс. Тренд здоровее, пока откаты сухие и OI не флашится.</div>
+          <div class="card"><div class="card-title">NL растёт, цена стоит</div>Лонги добавляются, но рынок не идёт. Риск trapped longs и long unwind при сломе.</div>
+          <div class="card"><div class="card-title">NS растёт, цена падает</div>Шорты давят и получают прогресс. Тренд вниз подкреплён новым позиционированием.</div>
+          <div class="card"><div class="card-title">NS растёт, цена не падает</div>Шорты строятся без результата. Риск short squeeze, особенно у HTF support / VAL / liquidation cluster.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Как не обмануться</span>NL/NS полезен только вместе с price result. Если сторона увеличивается, но цена не продвигается, это часто не сила, а топливо для обратного движения.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Смотри NL/NS рядом с OI и CVD: OI↑ + NL↑ + CVD↑ + цена не может пробить high = лонги агрессивны, но absorbed. Это уже squeeze/fade context, а не continuation.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. OI LIFECYCLE ─────── -->
+  <section class="section" id="lifecycle">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">OI lifecycle: build-up → trap → flush → rebuild</span>
+      <span class="section-badge">lifecycle</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Самый полезный OI-read — не «вырос/упал», а <strong>стадия позиционирования</strong>: плечо копится, рынок проверяет уровень, одна сторона оказывается trapped, затем происходит flush / deleveraging, после чего рынок либо строит новую базу, либо продолжает trend.</p>
+        <div class="diagram">
+          <div data-oi-lifecycle></div>
+          <div class="diagram-cap">OI lifecycle помогает не путать healthy trend, trapped positioning и финальный deleveraging flush.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Стадия</th><th>Что видно</th><th>Что это значит</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Build-up</strong></td><td>OI растёт в компрессии / у уровня.</td><td>Плечо копится; направление ещё не ясно.</td></tr>
+            <tr><td><strong>Expansion</strong></td><td>Цена выходит из range, OI растёт по направлению.</td><td>Новые деньги поддерживают ход.</td></tr>
+            <tr><td><strong>Trap / stall</strong></td><td>OI продолжает расти, но цена не прогрессирует.</td><td>Позиции застревают; нужен триггер слома.</td></tr>
+            <tr><td><strong>Flush</strong></td><td>Резкая свеча + OI резко падает + volume spike.</td><td>Форсированное закрытие; deleveraging / liquidation.</td></tr>
+            <tr><td><strong>Rebuild</strong></td><td>OI стабилизируется или снова растёт после flush.</td><td>Новая база; смотри, кто первым набирает позицию.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>OI flush сам по себе не разворот. Это говорит, что плечо сбросили. Вход появляется только если после flush цена стабилизируется, поток поглощает продолжение и OI перестаёт валиться.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 10. LIVE OI WORKFLOW ─────── -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Live OI workflow</span>
+      <span class="section-badge">process</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>OI не должен быть первым экраном. Сначала location и режим, затем OI-квадрант, потом CVD/funding/NL-NS, и только после этого триггер входа.</p>
+        <div class="diagram">
+          <div data-oi-workflow></div>
+          <div class="diagram-cap">Практический порядок: level/context → OI quadrant → side crowdedness → flow result → trade / no trade.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Шаг</th><th>Вопрос</th><th>Ответ</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. Location</strong></td><td>Где это происходит?</td><td>AMT/TPO/VP/key level: край value, POC, liquidation pool, range edge.</td></tr>
+            <tr><td><strong>2. OI quadrant</strong></td><td>Новые позиции или закрытие?</td><td>Цена×OI: new longs, short covering, new shorts, long liquidation.</td></tr>
+            <tr><td><strong>3. Crowded side</strong></td><td>Кто переполнен?</td><td>Funding, NL/NS, venue OI, spot/perp CVD.</td></tr>
+            <tr><td><strong>4. Result</strong></td><td>Получает ли сторона прогресс?</td><td>Если агрессия есть, а прогресса нет — trapped positioning.</td></tr>
+            <tr><td><strong>5. Trigger</strong></td><td>Где вход и invalidation?</td><td>Footprint/CVD absorption, failed auction, structure break, OI flush stabilization.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Одна строка сделки</span>«Уровень [X], OI показывает [новые/закрывающиеся позиции], crowded side [лонги/шорты], price result [есть/нет], вход по [trigger], неправ если [invalidation]». Если строка не собирается — пропуск.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. LIMITS ─────── -->
+  <section class="section" id="limits">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Когда OI врёт или мало помогает</span>
+      <span class="section-badge">risk</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>OI — мощный контекст, но он легко вводит в заблуждение, если смотреть на него изолированно. Самая частая ошибка — трактовать OI как направление, хотя это всего лишь счётчик открытых контрактов.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">USD-OI distortion</div>Notional OI растёт вместе с ценой даже без новых контрактов. Для чистого позиционирования смотри coin/contract OI.</div>
+          <div class="card"><div class="card-title">Hedging / basis trades</div>OI может расти из-за хеджа, а не directional conviction. Тогда price result и CVD важнее.</div>
+          <div class="card"><div class="card-title">Aggregate hides venue</div>Суммарный OI сглаживает: одна биржа строит риск, другая разгружает. Смотри per-exchange timing.</div>
+          <div class="card"><div class="card-title">High OI can persist</div>Перегрев может держаться долго. Высокий OI — не сигнал разворота без слома структуры.</div>
+          <div class="card"><div class="card-title">Contract changes / data gaps</div>Экспирации, смена контрактов, maintenance, API gaps могут рисовать ложные скачки.</div>
+          <div class="card"><div class="card-title">Altcoin low liquidity</div>OI легко манипулируется, а flush может быть просто тонкой книгой, а не meaningful capitulation.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Правило</span>Если OI даёт “сигнал”, но price result, CVD и level context не подтверждают — OI ничего не дал. Лучше пропустить, чем торговать красивую метрику без механики.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Как торговать по OI</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>OI — это <strong>контекст топлива и перегрева, а не сигнал</strong>. Он отвечает на «чем подкреплено движение и насколько переполнено позиционирование», а вход даёт уровень + поток.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Подтверждение тренда</div>OI растёт по направлению = свежие деньги. Движению можно верить.</div>
+          <div class="card"><div class="card-title">Выдох (covering)</div>Рост на падающем OI = short covering, нет новых лонгов → жди остановку/разворот.</div>
+          <div class="card"><div class="card-title">Squeeze-сетап</div>OI↑ + экстремальный funding (переполнение) у уровня → ждать слом → каскад в обратную.</div>
+          <div class="card"><div class="card-title">Deleveraging-дно</div>Резкий OI flush + спайк = капитуляция. Фейд после стабилизации и подтверждения.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>OI без цены, CVD и funding бесполезен — это безнаправленный счётчик. И высокий OI «держится» долго: перегрев может расти ещё дольше, чем кажется. OI — фильтр и контекст, не триггер.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>(1) Контекст AMT (режим, где value) → (2) OI: квадрант (чем подкреплено) + топливо/перегрев → (3) CVD (агрессия) + funding (переполнение) → (4) триггер в footprint на уровне.</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Сильнейший стек: ключевой уровень + OI-квадрант (covering/liquidation) + дивергенция CVD + экстремальный funding. Один слой — гипотеза; стек — сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── OI visual engine (candles + OI line panel) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a',oi:'#9cc5ec'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight); if(o.anchor)tx.setAttribute('text-anchor',o.anchor);
+    tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){var defs=E('defs',{}),m=E('marker',{id:'arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));defs.appendChild(m);svg.appendChild(defs);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  var Viz={
+    canvas:function(o){var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg); svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));}}
+      return svg;},
+    line:function(svg,o){var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('line',a));},
+    text:function(svg,text,x,y,o){addText(svg,text,x,y,o||{});},
+    label:function(svg,text,x,y,o){o=o||{};var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});},
+    note:function(svg,o){var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
+    level:function(svg,o){Viz.line(svg,{x1:o.x1,y1:o.y,x2:o.x2,y2:o.y,color:o.color,width:o.width,opacity:o.opacity,dash:o.dash});
+      if(o.label) Viz.text(svg,o.label,o.labelX||o.x1,o.labelY||o.y-6,{size:o.labelSize||11,fill:o.color,weight:700});},
+    candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
+    candleWalk:function(svg,o){var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});}});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};},
+    marker:function(svg,o){svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});}
+  };
+
+  /* candles (upper) + OI line panel (lower) */
+  function oiStory(cf){
+    var W=1280,H=cf.h||540;
+    var oiBot=H-58, oiTop=H-188, candBot=oiTop-16;
+    var svg=Viz.canvas({w:W,h:H,label:cf.label||'',grid:{start:80,end:candBot,step:56,x1:22,x2:W-22}});
+    if(cf.title) Viz.label(svg,cf.title,34,34,{w:cf.titleW||360,size:13});
+    var cw=cf.cw||14;
+    var walk=Viz.candleWalk(svg,{x0:cf.x0||120,dx:cf.dx||44,cw:cw,seed:cf.seed||7,legs:cf.legs});
+    var lvX2=walk.x(walk.n-1)+10;
+    (cf.levels||[]).forEach(function(L){Viz.level(svg,{x1:22,x2:lvX2,y:L.y,color:L.color||C.va,width:L.width||1.6,opacity:0.85,dash:L.dash,label:L.label,labelX:24,labelY:L.y-7,labelSize:12});});
+    Viz.line(svg,{x1:60,y1:oiTop-8,x2:lvX2+6,y2:oiTop-8,color:'#2a2a30',width:1});
+    Viz.text(svg,'OI',64,oiTop+8,{size:10,fill:'#8a8a92',weight:700});
+    var vals=cf.oi,mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=(mx-mn)||1;
+    function oiY(v){return oiBot-(v-mn)/rng*(oiBot-oiTop);}
+    var pts=vals.map(function(v,i){return walk.x(i)+','+oiY(v).toFixed(1);}).join(' ');
+    svg.appendChild(E('polyline',{points:pts,fill:'none',stroke:C.oi,'stroke-width':2.2,'stroke-linejoin':'round'}));
+    addText(svg,'OI',walk.x(walk.n-1)+10,oiY(vals[vals.length-1])+4,{size:11,fill:C.oi,weight:700});
+    (cf.markers||[]).forEach(function(m){Viz.marker(svg,{n:m.n,x:walk.x(m.at),y:m.y,color:m.color});});
+    (cf.notes||[]).forEach(function(nt){Viz.note(svg,nt);});
+    (cf.legend||[]).forEach(function(t,i){Viz.text(svg,t,640,H-28+i*16,{anchor:'middle',size:i?11:12,fill:i?'#8a8a92':'#c6c6ce'});});
+    return svg;
+  }
+
+  function oiScenariosSVG(){
+    var W=1280,H=850,svg=Viz.canvas({w:W,h:H,label:'Сценарии OI: fade vs momentum vs cascade'});
+    function cell(ox,oy,title,tag,tagBg,pts,levels,dots,sub){
+      addText(svg,title,ox+18,oy+14,{size:14,fill:'#ffffff',weight:700});
+      if(tag){var tw=tag.length*7.2+18;svg.appendChild(E('rect',{x:ox+20,y:oy+24,width:tw,height:20,rx:4,fill:tagBg}));
+        addText(svg,tag,ox+20+tw/2,oy+38,{size:11.5,fill:'#0b0b0d',weight:700,anchor:'middle'});}
+      (levels||[]).forEach(function(L){Viz.line(svg,{x1:ox+L.x1,y1:oy+L.y,x2:ox+L.x2,y2:oy+L.y,color:'#6a6a72',width:1.4});
+        if(L.label)addText(svg,L.label,ox+(L.x1+L.x2)/2,oy+L.y-8,{size:11,fill:'#9a9aa2',anchor:'middle'});});
+      var d=pts.map(function(p,i){return (i?'L':'M')+(ox+p[0])+' '+(oy+p[1]);}).join(' ');
+      svg.appendChild(E('path',{d:d,fill:'none',stroke:'#dfe2e8','stroke-width':2.4,'stroke-linejoin':'round','stroke-linecap':'round'}));
+      (dots||[]).forEach(function(t){svg.appendChild(E('circle',{cx:ox+t.x,cy:oy+t.y,r:8,fill:t.color}));});
+      if(sub)addText(svg,sub.t,ox+sub.x,oy+sub.y,{size:12,fill:'#9a9aa2',weight:600,anchor:sub.anchor});
+    }
+    cell(30,40,'open interest increase','fade oi increase','#ffb0b0',
+      [[60,180],[95,150],[120,225],[150,150],[180,230],[210,150],[240,225],[270,150],[300,230],[330,150],[360,225],[390,150],[420,200],[446,128],[470,96],[490,112],[510,142],[532,210],[556,330]],
+      [{x1:50,x2:430,y:130},{x1:50,x2:430,y:250}],
+      [{x:507,y:140,color:'#ff5c5c'}],{t:'trapped longs unwind',x:430,y:356,anchor:'middle'});
+    cell(680,40,'new longs hold momentum','momentum play','#bdeec6',
+      [[60,232],[90,196],[120,236],[150,196],[185,238],[215,200],[246,164],[276,120],[300,100],[325,134],[346,162],[368,134],[396,90],[430,50]],
+      [{x1:60,x2:240,y:170,label:'resistance'}],
+      [{x:346,y:160,color:'#4ade80'}],null);
+    cell(30,470,'open interest decrease','liquidation cascade','#bdeec6',
+      [[60,80],[90,110],[115,94],[145,130],[170,114],[200,150],[225,134],[255,170],[280,160],[300,185],[316,196],[326,266],[333,300],[356,250],[386,200],[420,164],[452,150]],
+      null,
+      [{x:339,y:294,color:'#4ade80'}],{t:'refill of inefficiency',x:372,y:212,anchor:'start'});
+    cell(680,470,'new longs aggressively open','oi + delta increase','#bdeec6',
+      [[70,140],[100,100],[130,190],[160,100],[190,195],[220,100],[250,190],[285,100],[315,195],[350,100],[385,190],[420,106],[460,180],[486,210],[506,236],[523,221],[540,232],[560,266],[586,346]],
+      [{x1:60,x2:470,y:90},{x1:60,x2:470,y:200}],
+      [{x:541,y:230,color:'#ff5c5c'}],{t:'longs unwind',x:540,y:368,anchor:'middle'});
+    return svg;
+  }
+
+  function oiNlNsSVG(){
+    var W=1280,H=560,svg=Viz.canvas({w:W,h:H,label:'Net Longs and Net Shorts: crowded side and price result',grid:{start:82,end:H-66,step:58,x1:22,x2:W-22}});
+    Viz.label(svg,'NL / NS: перекос позиции + результат цены',34,36,{w:360,size:13});
+    var priceY=[352,322,334,300,272,246,230,220,224,238,264,302,336,356,342,310,278,258,244,230];
+    var nsY=[420,408,392,374,354,336,318,300,282,260,238,220,204,192,184,178,172,168,166,164];
+    var nlY=[458,452,446,440,434,428,424,422,424,430,440,452,462,468,470,468,464,458,450,442];
+    function poly(vals,x0,dx,color,width){
+      svg.appendChild(E('polyline',{points:vals.map(function(v,i){return (x0+i*dx)+','+v;}).join(' '),fill:'none',stroke:color,'stroke-width':width||2.2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    }
+    var x0=86,dx=48;
+    poly(priceY,x0,dx,'#e2e5ea',2.3);
+    poly(nsY,x0,dx,'#ff8c3a',2.1);
+    poly(nlY,x0,dx,'#9cc5ec',2.1);
+    Viz.text(svg,'price',x0+priceY.length*dx+8,priceY[priceY.length-1]+4,{size:12,fill:'#e2e5ea',weight:700});
+    Viz.text(svg,'Net Shorts ↑',x0+nsY.length*dx+8,nsY[nsY.length-1]+4,{size:12,fill:'#ff8c3a',weight:700});
+    Viz.text(svg,'Net Longs flat/down',x0+nlY.length*dx+8,nlY[nlY.length-1]+4,{size:12,fill:'#9cc5ec',weight:700});
+    Viz.level(svg,{x1:74,x2:1040,y:226,color:'#c98bff',width:1.3,dash:'6 4',label:'HTF resistance / range edge',labelX:78,labelY:214,labelSize:12});
+    svg.appendChild(E('ellipse',{cx:700,cy:226,rx:78,ry:32,fill:'none',stroke:'#ff8c3a','stroke-width':1.6}));
+    Viz.line(svg,{x1:690,y1:182,x2:700,y2:220,color:'#ff8c3a',width:1.2,arrow:true});
+    Viz.label(svg,'NS builds, but price stops falling',542,176,{w:270,size:12,fill:'#ff8c3a',stroke:'#ff8c3a'});
+    Viz.note(svg,{x:58,y:86,w:294,h:108,title:'Read',titleColor:'#ff8c3a',size:12,lineH:18,titleSize:12,
+      lines:['Shorts increase into support/resistance area.', 'If price refuses to continue,', 'the crowded side becomes fuel', 'for squeeze / unwind.']});
+    Viz.note(svg,{x:880,y:332,w:304,h:108,title:'Decision',titleColor:'#ffd23f',size:12,lineH:18,titleSize:12,
+      lines:['NL/NS is not direction by itself.', 'Ask: does the crowded side', 'get price progress?', 'No progress = trap risk.']});
+    return svg;
+  }
+
+  function oiLifecycleSVG(){
+    var W=1280,H=620,svg=Viz.canvas({w:W,h:H,label:'OI lifecycle: build-up, expansion, trap, flush, rebuild',grid:{start:82,end:H-70,step:58,x1:22,x2:W-22}});
+    Viz.label(svg,'OI lifecycle: build-up → trap → flush → rebuild',34,36,{w:410,size:13});
+    var x0=92,dx=34;
+    var walk=Viz.candleWalk(svg,{x0:x0,dx:dx,cw:12,seed:28,legs:[
+      {n:8,from:330,to:302,vol:10,wick:10},
+      {n:8,from:302,to:206,vol:12,wick:11},
+      {n:7,from:206,to:188,vol:16,wick:13},
+      {n:5,from:188,to:344,vol:18,wick:15},
+      {n:6,from:344,to:292,vol:12,wick:12}
+    ]});
+    var vals=[28,32,36,40,45,50,56,62,68,74,80,86,92,98,104,110,116,120,123,126,128,130,108,78,56,46,42,44,48,52,57,62,68,74];
+    var oiTop=410,oiBot=560,mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=mx-mn;
+    function oy(v){return oiBot-(v-mn)/rng*(oiBot-oiTop);}
+    svg.appendChild(E('polyline',{points:vals.map(function(v,i){return (x0+i*dx)+','+oy(v).toFixed(1);}).join(' '),fill:'none',stroke:C.oi,'stroke-width':2.4,'stroke-linejoin':'round'}));
+    Viz.text(svg,'OI',x0+vals.length*dx+6,oy(vals[vals.length-1])+4,{size:12,fill:C.oi,weight:700});
+    Viz.line(svg,{x1:70,y1:oiTop-10,x2:1180,y2:oiTop-10,color:'#2a2a30',width:1});
+    Viz.text(svg,'OI panel',72,oiTop+8,{size:10,fill:'#8a8a92',weight:700});
+    function zone(x,w,title,color){
+      svg.appendChild(E('rect',{x:x,y:72,width:w,height:496,rx:7,fill:color,opacity:0.035,stroke:color,'stroke-width':1,'stroke-dasharray':'7 5'}));
+      Viz.label(svg,title,x+12,94,{w:Math.min(w-20,180),size:11,fill:color,stroke:color});
+    }
+    zone(74,240,'1. build-up','#c98bff');
+    zone(314,270,'2. expansion','#9cc5ec');
+    zone(584,220,'3. trap / stall','#ffd23f');
+    zone(804,190,'4. flush','#ffc599');
+    zone(994,170,'5. rebuild','#6fcb7f');
+    Viz.callout = Viz.callout || function(svg,o){ Viz.line(svg,{x1:o.x,y1:o.y,x2:o.toX,y2:o.toY,color:o.color,width:o.width||1.1,arrow:true}); Viz.text(svg,o.text,o.textX||o.x,o.textY||o.y,{size:o.size||11,fill:o.color,weight:o.weight}); };
+    Viz.callout(svg,{text:'OI rises while range compresses',x:136,y:380,toX:220,toY:458,color:'#c98bff',size:12,weight:700});
+    Viz.callout(svg,{text:'price moves with OI = healthy',x:390,y:150,toX:492,toY:220,color:'#9cc5ec',size:12,weight:700});
+    Viz.callout(svg,{text:'OI still rises, price stalls',x:616,y:144,toX:704,toY:190,color:'#ffd23f',size:12,weight:700});
+    Viz.callout(svg,{text:'OI flush = forced exits',x:836,y:368,toX:876,toY:512,color:'#ffc599',size:12,weight:700});
+    Viz.callout(svg,{text:'new base',x:1038,y:248,toX:1080,toY:330,color:'#6fcb7f',size:12,weight:700});
+    return svg;
+  }
+
+  function oiWorkflowSVG(){
+    var W=1280,H=600,svg=Viz.canvas({w:W,h:H,label:'Live OI workflow: context to trade decision',grid:{start:92,end:H-70,step:58,x1:22,x2:W-22}});
+    Viz.label(svg,'Live OI workflow: level → quadrant → crowded side → trigger',34,36,{w:490,size:13});
+    function box(x,y,w,h,n,title,lines,color){
+      svg.appendChild(E('rect',{x:x,y:y,width:w,height:h,rx:7,fill:'#101012',stroke:'#25252a','stroke-width':1}));
+      Viz.marker(svg,{n:n,x:x+24,y:y+26,color:color,size:11});
+      Viz.text(svg,title,x+50,y+30,{size:13,fill:'#fff',weight:700});
+      lines.forEach(function(line,i){Viz.text(svg,line,x+18,y+66+i*20,{size:12,fill:i===0?color:'#c6c6ce',weight:i===0?700:500});});
+    }
+    box(48,92,230,238,1,'Location',['AMT / TPO / VP level','range edge / value edge','liquidation pool','where can crowd be wrong?'],'#c98bff');
+    box(322,92,230,238,2,'OI quadrant',['price × OI','new longs / covering','new shorts / liquidation','fresh risk or closing?'],'#9cc5ec');
+    box(596,92,230,238,3,'Crowded side',['funding + NL/NS','venue OI timing','spot vs perp CVD','who is trapped?'],'#ffd23f');
+    box(870,92,230,238,4,'Price result',['does aggression progress?','acceptance or failure','flush or build-up','what changed?'],'#ffc599');
+    box(1042,380,210,118,5,'Trade decision',['trigger + invalidation','or no trade'],'#6fcb7f');
+    Viz.line(svg,{x1:278,y1:210,x2:322,y2:210,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:552,y1:210,x2:596,y2:210,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:826,y1:210,x2:870,y2:210,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.line(svg,{x1:982,y1:330,x2:1060,y2:380,color:'#8a8a92',width:1.2,arrow:true});
+    Viz.note(svg,{x:64,y:406,w:344,h:92,title:'Good long example',titleColor:'#6fcb7f',size:12,lineH:18,titleSize:12,
+      lines:['HTF support + long liquidation flush.', 'OI stabilizes, CVD divergence appears.', 'Enter only after absorption / reclaim.']});
+    Viz.note(svg,{x:452,y:406,w:344,h:92,title:'Good short example',titleColor:'#ffc599',size:12,lineH:18,titleSize:12,
+      lines:['Resistance + OI/NL builds into high.', 'Price fails to accept above.', 'Fade after trapped longs start unwinding.'],stroke:'#3a2a24'});
+    return svg;
+  }
+
+  var OIS={
+    whatis:{label:'OI растёт с ценой = новые лонги',title:'OI растёт с ценой = свежие лонги',h:540,x0:120,dx:42,cw:14,seed:5,
+      legs:[{n:12,from:320,to:150,vol:12,wick:11}],
+      oi:[20,28,36,42,50,56,64,70,78,86,92,98],
+      notes:[{x:952,y:120,w:298,h:140,title:'Здоровый аптренд',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,lines:['Цена растёт и OI растёт →','в рынок входят новые лонги','(свежие деньги). Движение','подкреплено позиционированием.']}],
+      legend:['OI = число открытых контрактов. Растёт вместе с ценой = приток новых лонгов.','«Здоровый» тренд: OI растёт по направлению хода.']},
+
+    quadrants:{label:'OI и цена: 4 квадранта',title:'4 квадранта: чем подкреплено движение',h:560,x0:118,dx:44,cw:14,seed:9,
+      legs:[{n:4,from:308,to:238,vol:9,wick:9},{n:4,from:238,to:170,vol:9,wick:9},{n:4,from:170,to:246,vol:9,wick:9},{n:4,from:246,to:320,vol:9,wick:9}],
+      oi:[30,40,48,55, 50,44,38,34, 40,48,56,62, 54,46,38,30],
+      markers:[{n:1,at:2,y:212,color:'#ffd23f'},{n:2,at:6,y:144,color:'#ffc599'},{n:3,at:10,y:146,color:'#c98bff'},{n:4,at:14,y:224,color:'#ff8c3a'}],
+      notes:[{x:952,y:96,w:298,h:170,title:'Квадранты OI',titleColor:'#9cc5ec',size:12.5,lineH:20,titleSize:13,
+        lines:['① цена↑ OI↑ — новые лонги','② цена↑ OI↓ — short covering','③ цена↓ OI↑ — новые шорты','④ цена↓ OI↓ — long liquidation']}],
+      legend:['OI растёт по направлению = свежие деньги (① ③). OI падает = закрытие позиций (② ④).','Рост на падающем OI (②) и падение на падающем OI (④) = выдох, ищи разворот.']},
+
+    liquidation:{label:'OI flush = ликвидации',title:'OI flush: каскад ликвидаций',h:540,x0:140,dx:42,cw:14,seed:3,
+      legs:[{n:8,from:316,to:172,vol:11,wick:10},{n:8,from:172,to:322,vol:15,wick:13}],
+      oi:[30,38,46,54,62,70,80,92, 86,66,50,40,32,28,26,24],
+      markers:[{n:1,at:7,y:138,color:'#ffd23f'},{n:2,at:11,y:250,color:'#ff8c3a'}],
+      notes:[{x:952,y:110,w:298,h:158,title:'Каскад ликвидаций',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+        lines:['① OI копился — лонги стекались','на плече у вершины.','② резкий пролив цены +','обвал OI = форсированное','закрытие (ликвидации).','Часто локальное дно.']}],
+      legend:['Всплеск OI (плечо копится) → резкое падение OI на проливе = каскад ликвидаций.','Подтверждай: длинный хвост, поглощение, стабилизация OI — не лови первый нож.']}
+  };
+
+  document.querySelectorAll('[data-oi]').forEach(function(d){var cf=OIS[d.dataset.oi];if(cf)d.appendChild(oiStory(cf));});
+  document.querySelectorAll('[data-oi-scenarios]').forEach(function(d){d.appendChild(oiScenariosSVG());});
+  document.querySelectorAll('[data-oi-nlns]').forEach(function(d){d.appendChild(oiNlNsSVG());});
+  document.querySelectorAll('[data-oi-lifecycle]').forEach(function(d){d.appendChild(oiLifecycleSVG());});
+  document.querySelectorAll('[data-oi-workflow]').forEach(function(d){d.appendChild(oiWorkflowSVG());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

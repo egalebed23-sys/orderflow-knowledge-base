@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volume Profile · профиль объёма</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; --content-max:1280px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: var(--content-max); margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: var(--content-max); margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: var(--content-max); margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: var(--content-max); margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; overflow-x:auto; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+    .diagram svg { min-width:760px; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item active" href="#"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое Volume Profile</a>
+    <a href="#range">02 · Диапазон, данные и row size</a>
+    <a href="#poc">03 · POC / nPOC lifecycle</a>
+    <a href="#va">04 · Value Area и прошлый value</a>
+    <a href="#hvn">05 · HVN — high volume nodes</a>
+    <a href="#lvn">06 · LVN — low volume nodes</a>
+    <a href="#migration">07 · Developing profile</a>
+    <a href="#shifting">08 · Сессии, composite и сдвиг value</a>
+    <a href="#topology">09 · Profile topology</a>
+    <a href="#workflow">10 · Live workflow</a>
+    <a href="#limits">11 · Ограничения</a>
+    <a href="#trade">12 · Как торговать</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Volume Profile · профиль объёма</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Volume Profile · профиль объёма</h1>
+    <p>// объём по цене: где рынок делал бизнес, а где почти не задерживался</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). Volume Profile отвечает на <strong>где</strong> прошёл объём; <a href="volume.html" style="color:#d9b8ff;border:none;">Volume</a> — сколько усилия прошло <strong>во времени</strong>; <a href="cvd.html" style="color:#d9b8ff;border:none;">CVD</a> — кто был агрессором. Профиль реактивен: он описывает выбранный диапазон, а не обещает будущую реакцию.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ VP ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое Volume Profile</span>
+      <span class="section-badge">volume by price</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Volume Profile</strong> — горизонтальная гистограмма: сколько <strong>объёма</strong> прошло на каждой <strong>цене</strong> (а не во времени). Толстые ряды — много объёма, тонкие — мало.</p>
+        <ul>
+          <li>Это «volume by price». Брат <a href="tpo.html" style="color:#9cc5ec;">TPO</a> (§07): TPO считает <em>время</em> на цене, VP — <em>объём</em></li>
+          <li>Сырой объём во <em>времени</em> (бары под графиком) — это раздел <a href="volume.html" style="color:#9cc5ec;">Volume</a> (§03)</li>
+          <li>Вместе price + time + volume дают объёмную картину стоимости (см. <a href="amt.html" style="color:#9cc5ec;">AMT</a>)</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-vp="whatis"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Главное</span>Профиль показывает, <strong>где рынок наторговал больше или меньше объёма внутри выбранного диапазона</strong>. Толстые зоны отмечают исторически высокое участие, тонкие — низкое. Это карта прошлого бизнеса, а не готовая карта будущих заявок.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Ключевые элементы профиля:</p>
+        <ul>
+          <li><strong>vPOC</strong> — ряд с максимумом объёма выбранного профиля (§03)</li>
+          <li><strong>Value Area (VAH/VAL)</strong> — диапазон, включающий заданную долю объёма (§04)</li>
+          <li><strong>HVN</strong> — локальные утолщения (§05); <strong>LVN</strong> — локальные провалы (§06)</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Виды в MMT</span><strong>VPVR</strong> (Visible Range) меняется вместе с zoom/pan; <strong>VPSV</strong> (Session) сравнивает одинаковые сессии; <strong>FRVP</strong> (Fixed Range) проверяет конкретную гипотезу от выбранного старта до конца. Выбор диапазона важнее красивой формы (§02).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>VP можно применять по сессиям, импульсам или композитам. Но результат зависит от источника: криптообъём фрагментирован по биржам, а up/down-разбиение профиля не всегда является настоящим bid/ask.</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Сочетай профиль с CVD и footprint, но сначала уточни venue, тип объёма, сессию и размер ряда. Один и тот же рынок при разных настройках даст разные POC, VAH/VAL и узлы.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. RANGE / DATA / ROW SIZE ─────── -->
+  <section class="section" id="range">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Диапазон, данные и row size</span>
+      <span class="section-badge">measurement</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Профиль не существует сам по себе: он является ответом на вопрос <strong>«как распределился объём внутри вот этого диапазона?»</strong>. Если поменять окно или размер ряда, изменится и ответ.</p>
+        <div class="diagram">
+          <div data-vp-range></div>
+          <div class="diagram-cap">Session сравнивает повторяемые периоды. Fixed Range проверяет конкретную инициативу. Visible Range удобен для сканирования, но меняется вместе с экраном.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Решение</th><th>Что меняется</th><th>Практическое правило</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Диапазон</strong></td><td>Форма, POC, VAH/VAL и узлы</td><td>Якорь должен соответствовать гипотезе: сессия, баланс, импульс или composite</td></tr>
+            <tr><td><strong>Row size</strong></td><td>Гранулярность и число локальных узлов</td><td>Слишком мелко = шум; слишком крупно = потеря структуры</td></tr>
+            <tr><td><strong>Venue / symbol</strong></td><td>Реальный набор сделок</td><td>Не смешивай профиль одной биржи с выводом о всём крипторынке</td></tr>
+            <tr><td><strong>Volume mode</strong></td><td>Total, up/down или delta</td><td>Проверь метод расчёта: up/down может быть классификацией баров, не bid/ask</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">VRVP ловушка</span>Visible Range удобен, но его уровни «переезжают» при zoom/pan. Для исполнения идеи зафиксируй диапазон или используй session/composite, иначе анализ незаметно меняется вместе с экраном.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. POC / vPOC ─────── -->
+  <section class="section" id="poc">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">POC / vPOC / naked POC</span>
+      <span class="section-badge">max volume row</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>vPOC</strong> (volume Point of Control) — ряд с максимальным объёмом <strong>внутри выбранного профиля</strong>. Это центр наибольшего исторического участия, не объективная «справедливая цена».</p>
+        <ul>
+          <li><strong>Developing vPOC</strong> меняется, пока профиль строится; завершённый POC фиксирует итог выбранного периода</li>
+          <li><strong>Naked POC</strong> — POC завершённого профиля, который цена ещё не протестировала после формирования</li>
+          <li>POC может стать магнитом или зоной реакции, но роль определяет текущий режим и поведение на подходе</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-vp="poc"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Значимость зависит от диапазона, объёма, давности, числа совпадающих профилей и того, что происходило после формирования</li>
+          <li>В профиле может быть <strong>несколько HVN</strong>; POC = HVN с максимальным объёмом (те же свойства, но значимее)</li>
+          <li>После принятия внутрь value POC становится логичным первым destination, но сильный встречный поток может остановить ротацию раньше</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка (Dalton)</span>POC <strong>нельзя</strong> использовать вслепую. Нужен контекст: в консолидациях/рейнджах работает хорошо, в сильном тренде — хуже. Подтверждай orderflow, моментумом или price action.</div>
+        <div class="diagram">
+          <div data-vp-npoc></div>
+          <div class="diagram-cap">nPOC — не вечный уровень. После первого теста оцени результат: rejection сохраняет интерес, acceptance/sweep переводит уровень в историю.</div>
+        </div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>На первом тесте nPOC наблюдай скорость подхода, CVD и строительство нового объёма. Реакция важнее самого факта касания.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. VALUE AREA ─────── -->
+  <section class="section" id="va">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Value Area и прошлый value</span>
+      <span class="section-badge">value</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Value Area</strong> — непрерывный диапазон рядов, который алгоритм собирает вокруг POC, пока не включит заданную долю объёма, обычно 70%. Это <strong>не статистическое 1σ</strong> и не гарантия fair value.</p>
+        <div class="hl green"><span class="hl-label">Связь</span>VAH/VAL — границы исторически плотного бизнеса выбранного профиля. Внутри них чаще возможна ротация; снаружи рынок проверяет, способен ли построить новый объём или вернётся назад.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Acceptance</strong> измеряется не касанием, а временем, объёмом и удержанием за границей</li>
+          <li><strong>Rejection</strong> — быстрый возврат без строительства нового узла снаружи</li>
+          <li>Отношение текущей сессии к прошлому value полезнее отдельной линии: выше, ниже, внутри или с перекрытием</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="diagram">
+          <div data-vp-relations></div>
+          <div class="diagram-cap">Открытие и строительство value относительно прошлого профиля задают гипотезу. Исполнение всё равно требует результата цены и потока.</div>
+        </div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Сравни прошлую VA с developing VA: нет перекрытия и удержание снаружи поддерживают directionality; возврат и строительство внутри ослабляют инициативу.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. HVN ─────── -->
+  <section class="section" id="hvn">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">HVN — high volume nodes</span>
+      <span class="section-badge">acceptance</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>HVN</strong> (High Volume Node) — локальное утолщение профиля: в выбранном диапазоне здесь прошло относительно много объёма. Часто это след баланса или консолидации.</p>
+
+        <div class="diagram">
+          <div data-vp="hvn"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Рабочая гипотеза</span>HVN часто ведёт себя как «меласса»: при возвращении цена может замедлиться и снова начать двухсторонний бизнес. Но исторический объём <strong>не доказывает наличие текущих лимитных заявок</strong>.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>S/R — только гипотеза:</strong> подход сверху или снизу не задаёт реакцию без текущего потока</li>
+          <li><strong>Mean-reverting режим</strong> → ищи возврат к центру узла; <strong>трендовый</strong> → смотри, строит ли рынок новый узел выше/ниже</li>
+          <li>Мониторинг активности у HVN = детектор <strong>смены конвикции</strong> с момента формирования зоны (Dalton)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT / конфлюэнс</span>HVN — это «потенциальные» зоны реакции, а не гарантия. Сила — в конфлюэнсе: HVN + ключевой уровень + реакция в footprint/CVD. По поведению у HVN судят, изменилась ли направленная конвикция.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. LVN ─────── -->
+  <section class="section" id="lvn">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">LVN — low volume nodes</span>
+      <span class="section-badge">imbalance</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>LVN</strong> (Low Volume Node) — локальный провал профиля: в выбранном диапазоне здесь прошло мало объёма. Часто он остаётся после быстрого направленного перемещения между зонами бизнеса.</p>
+
+        <div class="diagram">
+          <div data-vp="lvn"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Две реакции</span>У края LVN цена может резко отвергнуться; после принятия внутрь — быстро пройти к следующему HVN. Поэтому LVN лучше читать как <strong>тонкий коридор между destinations</strong>, а не автоматический air-pocket.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>До принятия:</strong> LVN может быть зоной rejection, потому что рынок ранее не строил там бизнес</li>
+          <li><strong>После принятия:</strong> если объём не начинает строиться внутри, цена часто быстро пересекает коридор к следующему HVN</li>
+          <li><strong>Если объём строится:</strong> старый LVN перестаёт быть тонким и превращается в новый узел — карта обновилась</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Два сценария</span>(1) rejection от края LVN и возврат в прежний узел; (2) acceptance внутрь LVN и быстрый переход к следующему HVN. Не угадывай заранее — наблюдай результат цены и строительство объёма.</div>
+        <div class="hl note"><span class="hl-label">Нюанс</span>LVN — это reference areas для идей с конфлюэнсом, а не самостоятельный сигнал. Контекст режима (тренд vs рейндж) решает, как с ними работать.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. DEVELOPING PROFILE ─────── -->
+  <section class="section" id="migration">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Developing profile и миграция vPOC</span>
+      <span class="section-badge">developing</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Developing vPOC и developing VA</strong> меняются по мере поступления сделок. Их миграция показывает, где рынок <em>сейчас</em> строит объём, но ранняя форма профиля нестабильна.</p>
+
+        <div class="diagram">
+          <div data-vp-migration></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Цена и vPOC мигрируют вместе</strong> → текущий диапазон строит объём в направлении движения</li>
+          <li><strong>Цена ушла, vPOC остался</strong> → движение пока не получило объёмного подтверждения; возможен возврат или поздняя миграция</li>
+          <li><strong>vPOC скачком переносится</strong> → новый кластер бизнеса стал крупнее прежнего; оцени, удержится ли он</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">3D-вид</span>Миграция читается в связке price + time + volume. Но developing POC может прыгать между близкими узлами из-за нескольких сделок — не превращай каждый сдвиг в сигнал.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. СЕССИИ, COMPOSITE И СДВИГ VALUE ─────── -->
+  <section class="section" id="shifting">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Сессии, composite и сдвиг value</span>
+      <span class="section-badge">context</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Отдельный профиль отвечает за выбранный период. Серия сессионных профилей показывает <strong>миграцию бизнеса</strong>, а composite объединяет периоды, которые логично принадлежат одному аукциону.</p>
+        <ol style="padding-left:18px;color:var(--text);font-size:14px;">
+          <li>Value последовательно смещается без перекрытия → рынок строит бизнес в направлении движения</li>
+          <li>Перекрытие растёт, VAR сужается и vPOC перестаёт мигрировать → инициатива замедляется</li>
+          <li>Composite полезен, когда несколько сессий образуют один баланс; бессмысленен, если просто объединить случайный участок</li>
+        </ol>
+
+        <div class="diagram">
+          <div data-vp-shifting></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Продолжение:</strong> новый value удерживается ниже/выше, а откаты не возвращают рынок в старый composite</li>
+          <li><strong>Замедление:</strong> узкие пересекающиеся value после серии широких направленных профилей</li>
+          <li><strong>Разворот:</strong> недостаточно остановки; нужен acceptance обратно в старый value и затем миграция в противоположную сторону</li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Важно</span>Остановка миграции — предупреждение, не разворот. Тренд может просто строить новый баланс перед продолжением.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="diagram">
+          <div data-vp-composite></div>
+          <div class="diagram-cap">Объединяй профили по логике аукциона: один баланс, одна инициатива или один HTF-диапазон. Composite без причины только размывает уровни.</div>
+        </div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Замедление в composite VAH/VAL или HTF-узле важнее остановки посреди пустоты. Сопоставь с CVD, OI и тем, строится ли новый узел.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. PROFILE TOPOLOGY ─────── -->
+  <section class="section" id="topology">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Profile topology · узлы и коридоры</span>
+      <span class="section-badge">map</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Вместо попытки угадать рынок по буквенной форме профиля читай его как карту: <strong>HVN — destinations</strong>, <strong>LVN — границы и коридоры</strong>, POC — крупнейший узел выбранного диапазона.</p>
+        <div class="diagram">
+          <div data-vp-topology></div>
+          <div class="diagram-cap">Цена может ротировать внутри узла, отвергнуться от края коридора или после acceptance быстро перейти к следующему destination.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Топология</th><th>Что произошло</th><th>Что наблюдать</th></tr></thead>
+          <tbody>
+            <tr><td>Один широкий узел</td><td>Длительный двухсторонний бизнес</td><td>Ротация и выход из принятой зоны</td></tr>
+            <tr><td>Два узла + тонкий мост</td><td>Две зоны бизнеса разделены быстрым ходом</td><td>Примет ли цена мост или быстро пересечёт его</td></tr>
+            <tr><td>Новый узел снаружи старого value</td><td>Рынок начал строить новый бизнес</td><td>Удержание нового узла и отсутствие возврата</td></tr>
+            <tr><td>Старый LVN заполняется</td><td>Рынок изменил отношение к зоне</td><td>Считать старую карту устаревшей</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Без магии формы</span>Форма профиля описывает уже состоявшуюся торговлю. Направление следующего движения возникает из локации, текущего потока и acceptance/rejection, а не из силуэта буквы.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 10. LIVE WORKFLOW ─────── -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Live workflow · от карты к сделке</span>
+      <span class="section-badge">workflow</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="diagram">
+          <div data-vp-workflow></div>
+          <div class="diagram-cap">Profile создаёт карту и гипотезу. Price, volume и orderflow решают, активна ли эта карта сейчас.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чеклист</span>
+        <table>
+          <thead><tr><th>Шаг</th><th>Вопрос</th><th>Результат</th></tr></thead>
+          <tbody>
+            <tr><td>1 · Гипотеза</td><td>Какой аукцион я измеряю?</td><td>Session, fixed impulse, balance или composite</td></tr>
+            <tr><td>2 · Карта</td><td>Где destinations и тонкие коридоры?</td><td>POC/HVN, LVN, VAH/VAL, nPOC</td></tr>
+            <tr><td>3 · Локация</td><td>Где цена относительно прошлой и developing value?</td><td>Внутри, снаружи, acceptance или rejection</td></tr>
+            <tr><td>4 · Результат</td><td>Строится ли объём в новой зоне?</td><td>Новый узел, миграция или быстрый возврат</td></tr>
+            <tr><td>5 · Trigger</td><td>Кто давит и кто поглощает?</td><td>CVD, footprint, OI и price action</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Сценарии</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Rotation</div>Цена принята внутри value → сначала POC/HVN, затем противоположный край, пока поток не ломает ротацию.</div>
+          <div class="card"><div class="card-title">LVN traverse</div>Цена принята внутрь тонкого коридора и объём не строится → следующий HVN становится destination.</div>
+          <div class="card"><div class="card-title">Acceptance outside</div>Снаружи старой VA строится новый узел, developing POC мигрирует → continuation-контекст.</div>
+          <div class="card"><div class="card-title">Failed acceptance</div>Выход не строит объём и быстро возвращается → ротация обратно в старый value.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. LIMITS ─────── -->
+  <section class="section" id="limits">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Ограничения и ложная точность</span>
+      <span class="section-badge">limits</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Профиль реактивен</div>Он показывает прошлый объём. Уровень не содержит обещания, что участники всё ещё там.</div>
+          <div class="card"><div class="card-title">Карта зависит от настроек</div>Диапазон и row size способны заметно изменить POC, VA и topology.</div>
+          <div class="card"><div class="card-title">Данные фрагментированы</div>Крипто venue, spot/perp и base/quote volume дают разные профили одного символа.</div>
+          <div class="card"><div class="card-title">Up/down ≠ bid/ask</div>Некоторые платформы классифицируют объём по направлению бара, а не по исполнению на bid/ask.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Профили часто рассчитываются из lower-timeframe bars, поэтому точность зависит от доступной истории и алгоритма распределения объёма по рядам</li>
+          <li>На Heikin Ashi, Renko и других синтетических типах графика цены и объём могут быть искажены</li>
+          <li>Уровень, который выглядит точным до тика, практически лучше считать зоной: row size уже является агрегацией</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Проверка устойчивости</span>Перед исполнением слегка измени row size и разумные границы профиля. Если ключевой узел исчезает от небольшого изменения настроек, это слабый референс, а не точный уровень.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Как торговать по профилю</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Volume Profile — это <strong>карта исторического участия выбранного диапазона</strong>. Он даёт destinations, коридоры и гипотезы acceptance/rejection; триггер и актуальность даёт текущий поток.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Rotation to destination</div>Acceptance внутри value → POC/HVN как ближайшая цель, но не обязательный финал.</div>
+          <div class="card"><div class="card-title">LVN corridor</div>После acceptance внутрь LVN и без строительства объёма → переход к следующему HVN.</div>
+          <div class="card"><div class="card-title">Value migration</div>Новый узел и POC строятся снаружи старого value → continuation, пока рынок удерживает новую зону.</div>
+          <div class="card"><div class="card-title">Failed auction</div>Выход за VA не строит профиль и возвращается → цель обратно внутри старого value.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Не ставь сделку на касание линии. Сначала проверь, актуален ли выбранный профиль, затем наблюдай rejection, acceptance или строительство нового объёма.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>(1) Выбрать аукцион и диапазон → (2) отметить destinations/коридоры → (3) определить отношение к прошлому и developing value → (4) проверить результат объёма → (5) trigger через CVD/footprint/OI.</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Сильный референс устойчив к разумному изменению row size и диапазона, совпадает с логикой AMT и получает подтверждение текущим потоком.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── Volume Profile visual engine (profile-by-price + candles) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function heat(f){f=Math.max(0,Math.min(1,f));
+    var s=[[0,[64,30,96]],[0.25,[124,42,140]],[0.45,[178,62,128]],[0.65,[226,98,70]],[0.82,[255,140,58]],[1,[255,210,63]]];
+    var a=s[0],b=s[s.length-1],i;
+    for(i=0;i<s.length-1;i++){if(f>=s[i][0]&&f<=s[i+1][0]){a=s[i];b=s[i+1];break;}}
+    var u=(f-a[0])/((b[0]-a[0])||1),c=a[1].map(function(v,j){return Math.round(v+(b[1][j]-v)*u);});
+    return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight); if(o.anchor)tx.setAttribute('text-anchor',o.anchor);
+    tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){var defs=E('defs',{}),m=E('marker',{id:'arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));defs.appendChild(m);svg.appendChild(defs);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  var Viz={
+    canvas:function(o){var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg); svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));}}
+      return svg;},
+    line:function(svg,o){var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('line',a));},
+    text:function(svg,text,x,y,o){addText(svg,text,x,y,o||{});},
+    label:function(svg,text,x,y,o){o=o||{};var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});},
+    note:function(svg,o){var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
+    profile:function(svg,o){var rows=o.rows,bw=o.bw||9,bh=o.bh||10,g=o.g==null?1:o.g,maxB=o.maxB||14,fade=o.fade==null?0.95:o.fade;
+      var max=Math.max.apply(null,rows)||1;
+      var maxW=o.maxW||maxB*(bw+g),buyC=o.buyColor||'#28d59b',sellC=o.sellColor||'#ff6b72';
+      rows.forEach(function(r,i){
+        var yy=o.y+i*(bh+g),f=r/max,totalW=Math.max(3,f*maxW);
+        var skew=0.5+0.15*Math.sin(i*1.37+rows.length*0.31),buyW=Math.max(2,totalW*skew),sellW=Math.max(2,totalW-buyW);
+        var op=(fade*(0.42+0.58*f)).toFixed(2);
+        svg.appendChild(E('rect',{x:o.x,y:yy,width:buyW,height:bh,rx:o.rx==null?0.8:o.rx,fill:buyC,opacity:op}));
+        svg.appendChild(E('rect',{x:o.x+buyW,y:yy,width:sellW,height:bh,rx:o.rx==null?0.8:o.rx,fill:sellC,opacity:op}));
+      });
+      if(o.axis){var ax=o.x-5;Viz.line(svg,{x1:ax,y1:o.y-7,x2:ax,y2:o.y+rows.length*(bh+g)+4,color:o.axisColor||'#606069',width:o.axisWidth||1});}
+      return {rowY:function(i){return o.y+i*(bh+g)+bh/2;},right:o.x+maxW,left:o.x-5};},
+    candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
+    candleWalk:function(svg,o){var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});}});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};},
+    level:function(svg,o){Viz.line(svg,{x1:o.x1,y1:o.y,x2:o.x2,y2:o.y,color:o.color,width:o.width,opacity:o.opacity,dash:o.dash});
+      if(o.label) Viz.text(svg,o.label,o.labelX||o.x1,o.labelY||o.y-6,{size:o.labelSize||11,fill:o.color,weight:700});},
+    marker:function(svg,o){svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});}
+  };
+
+  function manualCandles(svg,o){
+    var prev=o.start,x=o.x0,dx=o.dx||7,cw=o.cw||4,seq=o.seq||[],gaps=o.gaps||[0],wicks=o.wicks||[10];
+    seq.forEach(function(close,i){
+      var open=(i?prev:o.start)+(gaps[i%gaps.length]||0);
+      var wick=wicks[i%wicks.length]||10;
+      var hi=Math.min(open,close)-wick*0.55;
+      var lo=Math.max(open,close)+wick*0.7;
+      Viz.candle(svg,{x:x+i*dx,o:open,c:close,h:hi,l:lo,w:cw,wickWidth:o.wickWidth||0.8});
+      prev=close;
+    });
+    return {x:function(i){return x+i*dx;},lastX:x+(seq.length-1)*dx};
+  }
+
+  function splitVolumeProfile(svg,o){
+    var rows=o.rows,buy=o.buy,sell=o.sell,x=o.x,y=o.y,bh=o.bh||8,g=o.g==null?2:o.g,maxW=o.maxW||260;
+    var max=Math.max.apply(null,rows)||1;
+    var rowH=bh+g;
+    rows.forEach(function(v,i){
+      var totalW=Math.max(3,(v/max)*maxW),bShare=buy[i%buy.length],sShare=sell[i%sell.length];
+      var buyW=Math.max(2,totalW*bShare/(bShare+sShare));
+      var sellW=Math.max(2,totalW-buyW);
+      var yy=y+i*rowH,fade=(0.42+0.58*(v/max)).toFixed(2);
+      svg.appendChild(E('rect',{x:x,y:yy,width:buyW,height:bh,rx:0.8,fill:'#28d59b',opacity:fade}));
+      svg.appendChild(E('rect',{x:x+buyW,y:yy,width:sellW,height:bh,rx:0.8,fill:'#ff6b72',opacity:fade}));
+    });
+    Viz.line(svg,{x1:x-7,y1:y-8,x2:x-7,y2:y+rows.length*rowH+4,color:'#6f6f78',width:1.5});
+    return {rowY:function(i){return y+i*rowH+bh/2;},height:rows.length*rowH,right:x+maxW,left:x-7};
+  }
+
+  function vpWhatisSVG(){
+    var W=1280,H=590,svg=Viz.canvas({w:W,h:H,label:'Volume Profile: объём по цене',grid:{start:92,end:474,step:56,x1:34,x2:W-34}});
+    Viz.label(svg,'Volume Profile: объём по цене',34,34,{w:360,size:13});
+
+    var rows=[5,8,12,18,28,42,58,76,96,118,132,124,108,92,116,148,168,154,128,98,70,46,30,18,11,7,4];
+    var buy=[0.62,0.54,0.58,0.46,0.52,0.61,0.64,0.57,0.49,0.44,0.52,0.58,0.63,0.55,0.46,0.42,0.50,0.57,0.62,0.54,0.47,0.58,0.64,0.52,0.44,0.56,0.61];
+    var sell=[0.38,0.46,0.42,0.54,0.48,0.39,0.36,0.43,0.51,0.56,0.48,0.42,0.37,0.45,0.54,0.58,0.50,0.43,0.38,0.46,0.53,0.42,0.36,0.48,0.56,0.44,0.39];
+    var prof=splitVolumeProfile(svg,{rows:rows,buy:buy,sell:sell,x:158,y:102,bh:8,g:3,maxW:278});
+    var vah=prof.rowY(9),poc=prof.rowY(16),val=prof.rowY(22);
+
+    svg.appendChild(E('rect',{x:146,y:vah-8,width:960,height:val-vah+16,rx:4,fill:'#ffffff',opacity:0.025}));
+    Viz.level(svg,{x1:146,x2:1110,y:vah,color:C.va,width:1.7,opacity:0.95,label:'VAH',labelX:1122,labelY:vah+4,labelSize:12});
+    Viz.level(svg,{x1:146,x2:1110,y:poc,color:C.poc,width:2.7,opacity:0.98,label:'POC',labelX:1122,labelY:poc+4,labelSize:12});
+    Viz.level(svg,{x1:146,x2:1110,y:val,color:C.va,width:1.7,opacity:0.95,label:'VAL',labelX:1122,labelY:val+4,labelSize:12});
+
+    Viz.text(svg,'buy / up volume',168,86,{size:10,fill:'#28d59b',weight:700});
+    Viz.text(svg,'sell / down volume',276,86,{size:10,fill:'#ff8a90',weight:700});
+    Viz.text(svg,'profile by price',166,414,{size:11,fill:'#8a8a92'});
+
+    var closes=[126,138,158,144,166,180,172,192,208,196,220,236,226,246,262,250,238,256,268,260,276,288,274,264,282,294,286,306,318,310,324,336,328,312,302,316,328,320,338,350,344,358,372,364,378,390,382,368,358,372,386,378,394,406,398,414,426,418,440,468,456,484,506,492,472,486,468];
+    var gaps=[0,1,-2,1,0,-1,2,0,-2,1,0,2,-1,0,1,-2,0,1,0,-1,2,-2,1,0,1,-1,0,2,-1,0,1,-2];
+    var wicks=[13,9,17,12,10,15,11,13,10,18,12,10,16,11,13,10,15,12,18,10,13,11,16,12,10,14,11,19,12,10,16,13];
+    manualCandles(svg,{x0:462,dx:7.2,cw:4.4,wickWidth:0.75,start:198,seq:closes,gaps:gaps,wicks:wicks});
+
+    Viz.text(svg,'selected range volume',606,86,{size:11,fill:'#8a8a92'});
+    Viz.note(svg,{x:936,y:332,w:270,h:80,title:'Что показывает VP',titleColor:'#ffe08a',titleSize:12,size:11.5,lineH:18,
+      lines:['Объём на каждой цене.', 'Толстые зоны = accepted business.', 'Тонкие зоны = low participation.']});
+    Viz.note(svg,{x:936,y:428,w:270,h:72,title:'Как читать',titleColor:'#c98bff',titleSize:12,size:11.5,lineH:18,
+      lines:['VAH/VAL — края value area.', 'vPOC — пик объёма.', 'Реакцию подтверждает текущий поток.']});
+
+    Viz.text(svg,'Горизонтальная гистограмма: объём распределён по цене, а не по времени. Цвета показывают up/down contribution внутри каждого ряда.',640,540,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    Viz.text(svg,'Профиль — карта прошлого бизнеса; торговая идея появляется только после реакции цены, CVD/footprint/OI и режима.',640,560,{anchor:'middle',size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  var BELL=[3,5,9,14,20,28,38,50,64,78,88,92,86,72,56,40,27,16,9,5,3];
+  var BIMODAL=[6,14,28,48,68,80,74,52,28,12,8,8,12,30,54,74,82,70,46,24,10];
+
+  /* profile-by-price (left) + candles (right) */
+  function vpStory(cf){
+    var W=1280,H=cf.h||560;
+    var svg=Viz.canvas({w:W,h:H,label:cf.label||'',grid:{start:80,end:H-50,step:58,x1:330,x2:W-22}});
+    if(cf.title) Viz.label(svg,cf.title,34,34,{w:cf.titleW||360,size:13});
+    var prof=Viz.profile(svg,{rows:cf.rows,x:96,y:cf.profileY||130,bw:9,bh:11,g:1,maxB:cf.maxB||22,fade:0.95,axis:true,axisColor:'#6f6f78',axisWidth:1.2});
+    function rY(r){return prof.rowY(r);}
+    var legs=cf.legs.map(function(s){return {n:s.n,from:s.fromRow!=null?rY(s.fromRow):s.from,to:s.toRow!=null?rY(s.toRow):s.to,vol:s.vol||10,wick:s.wick||9};});
+    var walk=Viz.candleWalk(svg,{x0:cf.cx0||360,dx:cf.dx||20,cw:cf.cw||12,seed:cf.seed||7,legs:legs});
+    var lvX2=walk.x(walk.n-1)+10;
+    (cf.bands||[]).forEach(function(b){var y0=rY(b.r0),y1=rY(b.r1);
+      svg.appendChild(E('rect',{x:70,y:Math.min(y0,y1)-7,width:lvX2-70+8,height:Math.abs(y1-y0)+14,rx:3,fill:b.color,opacity:b.op==null?0.13:b.op}));
+      if(b.label)addText(svg,b.label,lvX2-2,Math.min(y0,y1)-11,{size:11,fill:b.lcolor||'#c6c6ce',anchor:'end',weight:700});});
+    (cf.levels||[]).forEach(function(L){
+      var yy=rY(L.row);
+      Viz.level(svg,{x1:60,x2:lvX2,y:yy,color:L.color||C.va,width:L.width||1.8,opacity:0.9,dash:L.dash,label:L.label,labelX:lvX2+14,labelY:yy+4,labelSize:12});
+    });
+    (cf.arrows||[]).forEach(function(a){Viz.line(svg,{x1:a.x1,y1:a.y1,x2:a.x2,y2:a.y2,color:a.color||C.ink,width:a.width||2,opacity:0.85,arrow:true});});
+    (cf.markers||[]).forEach(function(m){Viz.marker(svg,{n:m.n,x:m.at!=null?walk.x(m.at):m.x,y:m.row!=null?rY(m.row)+(m.dy||0):m.y,color:m.color});});
+    (cf.notes||[]).forEach(function(nt){Viz.note(svg,nt);});
+    (cf.legend||[]).forEach(function(t,i){Viz.text(svg,t,640,H-28+i*16,{anchor:'middle',size:i?11:12,fill:i?'#8a8a92':'#c6c6ce'});});
+    return svg;
+  }
+
+  function vpocMigrationSVG(){
+    var W=1280,H=560,svg=Viz.canvas({w:W,h:H,label:'Миграция developing vPOC',grid:{start:80,end:430,step:58,x1:22,x2:W-22}});
+    Viz.label(svg,'Миграция developing vPOC',34,34,{w:280,size:13});
+    var walk=Viz.candleWalk(svg,{x0:110,dx:26,cw:11,seed:6,legs:[{n:8,from:400,to:228,vol:16,wick:13},{n:11,from:228,to:233,vol:18,wick:14},{n:5,from:233,to:140,vol:15,wick:13}]});
+    /* developing vpoc — red stepped line */
+    var vp='M130,412 L210,412 L210,356 L292,356 L292,306 L356,306 L356,256 L662,256 L662,210 L800,210';
+    svg.appendChild(E('path',{d:vp,fill:'none',stroke:'#e0524a','stroke-width':2.6,'stroke-linejoin':'round'}));
+    addText(svg,'developing vPOC',150,440,{size:12,fill:'#e0524a',weight:700});
+    /* extended migration */
+    Viz.line(svg,{x1:356,y1:288,x2:356,y2:262,color:'#c6c6ce',width:1.2,dash:'3 4',opacity:0.7});
+    addText(svg,'extended migration',300,470,{size:11,fill:'#c6c6ce'});
+    svg.appendChild(E('circle',{cx:356,cy:256,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
+    svg.appendChild(E('circle',{cx:662,cy:256,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
+    /* chop arrow */
+    Viz.line(svg,{x1:392,y1:168,x2:650,y2:168,color:C.ink,width:1.4,arrow:true,opacity:0.8});
+    addText(svg,'chop',515,160,{size:12,fill:'#c6c6ce',anchor:'middle',weight:700});
+    Viz.note(svg,{x:900,y:96,w:336,h:200,title:'Что проверять после миграции',titleColor:'#ffe08a',size:12.5,lineH:19,titleSize:13,
+      lines:['• цена и vPOC идут вместе?','  Это поддерживает новый бизнес.','','• цена ушла, vPOC остался?','  Подтверждение пока не построено.','','• после скачка vPOC рынок удерживает','  новый кластер или возвращается?','','Сопоставь с spot/perp CVD и OI.']});
+    return svg;
+  }
+
+  function shiftingValueSVG(){
+    var W=1280,H=540,svg=Viz.canvas({w:W,h:H,label:'Сдвиг value вниз + сужение VAR = замедление'});
+    Viz.label(svg,'Сдвиг value вниз + сужение VAR = замедление',34,34,{w:430,size:13});
+    var SB=[4,9,18,30,44,52,46,32,18,9,4], TIGHT=[5,16,40,52,30,12,5];
+    var sess=[
+      {x:130,y:88,rows:SB,mb:15},{x:330,y:150,rows:SB,mb:15},{x:520,y:212,rows:SB,mb:14},
+      {x:700,y:272,rows:TIGHT,mb:9},{x:860,y:300,rows:TIGHT,mb:8}
+    ];
+    sess.forEach(function(s,i){
+      var p=Viz.profile(svg,{rows:s.rows,x:s.x,y:s.y,bw:7,bh:8,g:1,maxB:s.mb,fade:0.92});
+      var poc=s.rows.indexOf(Math.max.apply(null,s.rows));
+      Viz.line(svg,{x1:s.x-6,y1:p.rowY(poc),x2:s.x+s.mb*8+6,y2:p.rowY(poc),color:'#e0524a',width:1.8,opacity:0.85});
+    });
+    Viz.line(svg,{x1:150,y1:120,x2:980,y2:372,color:C.ink,width:2.4,arrow:true,opacity:0.9});
+    addText(svg,'value сдвигается ниже',180,150,{size:12,fill:'#c6c6ce',weight:700});
+    svg.appendChild(E('rect',{x:686,y:258,width:230,height:128,rx:6,fill:'none',stroke:'#ffe08a','stroke-width':1.4,'stroke-dasharray':'5 4',opacity:0.8}));
+    addText(svg,'узкий VAR → тесные сессии',700,250,{size:12,fill:'#ffe08a',weight:700});
+    Viz.text(svg,'Подряд дни value ниже (без перекрытия) → пара тесных боковых = первый сигнал замедления.',640,H-44,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    Viz.text(svg,'Наблюдай участие на лоях: запертые продавцы → отскок? агрессия покупателей + пассив, гасящий пуллбэки?',640,H-26,{anchor:'middle',size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  function vpRangeSVG(){
+    var W=1280,H=440,svg=Viz.canvas({w:W,h:H,label:'Выбор диапазона и row size'});
+    Viz.label(svg,'Один рынок · три разных вопроса · три разных профиля',34,34,{w:460,size:13});
+    var panels=[
+      {x:34,title:'SESSION PROFILE',color:'#9cc5ec',sub:'повторяемый период',rows:[3,8,18,34,54,70,62,42,22,10,4],note:'Сравнивай сессии между собой'},
+      {x:442,title:'FIXED RANGE',color:'#ffd23f',sub:'конкретная гипотеза',rows:[4,10,28,58,82,70,38,16,8,4,2],note:'Якорь: баланс, импульс, event'},
+      {x:850,title:'VISIBLE RANGE',color:'#ffb37a',sub:'то, что сейчас на экране',rows:[2,5,12,26,50,78,86,66,34,14,6],note:'Zoom/pan меняют результат'}
+    ];
+    panels.forEach(function(p){
+      svg.appendChild(E('rect',{x:p.x,y:76,width:380,height:270,rx:8,fill:'#101012',stroke:p.color,'stroke-width':1.3}));
+      addText(svg,p.title,p.x+18,108,{size:14,fill:p.color,weight:700});
+      addText(svg,p.sub,p.x+18,134,{size:12,fill:'#c6c6ce'});
+      var prof=Viz.profile(svg,{rows:p.rows,x:p.x+28,y:166,bw:6,bh:10,g:2,maxB:18,fade:0.92,axis:true});
+      var poc=p.rows.indexOf(Math.max.apply(null,p.rows));
+      Viz.line(svg,{x1:p.x+18,y1:prof.rowY(poc),x2:p.x+220,y2:prof.rowY(poc),color:p.color,width:2});
+      Viz.candleWalk(svg,{x0:p.x+250,dx:18,cw:9,seed:Math.round(p.x),legs:[{n:6,from:285,to:190,vol:18,wick:12},{n:4,from:190,to:250,vol:16,wick:11}]});
+      addText(svg,p.note,p.x+18,324,{size:11,fill:p.color,weight:700});
+    });
+    Viz.text(svg,'Row size и границы — часть гипотезы. Если они меняются, меняются POC, VA и узлы.',640,402,{anchor:'middle',size:13,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpNpocSVG(){
+    var W=1280,H=470,svg=Viz.canvas({w:W,h:H,label:'Lifecycle naked POC'});
+    Viz.label(svg,'nPOC lifecycle: первый тест важнее линии',34,34,{w:390,size:13});
+    var rows=[3,7,15,30,55,82,70,40,18,8,3];
+    var prof=Viz.profile(svg,{rows:rows,x:72,y:128,bw:8,bh:14,g:2,maxB:22,fade:0.94,axis:true});
+    var py=prof.rowY(5);
+    Viz.level(svg,{x1:58,x2:1215,y:py,color:'#ffd23f',width:2.2,label:'nPOC · POC завершённого профиля',labelX:60,labelY:py-10,labelSize:13});
+    addText(svg,'ПРОШЛЫЙ ПРОФИЛЬ',58,94,{size:12,fill:'#d9b8ff',weight:700});
+    var cards=[
+      {x:354,y:58,title:'1 · НЕ ТЕСТИРОВАН',color:'#d9b8ff',lines:['reference остаётся активным','но не обещает реакцию']},
+      {x:640,y:58,title:'2 · ПЕРВЫЙ ТЕСТ',color:'#ffd23f',lines:['наблюдай скорость, CVD','и строительство объёма']},
+      {x:926,y:58,title:'3 · РЕЗУЛЬТАТ',color:'#ffb37a',lines:['rejection сохраняет интерес','acceptance/sweep меняет карту']}
+    ];
+    cards.forEach(function(c){
+      svg.appendChild(E('rect',{x:c.x,y:c.y,width:250,height:94,rx:7,fill:'#101012',stroke:c.color,'stroke-width':1.3}));
+      addText(svg,c.title,c.x+14,c.y+28,{size:12,fill:c.color,weight:700});
+      c.lines.forEach(function(line,i){addText(svg,line,c.x+14,c.y+58+i*18,{size:11,fill:'#c6c6ce'});});
+    });
+    var walk=Viz.candleWalk(svg,{x0:390,dx:31,cw:12,seed:22,legs:[{n:8,from:360,to:py+30,vol:17,wick:13},{n:5,from:py+30,to:168,vol:18,wick:14},{n:5,from:168,to:py-8,vol:16,wick:12},{n:4,from:py-8,to:350,vol:18,wick:13}]});
+    Viz.marker(svg,{n:1,x:walk.x(7),y:py,color:'#ffd23f'});
+    Viz.marker(svg,{n:2,x:walk.x(17),y:py,color:'#ffb37a'});
+    Viz.text(svg,'первый тест: реакция',walk.x(7),py+42,{anchor:'middle',size:11,fill:'#ffd23f',weight:700});
+    Viz.text(svg,'повторный тест: уровень уже изменён',walk.x(17),py+42,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
+    Viz.text(svg,'Не считай nPOC вечным магнитом: после взаимодействия оцени новый аукцион.',640,438,{anchor:'middle',size:13,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpRelationsSVG(){
+    var W=1280,H=440,svg=Viz.canvas({w:W,h:H,label:'Отношение текущего value к прошлому'});
+    Viz.label(svg,'Текущий value относительно прошлого',34,34,{w:340,size:13});
+    var panels=[
+      {x:30,title:'ВЫШЕ · БЕЗ ПЕРЕКРЫТИЯ',color:'#9cc5ec',old:[250,350],cur:[110,210],note:'initiative / новый бизнес'},
+      {x:340,title:'ВЫШЕ · С ПЕРЕКРЫТИЕМ',color:'#d9b8ff',old:[230,350],cur:[160,280],note:'directional, но слабее'},
+      {x:650,title:'ВНУТРИ ПРОШЛОГО',color:'#ffd23f',old:[130,350],cur:[190,290],note:'баланс / ротация'},
+      {x:960,title:'НИЖЕ · БЕЗ ПЕРЕКРЫТИЯ',color:'#ffb37a',old:[110,210],cur:[250,350],note:'initiative вниз'}
+    ];
+    panels.forEach(function(p){
+      svg.appendChild(E('rect',{x:p.x,y:72,width:290,height:308,rx:8,fill:'#101012',stroke:'#313137','stroke-width':1}));
+      addText(svg,p.title,p.x+18,104,{size:11,fill:p.color,weight:700});
+      svg.appendChild(E('rect',{x:p.x+48,y:p.old[0],width:78,height:p.old[1]-p.old[0],rx:4,fill:'#565660',opacity:0.42,stroke:'#8a8a92','stroke-width':1}));
+      svg.appendChild(E('rect',{x:p.x+160,y:p.cur[0],width:78,height:p.cur[1]-p.cur[0],rx:4,fill:p.color,opacity:0.24,stroke:p.color,'stroke-width':1.5}));
+      addText(svg,'prior',p.x+87,366,{anchor:'middle',size:10,fill:'#8a8a92'});
+      addText(svg,'developing',p.x+199,366,{anchor:'middle',size:10,fill:p.color});
+      addText(svg,p.note,p.x+145,402,{anchor:'middle',size:11,fill:p.color,weight:700});
+    });
+    return svg;
+  }
+
+  function vpCompositeSVG(){
+    var W=1280,H=480,svg=Viz.canvas({w:W,h:H,label:'Сессионные профили и composite'});
+    Viz.label(svg,'Composite: объединяй один аукцион, не случайный экран',34,34,{w:470,size:13});
+    var rowsA=[3,8,18,34,52,64,54,34,16,7,3],rowsB=[2,6,14,30,55,72,62,38,18,8,3];
+    [80,275,470].forEach(function(x,i){
+      var rows=i===1?rowsB:rowsA,p=Viz.profile(svg,{rows:rows,x:x,y:136+i*18,bw:6,bh:12,g:2,maxB:15,fade:0.9,axis:true});
+      var poc=rows.indexOf(Math.max.apply(null,rows));
+      Viz.line(svg,{x1:x-6,y1:p.rowY(poc),x2:x+112,y2:p.rowY(poc),color:'#d9b8ff',width:1.8});
+      addText(svg,'S'+(i+1),x,112+i*18,{size:11,fill:'#c6c6ce',weight:700});
+    });
+    Viz.line(svg,{x1:650,y1:250,x2:744,y2:250,color:'#c6c6ce',width:2,arrow:true});
+    addText(svg,'MERGE',696,236,{anchor:'middle',size:11,fill:'#c6c6ce',weight:700});
+    var comp=[3,9,22,42,68,88,76,48,24,10,4];
+    var cp=Viz.profile(svg,{rows:comp,x:800,y:120,bw:9,bh:15,g:2,maxB:22,fade:0.96,axis:true});
+    var pc=comp.indexOf(Math.max.apply(null,comp));
+    Viz.line(svg,{x1:790,y1:cp.rowY(pc),x2:1040,y2:cp.rowY(pc),color:'#ffd23f',width:2.4});
+    addText(svg,'COMPOSITE POC',1048,cp.rowY(pc)+4,{size:11,fill:'#ffd23f',weight:700});
+    Viz.note(svg,{x:930,y:82,w:306,h:100,title:'Когда объединять',titleColor:'#9cc5ec',titleSize:12,size:11,lineH:19,lines:['• общий баланс / диапазон','• единая HTF-гипотеза','• соседние сессии одного аукциона']});
+    Viz.note(svg,{x:930,y:318,w:306,h:100,title:'Когда не объединять',titleColor:'#ffb37a',titleSize:12,size:11,lineH:19,lines:['• случайный visible range','• разные режимы без общей идеи','• чтобы получить удобный уровень']});
+    return svg;
+  }
+
+  function vpTopologySVG(){
+    var W=1280,H=500,svg=Viz.canvas({w:W,h:H,label:'Topology: HVN destinations и LVN corridors',grid:{start:86,end:414,step:54,x1:350,x2:W-24}});
+    Viz.label(svg,'Topology: destinations и corridors',34,34,{w:330,size:13});
+    var rows=[8,18,40,68,82,72,44,18,7,5,6,10,24,52,78,88,70,42,20,9,4];
+    var p=Viz.profile(svg,{rows:rows,x:68,y:100,bw:8,bh:13,g:2,maxB:25,fade:0.96,axis:true});
+    var upper=p.rowY(4),corr=p.rowY(10),lower=p.rowY(15);
+    svg.appendChild(E('rect',{x:50,y:upper-45,width:1160,height:90,rx:4,fill:'#b15cf0',opacity:0.09}));
+    svg.appendChild(E('rect',{x:50,y:corr-28,width:1160,height:56,rx:4,fill:'#ff8c3a',opacity:0.10}));
+    svg.appendChild(E('rect',{x:50,y:lower-45,width:1160,height:90,rx:4,fill:'#b15cf0',opacity:0.09}));
+    addText(svg,'HVN · destination A',72,upper-54,{size:12,fill:'#d9b8ff',weight:700});
+    addText(svg,'LVN · thin corridor',72,corr-36,{size:12,fill:'#ffc599',weight:700});
+    addText(svg,'HVN · destination B',72,lower+66,{size:12,fill:'#d9b8ff',weight:700});
+    var walk=Viz.candleWalk(svg,{x0:400,dx:35,cw:12,seed:31,legs:[{n:7,from:lower+20,to:lower-20,vol:19,wick:14},{n:4,from:lower-20,to:upper+20,vol:17,wick:12},{n:7,from:upper+20,to:upper-18,vol:18,wick:13},{n:5,from:upper-18,to:corr,vol:17,wick:12}]});
+    Viz.line(svg,{x1:walk.x(7),y1:lower-10,x2:walk.x(10),y2:upper+10,color:'#ffc599',width:2.4,arrow:true});
+    Viz.text(svg,'acceptance внутрь corridor → быстрый переход',760,corr-42,{anchor:'middle',size:12,fill:'#ffc599',weight:700});
+    Viz.text(svg,'если внутри corridor строится новый объём, старая topology перестаёт быть актуальной',640,468,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpWorkflowSVG(){
+    var W=1280,H=410,svg=Viz.canvas({w:W,h:H,label:'Live workflow Volume Profile'});
+    Viz.label(svg,'От профиля к сделке: карта → результат → trigger',34,34,{w:440,size:13});
+    var steps=[
+      {x:34,n:'01',title:'ВЫБЕРИ АУКЦИОН',color:'#d9b8ff',lines:['session / fixed range','balance / composite']},
+      {x:284,n:'02',title:'ПОСТРОЙ КАРТУ',color:'#9cc5ec',lines:['HVN / POC destinations','LVN corridors / VA']},
+      {x:534,n:'03',title:'ОПРЕДЕЛИ ЛОКАЦИЮ',color:'#ffd23f',lines:['prior vs developing value','внутри / снаружи / край']},
+      {x:784,n:'04',title:'ПРОВЕРЬ РЕЗУЛЬТАТ',color:'#ffb37a',lines:['строится новый объём?','acceptance или rejection?']},
+      {x:1034,n:'05',title:'ЖДИ TRIGGER',color:'#ff8c3a',lines:['CVD / footprint / OI','price action и risk']}
+    ];
+    steps.forEach(function(s,i){
+      svg.appendChild(E('rect',{x:s.x,y:92,width:212,height:188,rx:8,fill:'#101012',stroke:s.color,'stroke-width':1.3}));
+      svg.appendChild(E('circle',{cx:s.x+28,cy:124,r:14,fill:'#08080a',stroke:s.color,'stroke-width':1.3}));
+      addText(svg,s.n,s.x+28,128,{anchor:'middle',size:10,fill:s.color,weight:700});
+      addText(svg,s.title,s.x+16,166,{size:12,fill:s.color,weight:700});
+      s.lines.forEach(function(line,j){addText(svg,line,s.x+16,208+j*22,{size:11,fill:'#c6c6ce'});});
+      if(i<steps.length-1) Viz.line(svg,{x1:s.x+216,y1:186,x2:steps[i+1].x-10,y2:186,color:'#8a8a92',width:1.3,arrow:true});
+    });
+    Viz.note(svg,{x:312,y:320,w:656,h:48,title:'Profile не даёт trigger. Он ограничивает пространство решений и показывает, где проверять гипотезу.',titleColor:'#ececef',titleSize:12});
+    return svg;
+  }
+
+  var VP={
+    whatis:{label:'Volume Profile: объём по цене',title:'Volume Profile: объём по цене',h:560,rows:BELL,profileY:128,maxB:22,cx0:360,dx:20,seed:5,
+      levels:[{row:7,color:C.va,label:'VAH'},{row:11,color:C.poc,width:2.4,label:'POC'},{row:16,color:C.va,label:'VAL'}],
+      legs:[{n:4,fromRow:11,toRow:7},{n:4,fromRow:7,toRow:16},{n:5,fromRow:16,toRow:11}],
+      legend:['Горизонтальная гистограмма: сколько объёма прошло на каждой цене выбранного диапазона.','Толстые ряды = высокое историческое участие, тонкие = низкое, пик = vPOC.']},
+
+    poc:{label:'vPOC: максимум объёма выбранного диапазона',title:'vPOC: максимум объёма выбранного диапазона',h:540,rows:BELL,profileY:120,maxB:22,cx0:360,dx:24,seed:9,
+      levels:[{row:7,color:C.va,label:'VAH'},{row:11,color:C.poc,width:2.6,label:'POC'},{row:16,color:C.va,label:'VAL'}],
+      legs:[{n:3,fromRow:5,toRow:7},{n:9,fromRow:7,toRow:11}],
+      markers:[{n:1,at:9,row:11,dy:-26,color:'#ffd23f'}],
+      legend:['vPOC = максимум объёма выбранного профиля. Он может стать destination или зоной реакции.','Роль определяет режим и текущий поток, а не направление подхода само по себе.']},
+
+    hvn:{label:'HVN: высокое историческое участие',title:'HVN: зона исторически плотного бизнеса',h:560,rows:BELL,profileY:128,maxB:22,cx0:360,dx:22,seed:3,
+      bands:[{r0:9,r1:13,color:'#b15cf0',op:0.13,label:'HVN',lcolor:'#d9b8ff'}],
+      levels:[{row:7,color:C.va,label:'VAH'},{row:11,color:C.poc,width:2,label:'POC'},{row:16,color:C.va,label:'VAL'}],
+      legs:[{n:5,fromRow:2,toRow:9},{n:7,fromRow:9,toRow:11},{n:4,fromRow:11,toRow:7}],
+      markers:[{n:1,at:8,row:9,dy:-26,color:'#d9b8ff'}],
+      legend:['HVN = утолщение профиля = исторически плотный двухсторонний бизнес.','Возврат может замедлиться, но текущий интерес подтверждается только новым потоком.']},
+
+    lvn:{label:'LVN: тонкий коридор',title:'LVN: rejection на краю или переход после acceptance',h:560,rows:BIMODAL,profileY:120,maxB:22,cx0:360,dx:22,seed:11,
+      bands:[{r0:8,r1:12,color:'#ff8c3a',op:0.13,label:'LVN',lcolor:'#ffc599'}],
+      levels:[{row:5,color:C.va,label:'VAH'},{row:10,color:C.poc,width:2,label:'POC'},{row:15,color:C.va,label:'VAL'}],
+      legs:[{n:5,fromRow:6,toRow:5},{n:2,fromRow:5,toRow:15},{n:4,fromRow:15,toRow:16}],
+      markers:[{n:1,at:6,row:10,dy:-4,color:'#ffc599'}],
+      legend:['LVN = мало исторического объёма между двумя зонами бизнеса.','До acceptance возможен rejection; после acceptance и без нового объёма — быстрый переход к следующему HVN.']}
+  };
+
+  document.querySelectorAll('[data-vp]').forEach(function(d){
+    if(d.dataset.vp==='whatis') d.appendChild(vpWhatisSVG());
+    else { var cf=VP[d.dataset.vp]; if(cf)d.appendChild(vpStory(cf)); }
+  });
+  document.querySelectorAll('[data-vp-migration]').forEach(function(d){d.appendChild(vpocMigrationSVG());});
+  document.querySelectorAll('[data-vp-shifting]').forEach(function(d){d.appendChild(shiftingValueSVG());});
+  document.querySelectorAll('[data-vp-range]').forEach(function(d){d.appendChild(vpRangeSVG());});
+  document.querySelectorAll('[data-vp-npoc]').forEach(function(d){d.appendChild(vpNpocSVG());});
+  document.querySelectorAll('[data-vp-relations]').forEach(function(d){d.appendChild(vpRelationsSVG());});
+  document.querySelectorAll('[data-vp-composite]').forEach(function(d){d.appendChild(vpCompositeSVG());});
+  document.querySelectorAll('[data-vp-topology]').forEach(function(d){d.appendChild(vpTopologySVG());});
+  document.querySelectorAll('[data-vp-workflow]').forEach(function(d){d.appendChild(vpWorkflowSVG());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

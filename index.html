@@ -219,6 +219,47 @@
   .format-row .ftxt { font-size: 13.5px; line-height: 1.6; color: var(--text); }
   .format-row .ftxt strong { color: #fff; }
 
+  /* ─── STUDY PATH ─── */
+  .study-intro {
+    color: var(--muted); font-size: 13.5px; line-height: 1.7; margin-bottom: 18px;
+    max-width: 920px;
+  }
+  .study-path {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px;
+  }
+  .study-step {
+    position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr);
+    gap: 13px; padding: 14px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; min-height: 104px;
+  }
+  .study-order {
+    width: 42px; height: 42px; border: 1px solid var(--border-2); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+    background: var(--surface-2); z-index: 1;
+  }
+  .study-name {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    color: #fff; font-size: 14px; font-weight: 700; text-decoration: none;
+    margin-bottom: 4px;
+  }
+  .study-name a { color: #fff; text-decoration: none; border-bottom: 1px solid var(--border-2); }
+  .study-name a:hover { border-bottom-color: #fff; }
+  .study-desc { color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+  .study-phase {
+    font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.4px;
+    color: #d9b8ff; background: rgba(177,92,240,0.14); border-radius: 3px;
+    padding: 2px 6px; font-weight: 600;
+  }
+  .study-step.positioning .study-order { border-color: rgba(255,210,63,0.55); color: #ffe08a; }
+  .study-step.synthesis .study-order { border-color: rgba(177,92,240,0.65); color: #d9b8ff; }
+  .study-step.execution .study-order { border-color: rgba(255,140,58,0.65); color: #ffc599; }
+  .study-summary {
+    margin-top: 16px; padding: 12px 15px; border-left: 2px solid var(--accent-azure);
+    background: rgba(177,92,240,0.07); color: var(--text); font-size: 12.5px;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.65;
+  }
+
   /* ─── GLOSSARY ─── */
   .gloss-grid { display: flex; flex-direction: column; gap: 10px; }
   .gloss-card {
@@ -265,6 +306,7 @@
     .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
     .topbar, .home-hero, .section-cards, .home-block, .platform-note { width: 100%; max-width: none; }
     .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .study-path { grid-template-columns: 1fr; }
   }
 
   /* ─── SCROLL TOP ─── */
@@ -294,13 +336,13 @@
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
     <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
     <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">05</span> Open Interest <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">06</span> Volume Profile <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">11</span> Funding rate <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
@@ -311,7 +353,8 @@
   <div class="toc-inner">
     <div class="nav-group-title">На этой странице</div>
     <a href="#how">Как читать базу</a>
-    <a href="#sections">Разделы</a>
+    <a href="#path">Порядок изучения</a>
+    <a href="#sections">Каталог разделов</a>
     <a href="#glossary">Глоссарий order flow</a>
   </div>
 </aside>
@@ -360,21 +403,135 @@
     </div>
   </div>
 
+  <!-- ПОРЯДОК ИЗУЧЕНИЯ -->
+  <div class="home-block" id="path">
+    <h2>Рекомендуемый порядок изучения</h2>
+    <p class="study-intro">Маршрут движется от языка аукциона и карты контекста к наблюдаемому потоку, позиционированию и итоговой классификации режима. Номер шага ниже — порядок обучения, а не номер раздела в каталоге.</p>
+
+    <div class="study-path">
+      <div class="study-step">
+        <div class="study-order">00</div>
+        <div>
+          <div class="study-name">Старт <span class="study-phase">язык</span></div>
+          <div class="study-desc">Понять различия между price, volume, time, liquidity и positioning.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">01</div>
+        <div>
+          <div class="study-name"><a href="amt.html">AMT</a> <span class="study-phase">фундамент</span></div>
+          <div class="study-desc">Аукцион, balance/imbalance, acceptance/rejection и поиск value.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">02</div>
+        <div>
+          <div class="study-name"><a href="volume.html">Volume</a> <span class="study-phase">effort / result</span></div>
+          <div class="study-desc">Участие, всплески, exhaustion, absorption и follow-through.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">03</div>
+        <div>
+          <div class="study-name"><a href="volumeprofile.html">Volume Profile</a> <span class="study-phase">карта мест</span></div>
+          <div class="study-desc">POC, VAH/VAL, HVN/LVN, developing value, composite и миграция value.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">04</div>
+        <div>
+          <div class="study-name"><a href="tpo.html">TPO</a> <span class="study-phase">время</span></div>
+          <div class="study-desc">Структура аукциона, excess, poor highs/lows, single prints и failed auctions.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">05</div>
+        <div>
+          <div class="study-name">Key levels / VWAP <span class="study-phase">контекст</span></div>
+          <div class="study-desc">Дополнительные ориентиры и зоны, которые проверяются через аукционный контекст.</div>
+        </div>
+      </div>
+
+      <div class="study-step">
+        <div class="study-order">06</div>
+        <div>
+          <div class="study-name"><a href="cvd.html">CVD</a> <span class="study-phase">агрессия</span></div>
+          <div class="study-desc">Кто проявляет агрессию и приводит ли она к движению цены. Подтверждение у заранее найденной зоны.</div>
+        </div>
+      </div>
+
+      <div class="study-step execution">
+        <div class="study-order">07</div>
+        <div>
+          <div class="study-name">Volume bubbles / Footprint / Stacked imbalances <span class="study-phase">execution</span></div>
+          <div class="study-desc">Детализация исполнения и поиск конкретного триггера входа.</div>
+        </div>
+      </div>
+
+      <div class="study-step positioning">
+        <div class="study-order">08</div>
+        <div>
+          <div class="study-name"><a href="oi.html">Open Interest</a> <span class="study-phase">positioning</span></div>
+          <div class="study-desc">Определить, движение создаётся открытием новых позиций или закрытием старых.</div>
+        </div>
+      </div>
+
+      <div class="study-step positioning">
+        <div class="study-order">09</div>
+        <div>
+          <div class="study-name"><a href="funding.html">Funding Rate</a> <span class="study-phase">positioning</span></div>
+          <div class="study-desc">Контекст стоимости удержания позиции и перегруженности стороны рынка.</div>
+        </div>
+      </div>
+
+      <div class="study-step synthesis">
+        <div class="study-order">10</div>
+        <div>
+          <div class="study-name">Market Regime <span class="study-phase">синтез</span></div>
+          <div class="study-desc">Определить среду: баланс, тренд или переходный режим. Одинаковый сигнал в разных режимах читается по-разному.</div>
+        </div>
+      </div>
+
+      <div class="study-step execution">
+        <div class="study-order">11</div>
+        <div>
+          <div class="study-name">Liquidations <span class="study-phase">forced flow</span></div>
+          <div class="study-desc">Механика принудительного потока, каскадов и продолжения после выноса.</div>
+        </div>
+      </div>
+
+      <div class="study-step execution">
+        <div class="study-order">12</div>
+        <div>
+          <div class="study-name">Orderbook heatmap / OB imbalance <span class="study-phase">microstructure</span></div>
+          <div class="study-desc">Изучать последними: лимитная ликвидность изменчива, может быть снята и легко создаёт ложную уверенность.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="study-summary">AMT → Volume / Profile / TPO → levels → CVD / execution → OI / Funding → Market Regime → forced flow / orderbook</div>
+  </div>
+
   <!-- РАЗДЕЛЫ -->
   <div class="home-block" id="sections">
-    <h2>Разделы</h2>
+    <h2>Каталог разделов</h2>
     <div class="section-cards">
       <a class="sec-card" href="amt.html"><span class="ready">готово</span><div class="num">01</div><div class="name">AMT</div><div class="desc">Фундамент: аукцион, баланс/имбаланс, value, acceptance/rejection, failed auction</div></a>
       <a class="sec-card" href="cvd.html"><span class="ready">готово</span><div class="num">02</div><div class="name">CVD</div><div class="desc">Кумулятивная дельта: агрессия покупателей против продавцов</div></a>
       <a class="sec-card" href="volume.html"><span class="ready">готово</span><div class="num">03</div><div class="name">Volume</div><div class="desc">Объём как топливо движения, всплески и сухие зоны</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">04</div><div class="name">Volume bubbles</div><div class="desc">Пузыри и кластеры объёма, крупные принты</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">05</div><div class="name">Open Interest</div><div class="desc">Открытый интерес: приток и отток позиций</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">06</div><div class="name">Volume Profile</div><div class="desc">Профиль объёма: POC, область стоимости, ноды</div></a>
+      <a class="sec-card" href="oi.html"><span class="ready">готово</span><div class="num">05</div><div class="name">Open Interest</div><div class="desc">Открытый интерес: приток и отток позиций</div></a>
+      <a class="sec-card" href="volumeprofile.html"><span class="ready">готово</span><div class="num">06</div><div class="name">Volume Profile</div><div class="desc">Профиль объёма: POC, область стоимости, ноды</div></a>
       <a class="sec-card" href="tpo.html"><span class="ready">готово</span><div class="num">07</div><div class="name">TPO</div><div class="desc">Market Profile: время на цене, формы профиля, day types</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">08</div><div class="name">OB imbalance</div><div class="desc">Дисбаланс в стакане: перекос bid/ask</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">09</div><div class="name">Liquidations</div><div class="desc">Каскады ликвидаций, выносы плеча</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">10</div><div class="name">Orderbook heatmap</div><div class="desc">Тепловая карта лимитной ликвидности</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">11</div><div class="name">Funding rate</div><div class="desc">Ставка финансирования, перекос лонг/шорт</div></a>
+      <a class="sec-card" href="funding.html"><span class="ready">готово</span><div class="num">11</div><div class="name">Funding rate</div><div class="desc">Ставка финансирования, перекос лонг/шорт</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">12</div><div class="name">Order blocks</div><div class="desc">Ордерблоки: зоны интереса крупного капитала</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">13</div><div class="name">VWAP</div><div class="desc">Средневзвешенная по объёму, ленты отклонений</div></a>
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">14</div><div class="name">Key levels</div><div class="desc">Ключевые уровни: HTF, дневные, недельные</div></a>
@@ -417,7 +574,7 @@
 
       <div class="gloss-card">
         <div class="g-head"><span class="g-term">POC / Value Area</span><span class="g-en">точка контроля / область стоимости</span></div>
-        <div class="g-body"><strong>POC</strong> — цена с максимальным объёмом (или временем) — «самая справедливая». <strong>Value Area</strong> — диапазон, вмещающий ~70% активности (1 σ). Магниты и границы, вокруг которых строится торговля по профилю. Подробно — в разделах <em>Volume Profile</em> и <em>TPO</em>.</div>
+        <div class="g-body"><strong>POC</strong> — ряд с максимальным объёмом или временем внутри выбранного профиля. <strong>Value Area</strong> — алгоритмически собранный диапазон, включающий заданную долю активности, обычно ~70%. Это исторические ориентиры выбранного аукциона, а не объективная fair value или статистическое 1σ. Подробно — в разделах <em>Volume Profile</em> и <em>TPO</em>.</div>
       </div>
 
       <div class="gloss-card">

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funding rate · ставка финансирования</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; --content-max:1280px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: var(--content-max); margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: var(--content-max); margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: var(--content-max); margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: var(--content-max); margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; overflow-x: auto; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+    .diagram svg { min-width: 760px; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item active" href="#"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое funding</a>
+    <a href="#mechanics">02 · Механика и интервалы</a>
+    <a href="#crowd">03 · Funding как индикатор толпы</a>
+    <a href="#extremes">04 · Экстремумы и контрарность</a>
+    <a href="#divergence">05 · Funding + цена: дивергенция</a>
+    <a href="#oi">06 · Funding + OI · возможный перегрев</a>
+    <a href="#carry">07 · Биржи, carry, basis</a>
+    <a href="#anatomy">08 · Funding anatomy</a>
+    <a href="#lifecycle">09 · Lifecycle</a>
+    <a href="#matrix">10 · Матрица результата</a>
+    <a href="#limits">11 · Когда funding врёт</a>
+    <a href="#trade">12 · Как торговать</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Funding rate · ставка финансирования</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Funding rate · ставка финансирования</h1>
+    <p>// цена дисбаланса между perpetual и spot: кто платит и получает ли позиция прогресс</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). Funding в MMT — метрика рядом с <a href="oi.html" style="color:#d9b8ff;border:none;">Open Interest</a> и ликвидациями. Это датчик premium, стоимости удержания и возможного crowding; направленный вывод требует цены, OI и потока.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ FUNDING ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое funding</span>
+      <span class="section-badge">tether</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Funding rate</strong> — периодический платёж между лонгами и шортами на <strong>бессрочных фьючерсах (перпах)</strong>. Он удерживает цену перпа у спота (индекса): у перпа нет экспирации, и funding — механизм, который не даёт ему улететь от спота.</p>
+        <ul>
+          <li><strong>Положительная ставка</strong> → <strong>лонги платят шортам</strong>. Обычно это связано с положительной premium перпа, но итог зависит от формулы, interest-компонента, dampener и caps</li>
+          <li><strong>Отрицательная ставка</strong> → <strong>шорты платят лонгам</strong>. Часто это следствие отрицательной premium, но знак не является прямым подсчётом шортов</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-fund="whatis"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Полезная аналогия</span>Funding похож на стоимость удержания позиции, но это <strong>не комиссия за заём</strong>: платёж идёт между участниками и привязывает перп к индексу. Платящая сторона может состоять не только из направленной толпы, но и из хеджированных basis/carry-позиций.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Платится по <strong>интервалу конкретного контракта</strong>: он различается между биржами и символами и иногда меняется динамически; Hyperliquid рассчитывает funding каждый час</li>
+          <li>Funding строится из <strong>premium</strong> (перп относительно индекса) и процентного компонента; точная формула, сглаживание и ограничения зависят от площадки</li>
+          <li>Снимается, только если держишь позицию в момент расчёта funding</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <p>Сам по себе funding <strong>не предсказывает цену и не раскрывает число лонгов/шортов</strong>: у каждого контракта есть обе стороны. Его сила — в изменении premium, стоимости удержания и реакции цены на этот контекст.</p>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Высокий funding + растущий OI означает, что дорогая сторона платежа набирает размер. Это кандидат на crowding, а не готовый squeeze: сначала проверь результат цены и spot/perp CVD.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. МЕХАНИКА И ИНТЕРВАЛЫ ─────── -->
+  <section class="section" id="mechanics">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Механика и интервалы</span>
+      <span class="section-badge">mechanics</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Интервал:</strong> свой у каждого контракта и может меняться. Перед сравнением проверь спецификацию символа, а не только название биржи</li>
+          <li><strong>Current / predicted</strong> — оценка следующего платежа; <strong>realized</strong> — уже начисленная ставка. Для анализа истории используй realized</li>
+          <li><strong>Ставка за интервал</strong> удобна для фактического PnL; annualized помогает сравнивать, но превращает короткий спайк в пугающее годовое число</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Дорогой положительный funding делает лонг затратным, но не доказывает, что лонги вот-вот закроются. Значимость появляется, когда ставка долго остаётся дорогой, OI растёт, а цена перестаёт получать прогресс.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Сравнивай корректно</span>Нормализуй интервал, используй realized-историю и смотри cumulative funding за выбранное окно. Annualized одного экстремального отпечатка почти всегда вводит в заблуждение.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. FUNDING КАК ИНДИКАТОР ТОЛПЫ ─────── -->
+  <section class="section" id="crowd">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Funding как индикатор толпы</span>
+      <span class="section-badge">crowding</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Funding напрямую показывает, <strong>какая сторона платит</strong>. Переполненность — это вывод, который нужно подтвердить через OI и результат цены:</p>
+        <ul>
+          <li><strong>Высокий положительный + OI↑ + цена теряет прогресс</strong> → вероятный long-side crowding и уязвимость к long-squeeze</li>
+          <li><strong>Высокий отрицательный + OI↑ + цена не падает</strong> → вероятный short-side crowding и уязвимость к short-squeeze</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-fund="overheat"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Чем дороже держать сторону и чем больше OI, тем важнее проверить, <strong>получает ли эта сторона результат</strong></li>
+          <li>Funding становится полезным контрарным контекстом, когда платящая сторона продолжает набирать риск, но цена больше не продвигается</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Высокий funding может держаться <em>долго</em> в сильном тренде — «дорогой лонг» способен дорожать ещё неделями. Не шорти перегрев вслепую: жди слом структуры/подтверждение, а не просто «funding высокий».</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. ЭКСТРЕМУМЫ ─────── -->
+  <section class="section" id="extremes">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Экстремумы и контрарность</span>
+      <span class="section-badge">context</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Экстремальный funding маркирует необычно дорогую premium/сторону платежа. Он становится <strong>контрарным контекстом только при провале результата</strong>:</p>
+        <ul>
+          <li><strong>Экстрим «+» + цена продолжает расти</strong> → momentum всё ещё силён; не шорти только из-за ставки</li>
+          <li><strong>Экстрим «+» + OI↑ + цена застряла</strong> → риск trapped longs; зеркально для отрицательной ставки и trapped shorts</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-fund="capitulation"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Funding-спайки могут совпадать с экстремумами, но также могут сопровождать сильный тренд и жить дольше позиции контртрейдера</li>
+          <li><strong>Сброс funding</strong> к нулю означает нормализацию premium; завершение делевериджа подтверждай падением OI, импульсом и стабилизацией цены</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Сильнейший разворотный контекст: экстрим funding + OI flush + кластер ликвидаций (карта ликвидаций) + длинный хвост + поглощение. Один funding — гипотеза; стек — разворот.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. FUNDING + ЦЕНА: ДИВЕРГЕНЦИЯ ─────── -->
+  <section class="section" id="divergence">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Funding + цена: дивергенция</span>
+      <span class="section-badge">divergence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Самое интересное — когда funding и цена расходятся:</p>
+        <ul>
+          <li><strong>Цена ↑ + funding отрицательный</strong> = short-side платит на фоне роста → возможное топливо для <strong>short-squeeze</strong>, если OI и поток подтверждают ловушку</li>
+          <li><strong>Цена ↑ + funding очень положительный</strong> = long-side дорого удерживает движение; хрупкость появляется при OI↑ и потере прогресса</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-fund="divergence"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Здоровый ап идёт на <em>умеренном</em> funding (без эйфории)</li>
+          <li>Рост при <em>отрицательном</em> funding — бычий кандидат, но знак может отражать carry/basis. Проверяй, действительно ли short-side набирает OI и вынужден закрываться</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Конфлюэнс с CVD</span>Цена ↑ + отрицательный funding + spot-CVD ведёт + perp-CVD отстаёт = сильный кандидат на trapped shorts. Зеркально для медвежьего сценария: цена↓, long-side платит, spot продаёт, а perp без результата.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. FUNDING + OI ─────── -->
+  <section class="section" id="oi">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Funding + OI · возможный перегрев</span>
+      <span class="section-badge">confluence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Funding раскрывается в связке с <a href="oi.html" style="color:#d9b8ff;">OI</a>: OI говорит <strong>сколько контрактов открыто</strong>, funding — <strong>какая сторона платит и насколько дорог текущий premium</strong>.</p>
+        <table>
+          <thead><tr><th>OI</th><th>Funding</th><th>Чтение</th></tr></thead>
+          <tbody>
+            <tr><td>↑</td><td>экстрим +</td><td>возможный long-side crowding; squeeze вниз только если цена перестала расти</td></tr>
+            <tr><td>↑</td><td>экстрим −</td><td>возможный short-side crowding; squeeze вверх только если цена перестала падать</td></tr>
+            <tr><td>↓</td><td>сброс к 0</td><td>есть признаки делевериджа и нормализации premium; жди стабилизацию</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Растущий OI + дорогой funding = платящая сторона увеличивает размер, но направление новых позиций подтверждай ценой и CVD</li>
+          <li>Сброс OI + funding к нулю на импульсе = сильное свидетельство делевериджа, но не гарантия, что экстремум уже пройден</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Чистый перегрев = perp-CVD-памп (раздел CVD) + рост OI + дорогой положительный funding у ключевого уровня. Это лучший контекст для squeeze-сетапа: ждать слом → каскад в обратную.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. БИРЖИ, CARRY, BASIS ─────── -->
+  <section class="section" id="carry">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Биржи, carry, basis</span>
+      <span class="section-badge">carry</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>По биржам funding различается</strong> (разные премии/толпа) → бывает арбитраж; некоторые площадки ведут</li>
+          <li><strong>Cost of carry:</strong> funding — постоянная стоимость удержания. На дорогом funding позиция «тает» каждый интервал</li>
+          <li><strong>Basis trade:</strong> спот-лонг + перп-шорт = пытаться собирать положительный funding <em>дельта-нейтрально</em>; прибыль остаётся только после комиссий, borrow, проскальзывания и изменения ставки</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Высокий стабильный положительный funding = рынок платит за дельта-нейтральный сбор (carry становится привлекательным)</li>
+          <li>Приток carry-арбитражёров сам по себе давит премию обратно (шортят перп) — funding саморегулируется</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Carry не бесплатный</span>Риски: ставка меняет знак, ноги исполняются по разным ценам, mark-price может ликвидировать перп, spot может требовать borrow, а биржа добавляет counterparty-риск. Считай net PnL, а не только красивую annualized-ставку.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. FUNDING ANATOMY ─────── -->
+  <section class="section" id="anatomy">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Funding anatomy · что именно ты видишь</span>
+      <span class="section-badge">pipeline</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>На экране часто показана не одна и та же сущность. Разделяй <strong>premium</strong>, прогноз следующей ставки и уже начисленный funding.</p>
+        <div class="diagram">
+          <div data-fund-anatomy></div>
+          <div class="diagram-cap">Index — якорь. Mark и premium формируют расчёт. Predicted ещё меняется; realized уже стал фактическим платежом.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Слой</th><th>Что отвечает</th><th>Практический смысл</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Index price</strong></td><td>Где торгуется корзина spot</td><td>Якорь, относительно которого оценивают перп</td></tr>
+            <tr><td><strong>Mark price</strong></td><td>Расчётная цена перпа</td><td>Используется для PnL/ликвидаций и снижает влияние единичных принтов</td></tr>
+            <tr><td><strong>Premium index</strong></td><td>Насколько перп отклонён от индекса</td><td>Главный изменяющийся вход в funding</td></tr>
+            <tr><td><strong>Interest / dampener / cap</strong></td><td>Правила площадки</td><td>Объясняют, почему ставка не равна простому spread</td></tr>
+            <tr><td><strong>Predicted rate</strong></td><td>Оценка следующего расчёта</td><td>Может заметно измениться до timestamp</td></tr>
+            <tr><td><strong>Realized payment</strong></td><td>Что реально начислили</td><td>Используй для истории, cumulative funding и PnL</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Не путай снимок с режимом</span>Один predicted-спайк перед расчётом может исчезнуть. Для контекста смотри percentile ставки относительно истории инструмента, длительность экстрима и cumulative realized funding за окно.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. FUNDING LIFECYCLE ─────── -->
+  <section class="section" id="lifecycle">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Lifecycle · от premium к очистке</span>
+      <span class="section-badge">sequence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Funding полезнее читать как <strong>последовательность</strong>, а не как красное или зелёное число.</p>
+        <div class="diagram">
+          <div data-fund-lifecycle></div>
+          <div class="diagram-cap">Экстрим не является разворотом. Ключевой переход — дорогая сторона перестаёт получать результат, затем OI и premium сбрасываются.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Фаза</th><th>Что видно</th><th>Что делать</th></tr></thead>
+          <tbody>
+            <tr><td>Набор</td><td>Premium и OI растут, цена получает прогресс</td><td>Не фейдить только из-за дорогого funding</td></tr>
+            <tr><td>Перегрев</td><td>Ставка в экстремуме, движение ещё продолжается</td><td>Отмечать уровни и следить за результатом</td></tr>
+            <tr><td>Ловушка</td><td>OI↑, платящая сторона агрессивна, цена застряла</td><td>Искать absorption / failed auction</td></tr>
+            <tr><td>Flush</td><td>Импульс против толпы, OI↓, ликвидации</td><td>Не ловить нож; ждать замедления</td></tr>
+            <tr><td>Reset</td><td>Premium и ставка нормализовались</td><td>Оценить, строится ли новый баланс или новый тренд</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Главное наблюдение</span>Платящая сторона может долго быть права. Смена режима начинается не с экстремального funding, а с расхождения между вложенным риском и полученным движением цены.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 10. МАТРИЦА РЕЗУЛЬТАТА ─────── -->
+  <section class="section" id="matrix">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Funding × OI × результат цены</span>
+      <span class="section-badge">decision matrix</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Одинаковая ставка означает разное в зависимости от того, <strong>двигается ли цена в пользу платящей стороны</strong>.</p>
+        <div class="diagram">
+          <div data-fund-matrix></div>
+          <div class="diagram-cap">Сначала знак и percentile funding, затем OI, затем самый важный вопрос: получает ли платящая сторона результат?</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Live workflow</span>
+        <table>
+          <thead><tr><th>Funding / OI / цена</th><th>Чтение</th><th>Рабочая реакция</th></tr></thead>
+          <tbody>
+            <tr><td>+ экстрим · OI↑ · цена↑</td><td>Long-side платит, но пока получает результат</td><td>Momentum; не фейдить без провала</td></tr>
+            <tr><td>+ экстрим · OI↑ · цена стоит/↓</td><td>Возможные trapped longs</td><td>Искать слом, absorption и long-squeeze</td></tr>
+            <tr><td>− экстрим · OI↑ · цена↓</td><td>Short-side платит, но пока получает результат</td><td>Momentum; не ловить дно вслепую</td></tr>
+            <tr><td>− экстрим · OI↑ · цена стоит/↑</td><td>Возможные trapped shorts</td><td>Искать reclaim и short-squeeze</td></tr>
+            <tr><td>Ставка к 0 · OI↓ · импульс</td><td>Идёт/прошёл делеверидж</td><td>Ждать стабилизации и нового аукциона</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Чеклист</span>
+        <div class="hl"><span class="hl-label">Порядок чтения</span>(1) Локация AMT / HTF-уровень → (2) percentile и длительность funding → (3) OI: набор или закрытие → (4) spot против perp CVD → (5) результат цены → (6) только затем trigger.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. КОГДА FUNDING ВРЁТ ─────── -->
+  <section class="section" id="limits">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Когда funding врёт или теряет смысл</span>
+      <span class="section-badge">limits</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Carry доминирует</div>Положительный funding может отражать большой spot-long / perp-short basis trade, а не толпу направленных шортов.</div>
+          <div class="card"><div class="card-title">Тонкий рынок</div>На неликвидном альте premium и ставка скачут из-за плохой глубины; сигнал crowding слабее.</div>
+          <div class="card"><div class="card-title">Cap / floor</div>Ставка упёрлась в ограничение и больше не показывает, насколько сильнее вырос дисбаланс.</div>
+          <div class="card"><div class="card-title">Разные площадки</div>Агрегат может скрывать противоположные ставки, разные интервалы и локальный риск конкретной биржи.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Annualized-ловушка:</strong> краткий predicted-спайк превращается в огромный APR, который никто не получит целый год</li>
+          <li><strong>Timestamp-эффект:</strong> позиция, закрытая до расчёта, не платит; часть движения вокруг funding time может быть механической</li>
+          <li><strong>Цена важнее знака:</strong> если дорогая сторона продолжает уверенно получать прогресс, ставка описывает сильный спрос, а не готовый разворот</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Carry risk</span>
+        <div class="hl red"><span class="hl-label">Net PnL</span>Для carry считай realized funding − комиссии − borrow − spread/slippage − hedge drift − стоимость капитала. Отдельно учитывай liquidation по mark-price и counterparty-риск площадки.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. КАК ТОРГОВАТЬ ─────── -->
+  <section class="section" id="trade">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Как торговать по funding</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Funding — это <strong>фильтр premium, стоимости и возможного crowding, а не сигнал</strong>. Он отвечает на «кто платит и получает ли эта сторона результат», а вход дают уровень + поток.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Squeeze-сетап</div>Экстрим funding + OI↑ + провал прогресса у уровня → ждать слом против платящей стороны → каскад.</div>
+          <div class="card"><div class="card-title">Mean-reversion</div>Экстрим + failed auction/absorption → контрартрейд только после возврата внутрь value.</div>
+          <div class="card"><div class="card-title">Trend continuation</div>Дорогая сторона продолжает получать прогресс, OI растёт без провала → funding не повод вставать против тренда.</div>
+          <div class="card"><div class="card-title">После flush</div>OI↓ + funding нормализовался + цена стабилизировалась → искать новый аукцион, а не догонять каскад.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Funding-экстрим тянется дольше, чем кажется — «перегрет» не значит «развернётся сейчас». Вход только с подтверждением (price action, OI flush, ликвидации). Funding — контекст, не триггер.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>(1) Контекст AMT и локация → (2) percentile funding + OI → (3) получает ли платящая сторона результат → (4) spot/perp CVD → (5) триггер в footprint на уровне.</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Качественный стек: ключевой уровень + необычный funding + OI↑ + провал результата + дивергенция CVD + ликвидации. Один слой — гипотеза; стек создаёт рабочий контекст.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── Funding visual engine (candles + funding histogram ±) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a',pos:'#ff8c3a',neg:'#9cc5ec'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight); if(o.anchor)tx.setAttribute('text-anchor',o.anchor);
+    tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){var defs=E('defs',{}),m=E('marker',{id:'arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));defs.appendChild(m);svg.appendChild(defs);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  var Viz={
+    canvas:function(o){var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg); svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));}}
+      return svg;},
+    line:function(svg,o){var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#arrow)'; svg.appendChild(E('line',a));},
+    text:function(svg,text,x,y,o){addText(svg,text,x,y,o||{});},
+    label:function(svg,text,x,y,o){o=o||{};var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});},
+    note:function(svg,o){var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
+    level:function(svg,o){Viz.line(svg,{x1:o.x1,y1:o.y,x2:o.x2,y2:o.y,color:o.color,width:o.width,opacity:o.opacity,dash:o.dash});
+      if(o.label) Viz.text(svg,o.label,o.labelX||o.x1,o.labelY||o.y-6,{size:o.labelSize||11,fill:o.color,weight:700});},
+    candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
+    candleWalk:function(svg,o){var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});}});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};},
+    marker:function(svg,o){svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});}
+  };
+
+  /* candles (upper) + funding histogram (lower, ± around zero) */
+  function fundStory(cf){
+    var W=1280,H=cf.h||540;
+    var fpBot=H-54, fpTop=H-176, fpMid=(fpTop+fpBot)/2, candBot=fpTop-16;
+    var svg=Viz.canvas({w:W,h:H,label:cf.label||'',grid:{start:80,end:candBot,step:56,x1:22,x2:W-22}});
+    if(cf.title) Viz.label(svg,cf.title,34,34,{w:cf.titleW||360,size:13});
+    var cw=cf.cw||14;
+    var walk=Viz.candleWalk(svg,{x0:cf.x0||120,dx:cf.dx||44,cw:cw,seed:cf.seed||7,legs:cf.legs});
+    var lvX2=walk.x(walk.n-1)+10;
+    (cf.levels||[]).forEach(function(L){Viz.level(svg,{x1:22,x2:lvX2,y:L.y,color:L.color||C.va,width:L.width||1.6,opacity:0.85,dash:L.dash,label:L.label,labelX:24,labelY:L.y-7,labelSize:12});});
+    Viz.line(svg,{x1:60,y1:fpTop-8,x2:lvX2+6,y2:fpTop-8,color:'#2a2a30',width:1});
+    Viz.text(svg,'FUNDING',64,fpTop+6,{size:10,fill:'#8a8a92',weight:700});
+    Viz.line(svg,{x1:60,y1:fpMid,x2:lvX2+6,y2:fpMid,color:'#3a3a42',width:1,dash:'4 4'});
+    var vals=cf.fund,max=Math.max.apply(null,vals.map(function(v){return Math.abs(v);}))||1,halfH=fpMid-fpTop-6;
+    vals.forEach(function(v,i){var x=walk.x(i),hh=Math.abs(v)/max*halfH,col=v>=0?C.pos:C.neg;
+      var y=v>=0?fpMid-hh:fpMid;
+      svg.appendChild(E('rect',{x:x-cw/2,y:y,width:cw,height:Math.max(2,hh),rx:1,fill:col,opacity:0.82}));});
+    addText(svg,'+ лонги платят',lvX2+12,fpTop+12,{size:10,fill:C.pos,weight:700});
+    addText(svg,'− шорты платят',lvX2+12,fpBot-2,{size:10,fill:C.neg,weight:700});
+    (cf.markers||[]).forEach(function(m){Viz.marker(svg,{n:m.n,x:walk.x(m.at),y:m.y,color:m.color});});
+    (cf.notes||[]).forEach(function(nt){Viz.note(svg,nt);});
+    (cf.legend||[]).forEach(function(t,i){Viz.text(svg,t,640,H-26+i*0,{anchor:'middle',size:12,fill:'#c6c6ce'});});
+    return svg;
+  }
+
+  function fundAnatomySVG(){
+    var W=1280,H=360,svg=Viz.canvas({w:W,h:H,label:'Funding anatomy: от index до realized payment'});
+    Viz.label(svg,'От рыночного отклонения к фактическому платежу',36,34,{w:410,size:13});
+    var boxes=[
+      {x:36,title:'1 · INDEX PRICE',color:'#d9b8ff',lines:['корзина spot','якорь fair value']},
+      {x:286,title:'2 · MARK / PERP',color:'#ececef',lines:['расчётная цена','и цена перпа']},
+      {x:536,title:'3 · PREMIUM',color:'#ffd23f',lines:['отклонение перпа','относительно index']},
+      {x:786,title:'4 · FORMULA',color:'#ffb37a',lines:['interest + dampener','caps / floors']},
+      {x:1036,title:'5 · FUNDING',color:'#9cc5ec',lines:['predicted меняется','realized начислен']}
+    ];
+    boxes.forEach(function(b,i){
+      svg.appendChild(E('rect',{x:b.x,y:82,width:208,height:128,rx:8,fill:'#101012',stroke:b.color,'stroke-width':1.4}));
+      addText(svg,b.title,b.x+16,112,{size:14,fill:b.color,weight:700});
+      b.lines.forEach(function(line,j){addText(svg,line,b.x+16,150+j*24,{size:13,fill:'#c6c6ce'});});
+      if(i<boxes.length-1) Viz.line(svg,{x1:b.x+214,y1:146,x2:boxes[i+1].x-12,y2:146,color:'#8a8a92',width:1.3,arrow:true});
+    });
+    Viz.note(svg,{x:36,y:246,w:368,h:84,title:'Не одно число',titleColor:'#d9b8ff',titleSize:12,size:12,lineH:19,lines:['Premium может двигаться сейчас,','а realized funding относится к прошлому расчёту.']});
+    Viz.note(svg,{x:456,y:246,w:368,h:84,title:'Для истории',titleColor:'#ffd23f',titleSize:12,size:12,lineH:19,lines:['Сравнивай realized и cumulative funding,','нормализованные к одинаковому окну.']});
+    Viz.note(svg,{x:876,y:246,w:368,h:84,title:'Для live-чтения',titleColor:'#9cc5ec',titleSize:12,size:12,lineH:19,lines:['Predicted полезен как контекст,','но до timestamp он ещё может измениться.']});
+    return svg;
+  }
+
+  function fundLifecycleSVG(){
+    var W=1280,H=430,svg=Viz.canvas({w:W,h:H,label:'Funding lifecycle: набор, перегрев, ловушка, flush, reset'});
+    Viz.label(svg,'Lifecycle: ставка описывает процесс, а не точку разворота',36,34,{w:478,size:13});
+    var stages=[
+      {x:30,n:'01',title:'НАБОР',color:'#d9b8ff',lines:['premium ↑ · OI ↑','цена получает прогресс']},
+      {x:280,n:'02',title:'ПЕРЕГРЕВ',color:'#ffd23f',lines:['funding в percentile','тренд ещё жив']},
+      {x:530,n:'03',title:'ЛОВУШКА',color:'#ffb37a',lines:['OI ↑ · ставка дорогая','цена больше не идёт']},
+      {x:780,n:'04',title:'FLUSH',color:'#ff8c3a',lines:['импульс против толпы','OI ↓ · ликвидации']},
+      {x:1030,n:'05',title:'RESET',color:'#9cc5ec',lines:['premium к норме','строится новый аукцион']}
+    ];
+    stages.forEach(function(s,i){
+      svg.appendChild(E('rect',{x:s.x,y:88,width:220,height:156,rx:8,fill:'#101012',stroke:s.color,'stroke-width':1.4}));
+      svg.appendChild(E('circle',{cx:s.x+28,cy:118,r:14,fill:'#08080a',stroke:s.color,'stroke-width':1.3}));
+      addText(svg,s.n,s.x+28,122,{anchor:'middle',size:11,fill:s.color,weight:700});
+      addText(svg,s.title,s.x+52,122,{size:14,fill:s.color,weight:700});
+      s.lines.forEach(function(line,j){addText(svg,line,s.x+18,166+j*25,{size:13,fill:'#c6c6ce'});});
+      if(i<stages.length-1) Viz.line(svg,{x1:s.x+224,y1:166,x2:stages[i+1].x-10,y2:166,color:'#8a8a92',width:1.3,arrow:true});
+    });
+    Viz.line(svg,{x1:84,y1:318,x2:1196,y2:318,color:'#313137',width:2});
+    [
+      {x:84,t:'сторона платит и права',c:'#d9b8ff'},
+      {x:390,t:'риск растёт',c:'#ffd23f'},
+      {x:638,t:'результат пропал',c:'#ffb37a'},
+      {x:888,t:'риск выходит',c:'#ff8c3a'},
+      {x:1124,t:'наблюдай заново',c:'#9cc5ec'}
+    ].forEach(function(v){svg.appendChild(E('circle',{cx:v.x,cy:318,r:5,fill:v.c}));addText(svg,v.t,v.x,350,{anchor:'middle',size:12,fill:v.c,weight:700});});
+    Viz.note(svg,{x:354,y:376,w:572,h:38,title:'Разворотная информация появляется после провала результата, не после первого экстрима.',titleColor:'#ececef',titleSize:12});
+    return svg;
+  }
+
+  function fundMatrixSVG(){
+    var W=1280,H=500,svg=Viz.canvas({w:W,h:H,label:'Матрица funding и результата цены'});
+    Viz.label(svg,'Главный вопрос: получает ли платящая сторона результат?',36,34,{w:470,size:13});
+    Viz.text(svg,'ПЛАТЯЩАЯ СТОРОНА ПОЛУЧАЕТ ПРОГРЕСС',332,68,{anchor:'middle',size:11,fill:'#9cc5ec',weight:700});
+    Viz.text(svg,'ПЛАТЯЩАЯ СТОРОНА НЕ ПОЛУЧАЕТ ПРОГРЕСС',944,68,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
+    var cells=[
+      {x:36,y:88,w:580,h:166,color:'#9cc5ec',title:'+ funding · OI ↑ · цена ↑',tag:'LONG MOMENTUM',lines:['Лонги платят, но движение окупает стоимость.','Экстрим может расширяться. Не фейдить вслепую.']},
+      {x:664,y:88,w:580,h:166,color:'#ffb37a',title:'+ funding · OI ↑ · цена стоит / ↓',tag:'TRAPPED LONGS?',lines:['Дорогой long-side больше не двигает цену.','Ищи absorption, слом и long-squeeze.']},
+      {x:36,y:286,w:580,h:166,color:'#9cc5ec',title:'− funding · OI ↑ · цена ↓',tag:'SHORT MOMENTUM',lines:['Шорты платят, но движение окупает стоимость.','Отрицательная ставка не является дном.']},
+      {x:664,y:286,w:580,h:166,color:'#ffb37a',title:'− funding · OI ↑ · цена стоит / ↑',tag:'TRAPPED SHORTS?',lines:['Дорогой short-side больше не двигает цену.','Ищи reclaim и short-squeeze.']}
+    ];
+    cells.forEach(function(c){
+      svg.appendChild(E('rect',{x:c.x,y:c.y,width:c.w,height:c.h,rx:8,fill:'#101012',stroke:c.color,'stroke-width':1.3}));
+      addText(svg,c.title,c.x+18,c.y+34,{size:15,fill:'#ececef',weight:700});
+      Viz.label(svg,c.tag,c.x+18,c.y+70,{w:190,size:11,stroke:c.color,fill:c.color});
+      c.lines.forEach(function(line,j){addText(svg,line,c.x+18,c.y+112+j*23,{size:13,fill:'#c6c6ce'});});
+    });
+    return svg;
+  }
+
+  var FUND={
+    whatis:{label:'Funding положительный на пампе',title:'Цена растёт → перп в премии → funding +',h:540,x0:120,dx:42,cw:14,seed:5,
+      legs:[{n:12,from:320,to:158,vol:12,wick:11}],
+      fund:[2,5,10,16,22,28,34,40,46,52,58,64],
+      notes:[{x:952,y:120,w:298,h:140,title:'Лонги платят',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,lines:['Цена растёт, перп уходит в','премию к spot → funding','часто становится положительным:','лонги платят шортам.']}],
+      legend:['Положительный funding: лонги платят шортам; часто это отражает положительную premium перпа.']},
+
+    overheat:{label:'Возможный перегрев → long squeeze',title:'Экстрим + funding + провал результата = риск squeeze',h:560,x0:118,dx:44,cw:14,seed:9,
+      legs:[{n:8,from:300,to:168,vol:11,wick:10},{n:5,from:168,to:300,vol:14,wick:12}],
+      fund:[40,52,64,74,84,92,98,100, 64,30,-8,-18,-12],
+      markers:[{n:1,at:7,y:138,color:'#ff8c3a'},{n:2,at:10,y:236,color:'#ffc599'}],
+      notes:[{x:952,y:110,w:298,h:158,title:'Возможный squeeze',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+        lines:['① long-side платит, OI растёт.','② цена перестаёт идти вверх.','③ слом вниз выбивает','overleveraged → каскад','ликвидаций (long squeeze).','Без пункта ② это ещё momentum.']}],
+      legend:['Экстрим положительного funding становится squeeze-контекстом, когда OI растёт, а цена перестаёт идти вверх.']},
+
+    capitulation:{label:'Экстрим отрицательного funding',title:'Экстрим − funding: платит short-side, но дно не гарантировано',h:540,x0:130,dx:42,cw:14,seed:3,
+      legs:[{n:10,from:160,to:316,vol:13,wick:12},{n:3,from:316,to:252,vol:12,wick:10}],
+      fund:[-8,-16,-26,-38,-52,-68,-82,-88,-72,-44, -20,-6,4],
+      markers:[{n:1,at:8,y:300,color:'#9cc5ec'}],
+      notes:[{x:952,y:110,w:298,h:158,title:'Капитуляция',titleColor:'#9cc5ec',size:13,lineH:19,titleSize:13,
+        lines:['Цена обвалилась, short-side платит,','но тренд может продолжиться.','Контрарный контекст появляется,','если OI растёт, а цена больше','не падает. Reset к 0 подтверждай','OI flush и стабилизацией.']}],
+      legend:['Отрицательный funding не является дном: сначала нужен провал результата short-side и подтверждение потоком.']},
+
+    divergence:{label:'Цена ↑ + funding −',title:'Цена ↑, funding −: возможные trapped shorts',h:540,x0:120,dx:42,cw:14,seed:11,
+      legs:[{n:12,from:320,to:168,vol:12,wick:11}],
+      fund:[-6,-12,-18,-22,-26,-24,-28,-22,-18,-14,-10,-8],
+      markers:[{n:1,at:8,y:130,color:'#ffc599'}],
+      notes:[{x:952,y:110,w:298,h:158,title:'Возможные trapped shorts',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+        lines:['Цена растёт, short-side платит.','Это может быть trapped-shorts,','но также результат basis/carry.','Подтверждение: OI, perp/spot CVD','и способность цены удерживать','reclaim / новый value.']}],
+      legend:['Цена ↑ при отрицательном funding — бычий кандидат, если OI и поток подтверждают trapped shorts.']}
+  };
+
+  document.querySelectorAll('[data-fund]').forEach(function(d){var cf=FUND[d.dataset.fund];if(cf)d.appendChild(fundStory(cf));});
+  document.querySelectorAll('[data-fund-anatomy]').forEach(function(d){d.appendChild(fundAnatomySVG());});
+  document.querySelectorAll('[data-fund-lifecycle]').forEach(function(d){d.appendChild(fundLifecycleSVG());});
+  document.querySelectorAll('[data-fund-matrix]').forEach(function(d){d.appendChild(fundMatrixSVG());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>
