@@ -201,6 +201,8 @@
     <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;color:#54545c;letter-spacing:1px;padding:12px 12px 6px;margin-top:6px;border-top:1px solid #25252a;">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
   <div class="toc-inner">
     <div class="nav-group-title">На этой странице</div>
@@ -211,8 +213,9 @@
     <a href="#scenarios">05 · Сценарии AMT</a>
     <a href="#failed">06 · Failed auction</a>
     <a href="#cheat">07 · Cheat sheet динамики</a>
-    <a href="#topdown">08 · Top-down workflow</a>
-    <a href="#trade">09 · Как торговать</a>
+    <a href="#pbd">08 · P/B/D quick look</a>
+    <a href="#topdown">09 · Top-down workflow</a>
+    <a href="#trade">10 · Как торговать</a>
   </div>
 </aside>
 
@@ -231,11 +234,6 @@
   <div class="header">
     <h1>AMT · Auction Market Theory</h1>
     <p>// фундамент: как рынок ищет справедливую цену через аукцион</p>
-  </div>
-
-  <div class="platform-note">
-    <span class="pn-badge">MMT</span>
-    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). AMT — теория под всеми инструментами: TPO, Volume Profile, footprint, heatmap читают один и тот же аукцион. Термины ниже ведут к <a href="https://mmt.gg/learn" target="_blank" rel="noopener">докам MMT</a>.</div>
   </div>
 
 
@@ -569,10 +567,58 @@
   </section>
 
 
-  <!-- ─────── 08. TOP-DOWN WORKFLOW ─────── -->
-  <section class="section" id="topdown">
+  <!-- ─────── 08. P/B/D QUICK LOOK ─────── -->
+  <section class="section" id="pbd">
     <div class="section-header">
       <span class="section-num">08</span>
+      <span class="section-title">P/B/D quick look: кто доминирует</span>
+      <span class="section-badge">context filter</span>
+    </div>
+    <div class="section-body">
+
+      <div class="hl note"><span class="hl-label">PBD nuance</span>Агрессивное движение часто означает, что крупные участники были вынуждены быстро менять позиционирование: hedge, unwind, liquidation или новая информация. P/B/D не объясняет “почему”, он показывает, где рынок вышел из comfort zone и построил ли затем acceptance.</div>
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>P/B/D</strong> — быстрый способ назвать текущий аукцион: <strong>P</strong> = aggressive trend up, <strong>B</strong> = aggressive trend down, <strong>D</strong> = balance / two-sided business. Это не сетап входа, а фильтр: где рынок в comfort zone, где его вытолкнули в imbalance, и кто сейчас держит инициативу.</p>
+        <div class="hl"><span class="hl-label">Главная идея</span>Рынок движется от одной fair value area к другой. Если агрессивный ход построил acceptance снаружи прежней стоимости, базовый сценарий — продолжение к следующей зоне бизнеса. Если acceptance ломается и цена возвращается обратно, сценарий переворачивается.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Состояние</th><th>Что видно</th><th>Как читать</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D</strong></td><td>Толстый профиль, value держится, цена проводит время внутри диапазона.</td><td>Двусторонний бизнес. Пока нет acceptance за край, базовая логика — ротации VAH ↔ POC ↔ VAL.</td></tr>
+            <tr><td><strong>P</strong></td><td>Агрессивный выход вверх, single prints / LVN, close высоко, затем acceptance выше.</td><td>Покупатели/short-covering заставили рынок искать новую fair value. Продолжение валидно, пока новый баланс удерживается.</td></tr>
+            <tr><td><strong>B</strong></td><td>Агрессивный sell-off, single prints / LVN, close низко, затем acceptance ниже.</td><td>Продавец доминирует. Возврат в нижний баланс поддерживает short bias; acceptance обратно выше ломает B-сценарий.</td></tr>
+          </tbody>
+        </table>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Как подтверждать P/B</div>Смотри не причину новости, а факт: агрессивный ход + неэффективная зона + close у экстремума + последующая acceptance. Это значит, что участники не просто “прокололи” цену, а начали вести бизнес в новой области.</div>
+          <div class="card"><div class="card-title">Что ломает сценарий</div>Если цена возвращается в прежний equilibrium и строит acceptance там, прежний P/B перестаёт быть continuation-идеей. Рынок часто чистит весь импульс обратно к старту движения или к следующей fair value area.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">PBD checklist</span>1) Найди последний D-баланс. 2) Отметь P/B-импульс, который вышел из него. 3) Проверь, где закрылся рынок и где построился новый объём. 4) Если новый баланс удерживается — доминирующая сторона всё ещё в игре. 5) Если price accepts back into prior value — готовь сценарий очистки импульса.</div>
+        <div class="hl azure"><span class="hl-label">Связь с базой</span>TPO даёт single prints / время вне цены, Volume Profile показывает fair value areas и destinations, Volume/CVD/OI проверяют качество продолжения. PBD просто собирает это в быстрый вопрос: <strong>мы в D, в P или в B, и что будет инвалидацией?</strong></div>
+        <div class="hl red"><span class="hl-label">Не механика</span>Не торгуй букву. P/B/D сужает сценарии, но вход всё равно требует реакции цены, объёма, CVD/footprint/OI и понимания текущего market regime.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. TOP-DOWN WORKFLOW ─────── -->
+  <section class="section" id="topdown">
+    <div class="section-header">
+      <span class="section-num">09</span>
       <span class="section-title">Top-down workflow</span>
       <span class="section-badge">process</span>
     </div>
@@ -591,6 +637,7 @@
 
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
+        <div class="hl note"><span class="hl-label">Перед сетапом</span>В 13-step framework сетап появляется поздно, после фильтров: новости/события, gap, HTF profile shape, business zones, opening range, ликвидность, текущий regime, риск и собственное состояние. Если начать с LTF-паттерна, ты почти всегда натягиваешь контекст задним числом.</div>
         <table>
           <thead><tr><th>Шаг</th><th>Вопрос</th><th>Что должно быть видно</th></tr></thead>
           <tbody>
@@ -601,6 +648,7 @@
           </tbody>
         </table>
         <div class="hl"><span class="hl-label">Смысл</span>Top-down не делает сделку сам. Он отсекает слабые идеи: если HTF говорит «мы у сопротивления value», а LTF даёт запоздалый long без acceptance, это не setup, а погоня.</div>
+        <div class="hl azure"><span class="hl-label">Журнал</span>Breakout, counter-trade и trend-continuation должны считаться отдельно. Иначе общий hit rate ничего не говорит: у разных процессов разные R:R, частота входов и инвалидации.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -619,10 +667,10 @@
   </section>
 
 
-  <!-- ─────── 09. КАК ТОРГОВАТЬ ─────── -->
+  <!-- ─────── 10. КАК ТОРГОВАТЬ ─────── -->
   <section class="section" id="trade">
     <div class="section-header">
-      <span class="section-num">09</span>
+      <span class="section-num">10</span>
       <span class="section-title">Как торговать по AMT</span>
       <span class="section-badge">playbook</span>
     </div>
@@ -775,13 +823,15 @@
   /* ── §01: price + time + volume = market profile ── */
   var BELL=[3,5,8,12,18,26,36,48,62,76,86,90,84,70,54,38,25,15,9,5,3];
   function realisticCandles(svg,o){
-    var x=o.x0,dx=o.dx||14,cw=o.cw||8,prev=o.start,seq=o.seq||[];
+    var x=o.x0,dx=o.dx||14,cw=o.cw||8,prev=o.start,seq=o.seq||[],rnd=mb32(o.seed||211);
     seq.forEach(function(c,i){
-      var open=(i===0?prev:prev)+(c.gap||0);
+      var open=prev;
       var close=c.close;
       var wick=c.wick||12;
-      var high=Math.min(open,close)-(c.upWick==null?wick*0.55:c.upWick);
-      var low=Math.max(open,close)+(c.downWick==null?wick*0.65:c.downWick);
+      var upWick=c.upWick==null?wick*(0.18+rnd()*0.74)*(rnd()<0.45?0.42:1):c.upWick;
+      var downWick=c.downWick==null?wick*(0.18+rnd()*0.74)*(rnd()<0.45?0.42:1):c.downWick;
+      var high=Math.min(open,close)-Math.max(1.2,upWick);
+      var low=Math.max(open,close)+Math.max(1.2,downWick);
       Viz.candle(svg,{x:x+i*dx,o:open,c:close,h:high,l:low,w:cw,wickWidth:o.wickWidth||0.85});
       prev=close;
     });
@@ -794,9 +844,8 @@
     Viz.text(svg,'session candlestick chart',66,112,{size:11,fill:'#8a8a92'});
     var priceCloses=[166,184,208,232,210,190,174,188,216,236,224,202,176,154,132,146,160,152,170,160,146,134,128,142,150,144,156,166,158,172,180,174,188,196,184,176,166,160,174,190,184,198,210,204,192,184,176,170,188,202,194,210,218,206,226,252,282,270,296,318,292,274,286,260];
     var wickPattern=[15,10,18,28,14,12,16,10,20,16,12,18,14,12,24,16,10,14,12,10,14,12,18,12,10,12,14,10,16,12,14,10];
-    var gapPattern=[0,2,-1,1,-2,0,2,-1,0,1,-2,1,0,-1,2,-2,0,1,-1,0,2,-1,0,1,-1,0,2,-2,1,0,-1,1];
     realisticCandles(svg,{x0:56,dx:4.35,cw:3.2,wickWidth:0.7,start:152,seq:priceCloses.map(function(close,i){
-      return {close:close,gap:gapPattern[i%gapPattern.length],wick:wickPattern[i%wickPattern.length]};
+      return {close:close,wick:wickPattern[i%wickPattern.length]};
     })});
     Viz.text(svg,'+',344,236,{size:30,fill:'#54545c',anchor:'middle',weight:700});
 
@@ -890,9 +939,8 @@
 
     var cycleCloses=[244,236,242,232,238,226,234,220,228,214,224,218,226,210,216,204,212,206,218,222,214,208,216,204,198,188,194,178,166,172,148,136,144,122,112,118,104,96,102,92,98,90,96,104,100,108,116,112,124,132,128,140,150,146,158,166,160,174,184,178,194,204,198,214];
     var cycleWicks=[12,9,10,11,8,12,10,9,11,10,13,9,12,10,11,9,10,12,15,11,9,12,10,9,12,14,10,12,16,11,13,15,11,14,12,10,13,11,12,10,14,11,10,12,11,13,10,11,14,10,12,10,13,11,12,10,14,11,13,10,15,12,10,14];
-    var cycleGaps=[0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-1,0,1,-2,0,1,-1,0,2,-1,0,1,-2,0,1,-1,0];
     realisticCandles(svg,{x0:394,dx:4.55,cw:3.2,wickWidth:0.7,start:246,seq:cycleCloses.map(function(close,i){
-      return {close:close,gap:cycleGaps[i%cycleGaps.length],wick:cycleWicks[i%cycleWicks.length]};
+      return {close:close,wick:cycleWicks[i%cycleWicks.length]};
     })});
     Viz.line(svg,{x1:358,y1:poc,x2:388,y2:poc-8,color:'#8a8a92',width:1.1,arrow:true});
     Viz.pill(svg,{text:'imbalance',x:498,y:326,w:112,color:'#ffe08a'});

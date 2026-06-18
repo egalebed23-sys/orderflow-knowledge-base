@@ -511,6 +511,8 @@
     <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;color:#54545c;letter-spacing:1px;padding:12px 12px 6px;margin-top:6px;border-top:1px solid #25252a;">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
   <div class="toc-inner">
     <div class="nav-group-title">На этой странице</div>
@@ -548,11 +550,6 @@
   <div class="header">
     <h1>TPO · Market Profile</h1>
     <p>// распределение цены по времени · язык рыночного аукциона</p>
-  </div>
-
-  <div class="platform-note">
-    <span class="pn-badge">MMT</span>
-    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) — термины и инструменты ниже соответствуют MMT и её <a href="https://mmt.gg/learn/tpo-market-profile" target="_blank" rel="noopener">документации</a>.</div>
   </div>
 
 
@@ -678,7 +675,7 @@
           <div class="diagram-cap">POC отмечает максимум активности выбранного профиля. VAH/VAL задают границы value area; реакция вокруг них показывает acceptance, rejection или строительство нового value.</div>
         </div>
 
-        <div class="hl green"><span class="hl-label">Аналогия</span>POC и HVN отмечают исторические центры участия; VAH/VAL — края выбранной value; LVN — тонкие коридоры между узлами. Но destination, rejection или быстрый проход определяет уже текущий аукцион.</div>
+        <div class="hl green"><span class="hl-label">Аналогия</span>POC и HVN отмечают исторические центры участия; VAH/VAL — края выбранной value; LVN — тонкие коридоры между nodes. Но destination, rejection или быстрый проход определяет уже текущий аукцион.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -1048,6 +1045,12 @@
     </div>
     <div class="section-body">
 
+      <div class="hl note"><span class="hl-label">Из видео</span>Первые 30 минут и IB читаются не как самостоятельный сигнал, а как качество старта. <strong>Широкий opening range</strong> часто означает, что крупный поток вошёл сразу и границы дня уже частично обозначены. <strong>Узкий IB</strong> похож на сжатие: если потом появляется range extension и acceptance, движение обычно имеет больше “топлива”.</div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Tail на старте</div>Buying tail / selling tail в первых TPO показывает ранний отказ от цены: рынок провёл там мало времени и быстро ушёл. Это признак инициативы, но подтверждение приходит через value placement, close и последующую acceptance.</div>
+        <div class="card"><div class="card-title">Time POC vs vPOC</div>В TPO POC — место, где рынок провёл больше всего времени. В Volume Profile vPOC — где прошёл максимум объёма. Если они расходятся, это не ошибка: время и объём отвечают на разные вопросы.</div>
+      </div>
+
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
         <ul>
@@ -1179,6 +1182,7 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl note"><span class="hl-label">Фраза перед входом</span>«Я торгую [реакцию/принятие/пробой] у [HTF/TPO zone], потому что [режим + location], подтверждение [flow], invalidation [структура/VA edge]». Если фраза не собирается — это не сетап, а желание нажать кнопку.</div>
+        <div class="hl azure"><span class="hl-label">Unchecked move</span>Быстрый проход через старую value / single-print space оставляет мало “фундамента”: рынок почти не торговал там временем. Если позже цена принимает эту зону обратно, часто она проходит её быстро к следующему POC/HVN или краю value.</div>
         <div class="hl red"><span class="hl-label">Не делай наоборот</span>Не начинай с LTF-свечки и не натягивай на неё TPO задним числом. TPO даёт контекст и location; flow даёт тайминг.</div>
       </div>
 

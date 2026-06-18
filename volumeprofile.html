@@ -140,9 +140,10 @@
     <a href="#migration">07 · Developing profile</a>
     <a href="#shifting">08 · Сессии, composite и сдвиг value</a>
     <a href="#topology">09 · Profile topology</a>
-    <a href="#workflow">10 · Live workflow</a>
-    <a href="#limits">11 · Ограничения</a>
-    <a href="#trade">12 · Как торговать</a>
+    <a href="#openplaybook">10 · Open vs prior profile</a>
+    <a href="#workflow">11 · Live workflow</a>
+    <a href="#limits">12 · Ограничения</a>
+    <a href="#trade">13 · Как торговать</a>
   </div>
 </aside>
 
@@ -160,11 +161,6 @@
   <div class="header">
     <h1>Volume Profile · профиль объёма</h1>
     <p>// объём по цене: где рынок делал бизнес, а где почти не задерживался</p>
-  </div>
-
-  <div class="platform-note">
-    <span class="pn-badge">MMT</span>
-    <div class="pn-txt">База построена под <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>). Volume Profile отвечает на <strong>где</strong> прошёл объём; <a href="volume.html" style="color:#d9b8ff;border:none;">Volume</a> — сколько усилия прошло <strong>во времени</strong>; <a href="cvd.html" style="color:#d9b8ff;border:none;">CVD</a> — кто был агрессором. Профиль реактивен: он описывает выбранный диапазон, а не обещает будущую реакцию.</div>
   </div>
 
 
@@ -211,7 +207,7 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <p>VP можно применять по сессиям, импульсам или композитам. Но результат зависит от источника: криптообъём фрагментирован по биржам, а up/down-разбиение профиля не всегда является настоящим bid/ask.</p>
-        <div class="hl azure"><span class="hl-label">В MMT</span>Сочетай профиль с CVD и footprint, но сначала уточни venue, тип объёма, сессию и размер ряда. Один и тот же рынок при разных настройках даст разные POC, VAH/VAL и узлы.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Сочетай профиль с CVD и footprint, но сначала уточни venue, тип объёма, сессию и размер ряда. Один и тот же рынок при разных настройках даст разные POC, VAH/VAL и nodes.</div>
       </div>
 
     </div>
@@ -243,8 +239,8 @@
         <table>
           <thead><tr><th>Решение</th><th>Что меняется</th><th>Практическое правило</th></tr></thead>
           <tbody>
-            <tr><td><strong>Диапазон</strong></td><td>Форма, POC, VAH/VAL и узлы</td><td>Якорь должен соответствовать гипотезе: сессия, баланс, импульс или composite</td></tr>
-            <tr><td><strong>Row size</strong></td><td>Гранулярность и число локальных узлов</td><td>Слишком мелко = шум; слишком крупно = потеря структуры</td></tr>
+            <tr><td><strong>Диапазон</strong></td><td>Форма, POC, VAH/VAL и nodes</td><td>Якорь должен соответствовать гипотезе: сессия, баланс, импульс или composite</td></tr>
+            <tr><td><strong>Row size</strong></td><td>Гранулярность и число локальных nodes</td><td>Слишком мелко = шум; слишком крупно = потеря структуры</td></tr>
             <tr><td><strong>Venue / symbol</strong></td><td>Реальный набор сделок</td><td>Не смешивай профиль одной биржи с выводом о всём крипторынке</td></tr>
             <tr><td><strong>Volume mode</strong></td><td>Total, up/down или delta</td><td>Проверь метод расчёта: up/down может быть классификацией баров, не bid/ask</td></tr>
           </tbody>
@@ -255,7 +251,6 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">VRVP ловушка</span>Visible Range удобен, но его уровни «переезжают» при zoom/pan. Для исполнения идеи зафиксируй диапазон или используй session/composite, иначе анализ незаметно меняется вместе с экраном.</div>
       </div>
 
     </div>
@@ -333,7 +328,7 @@
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
           <li><strong>Acceptance</strong> измеряется не касанием, а временем, объёмом и удержанием за границей</li>
-          <li><strong>Rejection</strong> — быстрый возврат без строительства нового узла снаружи</li>
+          <li><strong>Rejection</strong> — быстрый возврат без строительства нового node снаружи</li>
           <li>Отношение текущей сессии к прошлому value полезнее отдельной линии: выше, ниже, внутри или с перекрытием</li>
         </ul>
       </div>
@@ -370,7 +365,7 @@
           <div data-vp="hvn"></div>
         </div>
 
-        <div class="hl green"><span class="hl-label">Рабочая гипотеза</span>HVN часто ведёт себя как «меласса»: при возвращении цена может замедлиться и снова начать двухсторонний бизнес. Но исторический объём <strong>не доказывает наличие текущих лимитных заявок</strong>.</div>
+        <div class="hl green"><span class="hl-label">Рабочая гипотеза</span>HVN часто работает как плотная зона принятой стоимости: при возвращении цена может замедлиться и снова начать двухсторонний бизнес. Но исторический объём <strong>не доказывает наличие текущих лимитных заявок</strong>.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -379,7 +374,7 @@
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
           <li><strong>S/R — только гипотеза:</strong> подход сверху или снизу не задаёт реакцию без текущего потока</li>
-          <li><strong>Mean-reverting режим</strong> → ищи возврат к центру узла; <strong>трендовый</strong> → смотри, строит ли рынок новый узел выше/ниже</li>
+          <li><strong>Mean-reverting режим</strong> → ищи возврат к центру node; <strong>трендовый</strong> → смотри, строит ли рынок новый node выше/ниже</li>
           <li>Мониторинг активности у HVN = детектор <strong>смены конвикции</strong> с момента формирования зоны (Dalton)</li>
         </ul>
       </div>
@@ -422,7 +417,7 @@
         <ul>
           <li><strong>До принятия:</strong> LVN может быть зоной rejection, потому что рынок ранее не строил там бизнес</li>
           <li><strong>После принятия:</strong> если объём не начинает строиться внутри, цена часто быстро пересекает коридор к следующему HVN</li>
-          <li><strong>Если объём строится:</strong> старый LVN перестаёт быть тонким и превращается в новый узел — карта обновилась</li>
+          <li><strong>Если объём строится:</strong> старый LVN перестаёт быть тонким и превращается в новый node — карта обновилась</li>
         </ul>
       </div>
 
@@ -430,7 +425,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Два сценария</span>(1) rejection от края LVN и возврат в прежний узел; (2) acceptance внутрь LVN и быстрый переход к следующему HVN. Не угадывай заранее — наблюдай результат цены и строительство объёма.</div>
+        <div class="hl azure"><span class="hl-label">Два сценария</span>(1) rejection от края LVN и возврат в прежний node; (2) acceptance внутрь LVN и быстрый переход к следующему HVN. Не угадывай заранее — наблюдай результат цены и строительство объёма.</div>
         <div class="hl note"><span class="hl-label">Нюанс</span>LVN — это reference areas для идей с конфлюэнсом, а не самостоятельный сигнал. Контекст режима (тренд vs рейндж) решает, как с ними работать.</div>
       </div>
 
@@ -471,7 +466,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">3D-вид</span>Миграция читается в связке price + time + volume. Но developing POC может прыгать между близкими узлами из-за нескольких сделок — не превращай каждый сдвиг в сигнал.</div>
+        <div class="hl azure"><span class="hl-label">3D-вид</span>Миграция читается в связке price + time + volume. Но developing POC может прыгать между близкими nodes из-за нескольких сделок — не превращай каждый сдвиг в сигнал.</div>
       </div>
 
     </div>
@@ -521,7 +516,7 @@
           <div data-vp-composite></div>
           <div class="diagram-cap">Объединяй профили по логике аукциона: один баланс, одна инициатива или один HTF-диапазон. Composite без причины только размывает уровни.</div>
         </div>
-        <div class="hl azure"><span class="hl-label">В MMT</span>Замедление в composite VAH/VAL или HTF-узле важнее остановки посреди пустоты. Сопоставь с CVD, OI и тем, строится ли новый узел.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Замедление в composite VAH/VAL или HTF-node важнее остановки посреди пустоты. Сопоставь с CVD, OI и тем, строится ли новый node.</div>
       </div>
 
     </div>
@@ -532,17 +527,17 @@
   <section class="section" id="topology">
     <div class="section-header">
       <span class="section-num">09</span>
-      <span class="section-title">Profile topology · узлы и коридоры</span>
+      <span class="section-title">Profile topology · nodes и коридоры</span>
       <span class="section-badge">map</span>
     </div>
     <div class="section-body">
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Вместо попытки угадать рынок по буквенной форме профиля читай его как карту: <strong>HVN — destinations</strong>, <strong>LVN — границы и коридоры</strong>, POC — крупнейший узел выбранного диапазона.</p>
+        <p>Вместо попытки угадать рынок по буквенной форме профиля читай его как карту: <strong>HVN — destinations</strong>, <strong>LVN — границы и коридоры</strong>, POC — крупнейший node выбранного диапазона.</p>
         <div class="diagram">
           <div data-vp-topology></div>
-          <div class="diagram-cap">Цена может ротировать внутри узла, отвергнуться от края коридора или после acceptance быстро перейти к следующему destination.</div>
+          <div class="diagram-cap">Цена может ротировать внутри node, отвергнуться от края коридора или после acceptance быстро перейти к следующему destination.</div>
         </div>
       </div>
 
@@ -553,9 +548,9 @@
         <table>
           <thead><tr><th>Топология</th><th>Что произошло</th><th>Что наблюдать</th></tr></thead>
           <tbody>
-            <tr><td>Один широкий узел</td><td>Длительный двухсторонний бизнес</td><td>Ротация и выход из принятой зоны</td></tr>
-            <tr><td>Два узла + тонкий мост</td><td>Две зоны бизнеса разделены быстрым ходом</td><td>Примет ли цена мост или быстро пересечёт его</td></tr>
-            <tr><td>Новый узел снаружи старого value</td><td>Рынок начал строить новый бизнес</td><td>Удержание нового узла и отсутствие возврата</td></tr>
+            <tr><td>Один широкий node</td><td>Длительный двухсторонний бизнес</td><td>Ротация и выход из принятой зоны</td></tr>
+            <tr><td>Два node + тонкий мост</td><td>Две зоны бизнеса разделены быстрым ходом</td><td>Примет ли цена мост или быстро пересечёт его</td></tr>
+            <tr><td>Новый node снаружи старого value</td><td>Рынок начал строить новый бизнес</td><td>Удержание нового node и отсутствие возврата</td></tr>
             <tr><td>Старый LVN заполняется</td><td>Рынок изменил отношение к зоне</td><td>Считать старую карту устаревшей</td></tr>
           </tbody>
         </table>
@@ -572,14 +567,73 @@
   </section>
 
 
-  <!-- ─────── 10. LIVE WORKFLOW ─────── -->
-  <section class="section" id="workflow">
+  <!-- ─────── 10. OPEN VS PRIOR PROFILE ─────── -->
+  <section class="section" id="openplaybook">
     <div class="section-header">
       <span class="section-num">10</span>
+      <span class="section-title">Open vs prior profile · A-VAH / A-VAL</span>
+      <span class="section-badge">day framework</span>
+    </div>
+    <div class="section-body">
+
+      <div class="hl note"><span class="hl-label">Prior value traverse</span>Если день стартует снаружи или у края, но быстро <strong>принимается обратно внутрь прошлой Value Area</strong>, базовая гипотеза — рынок снова торгует fair prices и может пройти всю прошлую value: к POC/HVN, затем к противоположному краю. Если же цена выходит за край и там строит новый объём, сценарий меняется на acceptance outside.</div>
+      <div class="hl red"><span class="hl-label">POC не всегда магнит</span>POC тянет цену только пока среда стабильна и рынок ищет прежний центр бизнеса. В сильном trend / liquidation / event режиме POC может остаться позади, а попытка торговать “возврат к магниту” превращается в ловлю ножа.</div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Gap внутри value</div>Если gap/open остаётся внутри прежней fair value, базовый сценарий ближе к 80% rule: рынок часто закрывает gap и ротирует внутри старой стоимости. Исключение — сильная новость/event, которая быстро строит acceptance снаружи.</div>
+        <div class="card"><div class="card-title">Breakaway gap</div>Gap выше/ниже всего prior profile не фейдится автоматически. Сначала смотри, появляется ли ликвидность/объём и удержание вне value. Если да — это repricing; если нет и цена принимает обратно value — тогда gap-close становится рабочей идеей.</div>
+      </div>
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Открытие дня относительно профиля прошлого дня даёт быстрый контекст: рынок начинает <strong>внутри value</strong>, на краю, выше/ниже value или уже за пределами зоны абсолютной стоимости.</p>
+        <div class="diagram">
+          <div data-vp-open></div>
+          <div class="diagram-cap">Это не механическая система входов. Это карта сценариев: где цена открылась, приняла ли цену вне value, вернулась ли внутрь и где находится ближайший destination.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Локация открытия</th><th>Первый вопрос</th><th>Практическая гипотеза</th></tr></thead>
+          <tbody>
+            <tr><td>Внутри VAH / VAL</td><td>Принимает ли рынок прежнюю стоимость?</td><td>Пока нет выхода и acceptance снаружи, базовая идея — rotation к POC/HVN и противоположному краю.</td></tr>
+            <tr><td>Около VAH / VAL</td><td>Край удерживается или ломается?</td><td>Удержание края = rejection внутрь value. Acceptance за край = проверка A-VAH/A-VAL и строительства нового объёма.</td></tr>
+            <tr><td>Между VAH и A-VAH / между VAL и A-VAL</td><td>Это проба новой цены или расширение баланса?</td><td>Нужен follow-through: developing POC/объём должен подтягиваться, иначе риск возврата к VAH/VAL.</td></tr>
+            <tr><td>Выше A-VAH / ниже A-VAL</td><td>Есть ли принятие вне абсолютной стоимости?</td><td>Если рынок удерживает зону и строит объём — continuation. Если быстро возвращается внутрь — failed auction.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">A-VAH / A-VAL</div>Расширенные края прошлого value. Думай о них как о внешних границах зоны стоимости, а не как о точных линиях входа.</div>
+          <div class="card"><div class="card-title">Acceptance выше A-VAH</div>Цена удерживается выше внешнего края, pullback не возвращает в старую VA, developing value строится выше.</div>
+          <div class="card"><div class="card-title">Rejection от A-VAH / A-VAL</div>Цена пробует внешний край, но не строит объём и возвращается внутрь. Тогда ближайшие цели — VAH/VAL, POC/HVN.</div>
+          <div class="card"><div class="card-title">Не автоматизировать</div>Сценарий из памятки работает только вместе с regime, CVD/footprint/OI и фактом принятия или отказа.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. LIVE WORKFLOW ─────── -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <span class="section-num">11</span>
       <span class="section-title">Live workflow · от карты к сделке</span>
       <span class="section-badge">workflow</span>
     </div>
     <div class="section-body">
+
+      <div class="hl azure"><span class="hl-label">Где искать сетап</span>Volume Profile не говорит “входи здесь”; он сужает карту до мест, где сетап вообще имеет смысл: VAH/VAL, POC/HVN, LVN corridor, старый nPOC или зона, где developing value мигрирует. Направление и вход решают price reaction, CVD/footprint/OI и текущий regime.</div>
+      <div class="hl note"><span class="hl-label">Breakout location</span>Пробой имеет смысл не “выше любого high/ниже любого low”, а там, где есть <strong>место для движения</strong>: край value, LVN/thin corridor, незаполненная single-print/unchecked zone или выход из баланса. Если цена уже в unfair area и рядом fair value, слепой breakout часто превращается в возврат к value.</div>
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
@@ -599,7 +653,7 @@
             <tr><td>1 · Гипотеза</td><td>Какой аукцион я измеряю?</td><td>Session, fixed impulse, balance или composite</td></tr>
             <tr><td>2 · Карта</td><td>Где destinations и тонкие коридоры?</td><td>POC/HVN, LVN, VAH/VAL, nPOC</td></tr>
             <tr><td>3 · Локация</td><td>Где цена относительно прошлой и developing value?</td><td>Внутри, снаружи, acceptance или rejection</td></tr>
-            <tr><td>4 · Результат</td><td>Строится ли объём в новой зоне?</td><td>Новый узел, миграция или быстрый возврат</td></tr>
+            <tr><td>4 · Результат</td><td>Строится ли объём в новой зоне?</td><td>Новый node, миграция или быстрый возврат</td></tr>
             <tr><td>5 · Trigger</td><td>Кто давит и кто поглощает?</td><td>CVD, footprint, OI и price action</td></tr>
           </tbody>
         </table>
@@ -612,7 +666,7 @@
         <div class="grid2">
           <div class="card"><div class="card-title">Rotation</div>Цена принята внутри value → сначала POC/HVN, затем противоположный край, пока поток не ломает ротацию.</div>
           <div class="card"><div class="card-title">LVN traverse</div>Цена принята внутрь тонкого коридора и объём не строится → следующий HVN становится destination.</div>
-          <div class="card"><div class="card-title">Acceptance outside</div>Снаружи старой VA строится новый узел, developing POC мигрирует → continuation-контекст.</div>
+          <div class="card"><div class="card-title">Acceptance outside</div>Снаружи старой VA строится новый node, developing POC мигрирует → continuation-контекст.</div>
           <div class="card"><div class="card-title">Failed acceptance</div>Выход не строит объём и быстро возвращается → ротация обратно в старый value.</div>
         </div>
       </div>
@@ -621,10 +675,10 @@
   </section>
 
 
-  <!-- ─────── 11. LIMITS ─────── -->
+  <!-- ─────── 12. LIMITS ─────── -->
   <section class="section" id="limits">
     <div class="section-header">
-      <span class="section-num">11</span>
+      <span class="section-num">12</span>
       <span class="section-title">Ограничения и ложная точность</span>
       <span class="section-badge">limits</span>
     </div>
@@ -655,17 +709,17 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">Проверка устойчивости</span>Перед исполнением слегка измени row size и разумные границы профиля. Если ключевой узел исчезает от небольшого изменения настроек, это слабый референс, а не точный уровень.</div>
+        <div class="hl red"><span class="hl-label">Проверка устойчивости</span>Перед исполнением слегка измени row size и разумные границы профиля. Если ключевой node исчезает от небольшого изменения настроек, это слабый референс, а не точный уровень.</div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 12. КАК ТОРГОВАТЬ ─────── -->
+  <!-- ─────── 13. КАК ТОРГОВАТЬ ─────── -->
   <section class="section" id="trade">
     <div class="section-header">
-      <span class="section-num">12</span>
+      <span class="section-num">13</span>
       <span class="section-title">Как торговать по профилю</span>
       <span class="section-badge">playbook</span>
     </div>
@@ -683,7 +737,7 @@
         <div class="grid2">
           <div class="card"><div class="card-title">Rotation to destination</div>Acceptance внутри value → POC/HVN как ближайшая цель, но не обязательный финал.</div>
           <div class="card"><div class="card-title">LVN corridor</div>После acceptance внутрь LVN и без строительства объёма → переход к следующему HVN.</div>
-          <div class="card"><div class="card-title">Value migration</div>Новый узел и POC строятся снаружи старого value → continuation, пока рынок удерживает новую зону.</div>
+          <div class="card"><div class="card-title">Value migration</div>Новый node и POC строятся снаружи старого value → continuation, пока рынок удерживает новую зону.</div>
           <div class="card"><div class="card-title">Failed auction</div>Выход за VA не строит профиль и возвращается → цель обратно внутри старого value.</div>
         </div>
       </div>
@@ -713,7 +767,7 @@
 /* ── Volume Profile visual engine (profile-by-price + candles) ── */
 (function(){
   var NS='http://www.w3.org/2000/svg';
-  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ffd23f',va:'#c98bff',up:'#e2e5ea',down:'#565660',stroke:'#08080a'};
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',poc:'#ececef',va:'#9a9aa2',up:'#ececef',down:'#565660',stroke:'#08080a'};
   function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
   function heat(f){f=Math.max(0,Math.min(1,f));
     var s=[[0,[64,30,96]],[0.25,[124,42,140]],[0.45,[178,62,128]],[0.65,[226,98,70]],[0.82,[255,140,58]],[1,[255,210,63]]];
@@ -745,18 +799,30 @@
       if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
       var startY=o.y+pad+(o.title?24:0);
       lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
-    profile:function(svg,o){var rows=o.rows,bw=o.bw||9,bh=o.bh||10,g=o.g==null?1:o.g,maxB=o.maxB||14,fade=o.fade==null?0.95:o.fade;
+    profile:function(svg,o){var rows=o.rows,bw=o.bw||9,bh=o.bh||10,g=o.g==null?1:o.g,maxB=o.maxB||14,fade=o.fade==null?0.95:o.fade,minRowW=o.minRowW==null?3:o.minRowW;
       var max=Math.max.apply(null,rows)||1;
-      var maxW=o.maxW||maxB*(bw+g),buyC=o.buyColor||'#28d59b',sellC=o.sellColor||'#ff6b72';
+      var maxW=o.maxW||maxB*(bw+g),buyC=o.buyColor||'#c6c6ce',sellC=o.sellColor||'#565660';
       rows.forEach(function(r,i){
-        var yy=o.y+i*(bh+g),f=r/max,totalW=Math.max(3,f*maxW);
+        if(r<=0&&minRowW<=0) return;
+        var yy=o.y+i*(bh+g),f=r/max,totalW=Math.max(minRowW,f*maxW);
+        if(totalW<=0) return;
         var skew=0.5+0.15*Math.sin(i*1.37+rows.length*0.31),buyW=Math.max(2,totalW*skew),sellW=Math.max(2,totalW-buyW);
-        var op=(fade*(0.42+0.58*f)).toFixed(2);
+        var op=fade*(0.42+0.58*f);
+        if(o.valueStart!=null&&o.valueEnd!=null&&(i<o.valueStart||i>o.valueEnd)) op*=o.outsideOpacity==null?0.34:o.outsideOpacity;
+        op=op.toFixed(2);
         svg.appendChild(E('rect',{x:o.x,y:yy,width:buyW,height:bh,rx:o.rx==null?0.8:o.rx,fill:buyC,opacity:op}));
         svg.appendChild(E('rect',{x:o.x+buyW,y:yy,width:sellW,height:bh,rx:o.rx==null?0.8:o.rx,fill:sellC,opacity:op}));
       });
       if(o.axis){var ax=o.x-5;Viz.line(svg,{x1:ax,y1:o.y-7,x2:ax,y2:o.y+rows.length*(bh+g)+4,color:o.axisColor||'#606069',width:o.axisWidth||1});}
-      return {rowY:function(i){return o.y+i*(bh+g)+bh/2;},right:o.x+maxW,left:o.x-5};},
+      return {
+        rowY:function(i){return o.y+i*(bh+g)+bh/2;},
+        edgeBefore:function(i){return o.y+i*(bh+g)-g/2;},
+        edgeAfter:function(i){return o.y+(i+1)*(bh+g)-g/2;},
+        top:o.y,
+        bottom:o.y+(rows.length-1)*(bh+g)+bh,
+        right:o.x+maxW,
+        left:o.x-5
+      };},
     candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
       Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
       svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
@@ -774,9 +840,9 @@
   };
 
   function manualCandles(svg,o){
-    var prev=o.start,x=o.x0,dx=o.dx||7,cw=o.cw||4,seq=o.seq||[],gaps=o.gaps||[0],wicks=o.wicks||[10];
+    var prev=o.start,x=o.x0,dx=o.dx||7,cw=o.cw||4,seq=o.seq||[],wicks=o.wicks||[10];
     seq.forEach(function(close,i){
-      var open=(i?prev:o.start)+(gaps[i%gaps.length]||0);
+      var open=i?prev:o.start;
       var wick=wicks[i%wicks.length]||10;
       var hi=Math.min(open,close)-wick*0.55;
       var lo=Math.max(open,close)+wick*0.7;
@@ -784,6 +850,23 @@
       prev=close;
     });
     return {x:function(i){return x+i*dx;},lastX:x+(seq.length-1)*dx};
+  }
+
+  function priceCandles(svg,o){
+    var seq=o.seq||[],start=o.start==null?(seq[0]||0):o.start,wicks=o.wicks||[1];
+    var vals=[start].concat(seq),min=o.min==null?Math.min.apply(null,vals):o.min,max=o.max==null?Math.max.apply(null,vals):o.max,span=Math.max(1,max-min);
+    if(o.min==null&&o.max==null){min-=span*(o.pad||0.16); max+=span*(o.pad||0.16);}
+    function y(price){return o.yBottom-((price-min)/(max-min))*(o.yBottom-o.yTop);}
+    var prev=start,x=o.x0,dx=o.dx||7,cw=o.cw||4,rnd=mb32(o.seed||919);
+    seq.forEach(function(close,i){
+      var open=i?prev:start,wick=wicks[i%wicks.length]||1;
+      var upWick=Math.max(0.08,wick*(0.18+rnd()*0.78)*(rnd()<0.45?0.42:1));
+      var downWick=Math.max(0.08,wick*(0.18+rnd()*0.78)*(rnd()<0.45?0.42:1));
+      var high=Math.max(open,close)+upWick,low=Math.min(open,close)-downWick;
+      Viz.candle(svg,{x:x+i*dx,o:y(open),c:y(close),h:y(high),l:y(low),w:cw,wickWidth:o.wickWidth||0.8});
+      prev=close;
+    });
+    return {x:function(i){return x+i*dx;},lastX:x+(seq.length-1)*dx,y:y};
   }
 
   function splitVolumeProfile(svg,o){
@@ -794,43 +877,125 @@
       var totalW=Math.max(3,(v/max)*maxW),bShare=buy[i%buy.length],sShare=sell[i%sell.length];
       var buyW=Math.max(2,totalW*bShare/(bShare+sShare));
       var sellW=Math.max(2,totalW-buyW);
-      var yy=y+i*rowH,fade=(0.42+0.58*(v/max)).toFixed(2);
-      svg.appendChild(E('rect',{x:x,y:yy,width:buyW,height:bh,rx:0.8,fill:'#28d59b',opacity:fade}));
-      svg.appendChild(E('rect',{x:x+buyW,y:yy,width:sellW,height:bh,rx:0.8,fill:'#ff6b72',opacity:fade}));
+      var yy=y+i*rowH,fade=(0.42+0.58*(v/max))*(o.fade==null?1:o.fade);
+      if(o.valueStart!=null&&o.valueEnd!=null&&(i<o.valueStart||i>o.valueEnd)) fade*=o.outsideOpacity==null?0.34:o.outsideOpacity;
+      fade=fade.toFixed(2);
+      svg.appendChild(E('rect',{x:x,y:yy,width:buyW,height:bh,rx:0.8,fill:o.buyColor||'#c6c6ce',opacity:fade}));
+      svg.appendChild(E('rect',{x:x+buyW,y:yy,width:sellW,height:bh,rx:0.8,fill:o.sellColor||'#565660',opacity:fade}));
     });
     Viz.line(svg,{x1:x-7,y1:y-8,x2:x-7,y2:y+rows.length*rowH+4,color:'#6f6f78',width:1.5});
-    return {rowY:function(i){return y+i*rowH+bh/2;},height:rows.length*rowH,right:x+maxW,left:x-7};
+    return {
+      rowY:function(i){return y+i*rowH+bh/2;},
+      edgeBefore:function(i){return y+i*rowH-g/2;},
+      edgeAfter:function(i){return y+(i+1)*rowH-g/2;},
+      top:y,
+      bottom:y+(rows.length-1)*rowH+bh,
+      height:rows.length*rowH,
+      right:x+maxW,
+      left:x-7
+    };
+  }
+
+  function vpProfileMeta(rows,o){
+    o=o||{};
+    var pocRow=o.pocRow!=null?o.pocRow:rows.reduce(function(best,v,i){return v>rows[best]?i:best;},0);
+    var valueStart=o.valueStart!=null?o.valueStart:Math.max(0,pocRow-6);
+    var valueEnd=o.valueEnd!=null?o.valueEnd:Math.min(rows.length-1,pocRow+6);
+    return {pocRow:pocRow,valueStart:valueStart,valueEnd:valueEnd};
+  }
+
+  function vpMeaningfulMeta(rows,threshold){
+    var max=Math.max.apply(null,rows)||1,cut=max*(threshold==null?0.14:threshold);
+    var pocRow=rows.reduce(function(best,v,i){return v>rows[best]?i:best;},0);
+    var start=0,end=rows.length-1;
+    while(start<rows.length-1&&rows[start]<cut) start++;
+    while(end>0&&rows[end]<cut) end--;
+    return {pocRow:pocRow,valueStart:start,valueEnd:end};
+  }
+
+  function drawVpLevels(svg,prof,meta,o){
+    o=o||{};
+    var x1=o.x1==null?prof.left:o.x1,x2=o.x2==null?prof.right:o.x2;
+    var vah=prof.edgeBefore(meta.valueStart),poc=prof.rowY(meta.pocRow),val=prof.edgeAfter(meta.valueEnd);
+    if(o.shade!==false) svg.appendChild(E('rect',{x:x1,y:vah,width:x2-x1,height:val-vah,rx:4,fill:'#ffffff',opacity:o.shadeOpacity==null?0.025:o.shadeOpacity}));
+    Viz.level(svg,{x1:x1,x2:x2,y:vah,color:C.va,width:o.vaWidth||1.25,opacity:o.vaOpacity==null?0.82:o.vaOpacity,dash:o.vaDash||'8 7',label:o.showLabels===false?null:'VAH',labelX:o.labelX||x2+14,labelY:vah+4,labelSize:o.labelSize||12});
+    Viz.level(svg,{x1:x1,x2:x2,y:poc,color:C.poc,width:o.pocWidth||2.6,opacity:o.pocOpacity==null?0.98:o.pocOpacity,label:o.showLabels===false?null:'POC',labelX:o.labelX||x2+14,labelY:poc+4,labelSize:o.labelSize||12});
+    Viz.level(svg,{x1:x1,x2:x2,y:val,color:C.va,width:o.vaWidth||1.25,opacity:o.vaOpacity==null?0.82:o.vaOpacity,dash:o.vaDash||'8 7',label:o.showLabels===false?null:'VAL',labelX:o.labelX||x2+14,labelY:val+4,labelSize:o.labelSize||12});
+    return {vah:vah,poc:poc,val:val};
+  }
+
+  function profileRowsFromCandles(open,closes,o){
+    var rows=new Array(o.count).fill(0),span=o.max-o.min;
+    function row(price){
+      return Math.max(0,Math.min(o.count-1,Math.floor((o.max-price)/span*o.count)));
+    }
+    function bandWeight(price){
+      if(!o.band) return 1;
+      return price<=o.band.top&&price>=o.band.bottom?(o.bandWeight==null?0.16:o.bandWeight):1;
+    }
+    function add(price,w){rows[row(price)]+=w*bandWeight(price);}
+    var prev=open;
+    closes.forEach(function(close,i){
+      var hi=Math.max(prev,close),lo=Math.min(prev,close),steps=Math.max(2,Math.ceil(Math.abs(close-prev)/1.1));
+      add(prev,0.55); add(close,1.05);
+      for(var s=0;s<=steps;s++) add(lo+(hi-lo)*(s/steps),0.68);
+      if(Math.abs(close-prev)<2.2) add(close,0.85);
+      prev=close;
+    });
+    var out=rows.map(function(v){return v*12;});
+    for(var pass=0;pass<(o.smooth||0);pass++){
+      out=out.map(function(v,i){
+        var a=out[Math.max(0,i-1)],b=out[Math.min(out.length-1,i+1)];
+        return v*0.54+(a+b)*0.23;
+      });
+    }
+    if(o.band){
+      out=out.map(function(v,i){
+        var price=o.max-((i+0.5)/o.count)*(o.max-o.min);
+        return price<=o.band.top&&price>=o.band.bottom?v*(o.bandPostWeight==null?0.42:o.bandPostWeight):v;
+      });
+    }
+    if(o.trimBelow!=null){
+      var maxRow=Math.max.apply(null,out)||1,cut=maxRow*o.trimBelow;
+      var start=0,end=out.length-1;
+      while(start<out.length-1&&out[start]<cut) start++;
+      while(end>0&&out[end]<cut) end--;
+      out=out.map(function(v,i){
+        if(i<start||i>end) return 0;
+        if(v<cut) return maxRow*(o.internalFloor==null?0.035:o.internalFloor);
+        return v;
+      });
+    }
+    return out.map(function(v){return Math.round(v);});
   }
 
   function vpWhatisSVG(){
     var W=1280,H=590,svg=Viz.canvas({w:W,h:H,label:'Volume Profile: объём по цене',grid:{start:92,end:474,step:56,x1:34,x2:W-34}});
-    Viz.label(svg,'Volume Profile: объём по цене',34,34,{w:360,size:13});
+    Viz.label(svg,'Volume Profile: объём по цене',34,34,{w:350,size:13});
 
-    var rows=[5,8,12,18,28,42,58,76,96,118,132,124,108,92,116,148,168,154,128,98,70,46,30,18,11,7,4];
-    var buy=[0.62,0.54,0.58,0.46,0.52,0.61,0.64,0.57,0.49,0.44,0.52,0.58,0.63,0.55,0.46,0.42,0.50,0.57,0.62,0.54,0.47,0.58,0.64,0.52,0.44,0.56,0.61];
-    var sell=[0.38,0.46,0.42,0.54,0.48,0.39,0.36,0.43,0.51,0.56,0.48,0.42,0.37,0.45,0.54,0.58,0.50,0.43,0.38,0.46,0.53,0.42,0.36,0.48,0.56,0.44,0.39];
-    var prof=splitVolumeProfile(svg,{rows:rows,buy:buy,sell:sell,x:158,y:102,bh:8,g:3,maxW:278});
-    var vah=prof.rowY(9),poc=prof.rowY(16),val=prof.rowY(22);
+    var rows=[3,5,8,13,22,36,58,86,118,148,174,188,176,154,132,166,204,186,142,92,54,32,20,13,9,6,4,3];
+    var buy=[0.54,0.50,0.47,0.44,0.49,0.56,0.61,0.58,0.52,0.47,0.45,0.49,0.54,0.59,0.55,0.48,0.44,0.50,0.57,0.62,0.58,0.52,0.46,0.43,0.48,0.54,0.58,0.61];
+    var sell=[0.46,0.50,0.53,0.56,0.51,0.44,0.39,0.42,0.48,0.53,0.55,0.51,0.46,0.41,0.45,0.52,0.56,0.50,0.43,0.38,0.42,0.48,0.54,0.57,0.52,0.46,0.42,0.39];
+    var meta=vpProfileMeta(rows,{valueStart:8,valueEnd:20});
+    var prof=splitVolumeProfile(svg,{rows:rows,buy:buy,sell:sell,x:158,y:112,bh:8,g:3,maxW:288,valueStart:meta.valueStart,valueEnd:meta.valueEnd,outsideOpacity:0.3});
+    var chart=priceCandles(svg,{
+      x0:472,dx:7.35,cw:4.2,wickWidth:0.75,yTop:prof.top,yBottom:prof.bottom,min:90,max:120,start:113,
+      seq:[112,114,111,109,110,108,106,107,104,103,105,102,101,103,102,100,101,103,102,104,106,105,103,102,104,103,101,99,100,98,96,94,96,99,98,100,102,101,103,102,104,103,101,102,104,105,103,102,104,106,105,107,109,108,110,112,114,116,115,117,116,117],
+      gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1,0,-1,2,-2,1,0,-2,2],
+      wicks:[1.6,2.0,1.2,2.4,1.5,2.2,1.3,2.8,1.7,2.4,1.2,2.0]
+    });
+    var x2=1040;
+    drawVpLevels(svg,prof,meta,{x1:146,x2:x2,labelX:x2+14});
 
-    svg.appendChild(E('rect',{x:146,y:vah-8,width:960,height:val-vah+16,rx:4,fill:'#ffffff',opacity:0.025}));
-    Viz.level(svg,{x1:146,x2:1110,y:vah,color:C.va,width:1.7,opacity:0.95,label:'VAH',labelX:1122,labelY:vah+4,labelSize:12});
-    Viz.level(svg,{x1:146,x2:1110,y:poc,color:C.poc,width:2.7,opacity:0.98,label:'POC',labelX:1122,labelY:poc+4,labelSize:12});
-    Viz.level(svg,{x1:146,x2:1110,y:val,color:C.va,width:1.7,opacity:0.95,label:'VAL',labelX:1122,labelY:val+4,labelSize:12});
-
-    Viz.text(svg,'buy / up volume',168,86,{size:10,fill:'#28d59b',weight:700});
-    Viz.text(svg,'sell / down volume',276,86,{size:10,fill:'#ff8a90',weight:700});
+    Viz.text(svg,'up volume',166,86,{size:10,fill:'#ececef',weight:700});
+    Viz.text(svg,'down volume',248,86,{size:10,fill:'#8a8a92',weight:700});
+    Viz.text(svg,'selected range volume',606,86,{size:11,fill:'#8a8a92'});
     Viz.text(svg,'profile by price',166,414,{size:11,fill:'#8a8a92'});
 
-    var closes=[126,138,158,144,166,180,172,192,208,196,220,236,226,246,262,250,238,256,268,260,276,288,274,264,282,294,286,306,318,310,324,336,328,312,302,316,328,320,338,350,344,358,372,364,378,390,382,368,358,372,386,378,394,406,398,414,426,418,440,468,456,484,506,492,472,486,468];
-    var gaps=[0,1,-2,1,0,-1,2,0,-2,1,0,2,-1,0,1,-2,0,1,0,-1,2,-2,1,0,1,-1,0,2,-1,0,1,-2];
-    var wicks=[13,9,17,12,10,15,11,13,10,18,12,10,16,11,13,10,15,12,18,10,13,11,16,12,10,14,11,19,12,10,16,13];
-    manualCandles(svg,{x0:462,dx:7.2,cw:4.4,wickWidth:0.75,start:198,seq:closes,gaps:gaps,wicks:wicks});
-
-    Viz.text(svg,'selected range volume',606,86,{size:11,fill:'#8a8a92'});
-    Viz.note(svg,{x:936,y:332,w:270,h:80,title:'Что показывает VP',titleColor:'#ffe08a',titleSize:12,size:11.5,lineH:18,
+    Viz.note(svg,{x:560,y:430,w:300,h:74,title:'Как читать',titleColor:'#c6c6ce',titleSize:12,size:11.5,lineH:18,
+      lines:['VAH/VAL — края value area.', 'POC — пик объёма.', 'Реакцию подтверждает текущий поток.']});
+    Viz.note(svg,{x:895,y:430,w:300,h:74,title:'Что показывает VP',titleColor:'#ffe08a',titleSize:12,size:11.5,lineH:18,
       lines:['Объём на каждой цене.', 'Толстые зоны = accepted business.', 'Тонкие зоны = low participation.']});
-    Viz.note(svg,{x:936,y:428,w:270,h:72,title:'Как читать',titleColor:'#c98bff',titleSize:12,size:11.5,lineH:18,
-      lines:['VAH/VAL — края value area.', 'vPOC — пик объёма.', 'Реакцию подтверждает текущий поток.']});
 
     Viz.text(svg,'Горизонтальная гистограмма: объём распределён по цене, а не по времени. Цвета показывают up/down contribution внутри каждого ряда.',640,540,{anchor:'middle',size:12,fill:'#c6c6ce'});
     Viz.text(svg,'Профиль — карта прошлого бизнеса; торговая идея появляется только после реакции цены, CVD/footprint/OI и режима.',640,560,{anchor:'middle',size:11,fill:'#8a8a92'});
@@ -865,23 +1030,27 @@
   }
 
   function vpocMigrationSVG(){
-    var W=1280,H=560,svg=Viz.canvas({w:W,h:H,label:'Миграция developing vPOC',grid:{start:80,end:430,step:58,x1:22,x2:W-22}});
-    Viz.label(svg,'Миграция developing vPOC',34,34,{w:280,size:13});
-    var walk=Viz.candleWalk(svg,{x0:110,dx:26,cw:11,seed:6,legs:[{n:8,from:400,to:228,vol:16,wick:13},{n:11,from:228,to:233,vol:18,wick:14},{n:5,from:233,to:140,vol:15,wick:13}]});
+    var W=1280,H=600,svg=Viz.canvas({w:W,h:H,label:'Миграция developing vPOC',grid:{start:80,end:420,step:56,x1:30,x2:W-34}});
+    Viz.label(svg,'Миграция developing vPOC',34,34,{w:220,size:13});
+    priceCandles(svg,{x0:118,dx:14.2,cw:6.2,wickWidth:0.85,yTop:112,yBottom:390,min:92,max:130,start:100,
+      seq:[103,102,105,108,107,110,113,112,116,119,118,121,120,118,119,117,116,118,117,119,118,117,119,120,119,118,120,122,121,123,125,124,127,126],
+      gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1,0,-1,2,-2,1,0],
+      wicks:[1.5,2.2,1.2,2.8,1.6,2.0,1.1,2.4,1.7,2.6,1.3,2.1]});
     /* developing vpoc — red stepped line */
-    var vp='M130,412 L210,412 L210,356 L292,356 L292,306 L356,306 L356,256 L662,256 L662,210 L800,210';
+    var vp='M126,408 L206,408 L206,358 L294,358 L294,308 L390,308 L390,260 L610,260 L610,228 L790,228';
     svg.appendChild(E('path',{d:vp,fill:'none',stroke:'#e0524a','stroke-width':2.6,'stroke-linejoin':'round'}));
-    addText(svg,'developing vPOC',150,440,{size:12,fill:'#e0524a',weight:700});
+    addText(svg,'developing vPOC',146,440,{size:12,fill:'#e0524a',weight:700});
     /* extended migration */
-    Viz.line(svg,{x1:356,y1:288,x2:356,y2:262,color:'#c6c6ce',width:1.2,dash:'3 4',opacity:0.7});
-    addText(svg,'extended migration',300,470,{size:11,fill:'#c6c6ce'});
-    svg.appendChild(E('circle',{cx:356,cy:256,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
-    svg.appendChild(E('circle',{cx:662,cy:256,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
+    Viz.line(svg,{x1:390,y1:294,x2:390,y2:266,color:'#c6c6ce',width:1.2,dash:'3 4',opacity:0.7});
+    addText(svg,'extended migration',306,470,{size:11,fill:'#c6c6ce'});
+    svg.appendChild(E('circle',{cx:390,cy:260,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
+    svg.appendChild(E('circle',{cx:610,cy:260,r:9,fill:'none',stroke:'#ffe08a','stroke-width':1.6}));
     /* chop arrow */
-    Viz.line(svg,{x1:392,y1:168,x2:650,y2:168,color:C.ink,width:1.4,arrow:true,opacity:0.8});
-    addText(svg,'chop',515,160,{size:12,fill:'#c6c6ce',anchor:'middle',weight:700});
-    Viz.note(svg,{x:900,y:96,w:336,h:200,title:'Что проверять после миграции',titleColor:'#ffe08a',size:12.5,lineH:19,titleSize:13,
-      lines:['• цена и vPOC идут вместе?','  Это поддерживает новый бизнес.','','• цена ушла, vPOC остался?','  Подтверждение пока не построено.','','• после скачка vPOC рынок удерживает','  новый кластер или возвращается?','','Сопоставь с spot/perp CVD и OI.']});
+    Viz.line(svg,{x1:420,y1:172,x2:648,y2:172,color:C.ink,width:1.4,arrow:true,opacity:0.8});
+    addText(svg,'chop / time consumption',534,162,{size:12,fill:'#c6c6ce',anchor:'middle',weight:700});
+    Viz.note(svg,{x:856,y:102,w:356,h:246,title:'Что проверять после миграции',titleColor:'#ffe08a',size:11.5,lineH:18,titleSize:12,
+      lines:['1. Цена и vPOC идут вместе:', '   новый бизнес поддерживает движение.', '', '2. Цена ушла, vPOC остался:', '   подтверждение пока не построено.', '', '3. После скачка vPOC:', '   рынок удерживает новый кластер', '   или возвращается в старый balance?', '', 'Сопоставь с spot/perp CVD и OI.']});
+    Viz.text(svg,'Developing vPOC полезен как динамика строительства объёма: важно, мигрирует ли бизнес вместе с ценой или остаётся позади.',640,538,{anchor:'middle',size:12,fill:'#c6c6ce'});
     return svg;
   }
 
@@ -911,9 +1080,9 @@
     var W=1280,H=440,svg=Viz.canvas({w:W,h:H,label:'Выбор диапазона и row size'});
     Viz.label(svg,'Один рынок · три разных вопроса · три разных профиля',34,34,{w:460,size:13});
     var panels=[
-      {x:34,title:'SESSION PROFILE',color:'#9cc5ec',sub:'повторяемый период',rows:[3,8,18,34,54,70,62,42,22,10,4],note:'Сравнивай сессии между собой'},
-      {x:442,title:'FIXED RANGE',color:'#ffd23f',sub:'конкретная гипотеза',rows:[4,10,28,58,82,70,38,16,8,4,2],note:'Якорь: баланс, импульс, event'},
-      {x:850,title:'VISIBLE RANGE',color:'#ffb37a',sub:'то, что сейчас на экране',rows:[2,5,12,26,50,78,86,66,34,14,6],note:'Zoom/pan меняют результат'}
+      {x:34,title:'SESSION PROFILE',color:'#9cc5ec',sub:'повторяемый период',rows:[3,8,18,34,54,70,62,42,22,10,4],note:'Сравнивай сессии между собой',chart:{start:102,seq:[103,104,102,101,103,102,100,99,101,103,102,104,106,105,103,102,104,103]}},
+      {x:442,title:'FIXED RANGE',color:'#ffd23f',sub:'конкретная гипотеза',rows:[4,10,28,58,82,70,38,16,8,4,2],note:'Якорь: баланс, импульс, event',chart:{start:104,seq:[103,101,102,100,98,99,97,95,96,94,93,95,92,91,93,92,94,96]}},
+      {x:850,title:'VISIBLE RANGE',color:'#ffb37a',sub:'то, что сейчас на экране',rows:[2,5,12,26,50,78,86,66,34,14,6],note:'Zoom/pan меняют результат',chart:{start:101,seq:[102,101,103,104,103,105,106,105,104,106,107,106,108,107,105,104,106,105]}}
     ];
     panels.forEach(function(p){
       svg.appendChild(E('rect',{x:p.x,y:76,width:380,height:270,rx:8,fill:'#101012',stroke:p.color,'stroke-width':1.3}));
@@ -922,10 +1091,166 @@
       var prof=Viz.profile(svg,{rows:p.rows,x:p.x+28,y:166,bw:6,bh:10,g:2,maxB:18,fade:0.92,axis:true});
       var poc=p.rows.indexOf(Math.max.apply(null,p.rows));
       Viz.line(svg,{x1:p.x+18,y1:prof.rowY(poc),x2:p.x+220,y2:prof.rowY(poc),color:p.color,width:2});
-      Viz.candleWalk(svg,{x0:p.x+250,dx:18,cw:9,seed:Math.round(p.x),legs:[{n:6,from:285,to:190,vol:18,wick:12},{n:4,from:190,to:250,vol:16,wick:11}]});
+      priceCandles(svg,{x0:p.x+226,dx:7.15,cw:4.2,wickWidth:0.75,yTop:176,yBottom:306,min:90,max:110,start:p.chart.start,seq:p.chart.seq,gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1],wicks:[1.3,2.1,1.1,2.6,1.4,2.0,1.2,2.4]});
       addText(svg,p.note,p.x+18,324,{size:11,fill:p.color,weight:700});
     });
-    Viz.text(svg,'Row size и границы — часть гипотезы. Если они меняются, меняются POC, VA и узлы.',640,402,{anchor:'middle',size:13,fill:'#c6c6ce'});
+    Viz.text(svg,'Row size и границы — часть гипотезы. Если они меняются, меняются POC, VA и nodes.',640,402,{anchor:'middle',size:13,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpRangeSVG(){
+    var W=1280,H=640,svg=Viz.canvas({w:W,h:H,label:'Range selection changes the profile answer',grid:{start:86,end:386,step:50,x1:38,x2:W-34}});
+    Viz.label(svg,'One market · different selected ranges · different profile answers',34,34,{w:520,size:13});
+    Viz.text(svg,'Один и тот же рынок. Меняется не индикатор, а окно, по которому ты задаёшь вопрос объёму.',640,72,{anchor:'middle',size:12,fill:'#c6c6ce'});
+
+    var chart=priceCandles(svg,{
+      x0:112,dx:10.4,cw:4.7,wickWidth:0.8,yTop:98,yBottom:384,min:92,max:126,start:108,
+      seq:[107,109,106,104,105,103,101,102,100,99,101,104,103,106,108,107,109,111,110,112,114,113,115,116,114,112,111,113,115,114,116,118,117,119,121,120,118,116,117,115,113,112,110,111,109,107,108,106,104,105,103,101,100,102,104,103,105,107,106,108,110,109,111,113,112,114,116,115,117,119,118,120,122,121,123,122,120,119],
+      gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1,0,-1,2,-2,1,0],
+      wicks:[1.5,2.2,1.1,2.8,1.6,2.5,1.3,3.0,1.8,2.4,1.2,2.1]
+    });
+
+    function zone(x1,x2,color,label,sub,yText){
+      svg.appendChild(E('rect',{x:x1,y:88,width:x2-x1,height:306,rx:4,fill:color,opacity:0.07,stroke:color,'stroke-width':1.2,'stroke-dasharray':'6 5'}));
+      Viz.line(svg,{x1:x1,y1:88,x2:x1,y2:394,color:color,width:1.2,opacity:0.72});
+      Viz.line(svg,{x1:x2,y1:88,x2:x2,y2:394,color:color,width:1.2,opacity:0.72});
+      addText(svg,label,x1+10,yText,{size:12,fill:color,weight:700});
+      addText(svg,sub,x1+10,yText+18,{size:10.5,fill:'#c6c6ce'});
+      Viz.line(svg,{x1:x1,y1:410,x2:x2,y2:410,color:color,width:2.2});
+    }
+
+    zone(112,286,'#9cc5ec','SESSION','повторяемый период',422);
+    zone(344,646,'#ffd23f','FIXED RANGE','якорь под гипотезу / event',422);
+    zone(754,1010,'#ffb37a','VISIBLE RANGE','то, что попало в экран',422);
+    addText(svg,'same chart, different measurement windows',506,470,{anchor:'middle',size:12,fill:'#8a8a92'});
+
+    var profiles=[
+      {x:68,y:500,title:'session answer',color:'#9cc5ec',rows:[4,9,18,32,52,70,64,44,24,11,5]},
+      {x:420,y:500,title:'fixed-range answer',color:'#ffd23f',rows:[3,7,14,34,68,92,76,38,18,8,4]},
+      {x:790,y:500,title:'visible-range answer',color:'#ffb37a',rows:[2,5,12,26,50,76,88,70,40,18,7]}
+    ];
+    profiles.forEach(function(p){
+      addText(svg,p.title,p.x,p.y-18,{size:11,fill:p.color,weight:700});
+      var meta=vpProfileMeta(p.rows,{valueStart:2,valueEnd:8});
+      var pr=Viz.profile(svg,{rows:p.rows,x:p.x,y:p.y,bw:5,bh:5,g:1,maxB:23,fade:0.9,axis:true,buyColor:'#c6c6ce',sellColor:'#565660',valueStart:meta.valueStart,valueEnd:meta.valueEnd,outsideOpacity:0.32});
+      drawVpLevels(svg,pr,meta,{x1:p.x-6,x2:p.x+160,labelX:p.x+168,labelSize:9,vaWidth:1,vaOpacity:0.72,pocWidth:1.8,shade:false});
+    });
+
+    Viz.text(svg,'Смысл: профиль отвечает только на выбранное окно. Поменял range / row size / venue — поменял POC, VA и nodes.',640,612,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpRangeSVG(){
+    var W=1280,H=660,svg=Viz.canvas({w:W,h:H,label:'Range selection: session, fixed range, visible range',grid:{start:86,end:414,step:52,x1:36,x2:W-34}});
+    Viz.label(svg,'Range choice: one chart, three different measurement questions',34,34,{w:560,size:13});
+    Viz.text(svg,'Профиль отвечает не “где уровень вообще”, а “как распределился объём внутри выбранного окна”.',640,72,{anchor:'middle',size:12,fill:'#c6c6ce'});
+
+    var rangeSeq=[
+      107,109,106,104,105,103,101,102,100,99,101,104,103,106,108,107,109,111,110,112,
+      114,113,115,116,114,112,111,113,115,114,116,118,117,119,121,120,118,116,117,115,
+      113,112,110,111,109,107,108,106,104,105,103,101,100,102,104,103,105,107,106,108,
+      106,104,103,105,102,101,103,104,102,101,105,108,112,116,119,121,120,122,119,121,
+      118,120,121,119,122,121,123,120,121,119,118,120,122,121,123,124
+    ];
+    var chart=priceCandles(svg,{
+      x0:88,dx:9.4,cw:4.2,wickWidth:0.8,yTop:96,yBottom:414,min:94,max:126,start:108,
+      seq:rangeSeq,
+      seed:1207,
+      wicks:[0.45,0.9,0.35,1.25,0.6,1.05,0.4,1.4,0.55,1.1,0.35,0.8]
+    });
+
+    function rangeBand(x1,x2,color,label,sub){
+      svg.appendChild(E('rect',{x:x1,y:90,width:x2-x1,height:328,rx:4,fill:color,opacity:0.06,stroke:color,'stroke-width':1.2,'stroke-dasharray':'6 5'}));
+      Viz.line(svg,{x1:x1,y1:90,x2:x1,y2:418,color:color,width:1.15,opacity:0.75});
+      Viz.line(svg,{x1:x2,y1:90,x2:x2,y2:418,color:color,width:1.15,opacity:0.75});
+      Viz.line(svg,{x1:x1,y1:430,x2:x2,y2:430,color:color,width:2.2});
+      addText(svg,label,x1+10,448,{size:12,fill:color,weight:700});
+      addText(svg,sub,x1+10,466,{size:10.5,fill:'#c6c6ce'});
+    }
+
+    rangeBand(88,274,'#9cc5ec','SESSION','сессия / день / неделя / месяц');
+    rangeBand(332,668,'#ffd23f','FIXED RANGE','баланс, расширение, transition, swing, event');
+
+    svg.appendChild(E('rect',{x:720,y:90,width:298,height:328,rx:4,fill:'#ffb37a',opacity:0.045,stroke:'#ffb37a','stroke-width':1.2,'stroke-dasharray':'6 5'}));
+    svg.appendChild(E('rect',{x:720,y:84,width:510,height:430,rx:6,fill:'none',stroke:'#ffb37a','stroke-width':1,'stroke-dasharray':'3 5',opacity:0.42}));
+    Viz.line(svg,{x1:720,y1:430,x2:1018,y2:430,color:'#ffb37a',width:2.2});
+    addText(svg,'VISIBLE RANGE',730,448,{size:12,fill:'#ffb37a',weight:700});
+    addText(svg,'текущий экран + профиль справа',730,466,{size:10.5,fill:'#c6c6ce'});
+    addText(svg,'visible viewport',1050,78,{size:10.5,fill:'#ffb37a',weight:700});
+
+    addText(svg,'VPVR / visible profile',1048,452,{size:10.5,fill:'#ffb37a',weight:700});
+    function visibleProfileRows(open,closes,o){
+      var rows=new Array(o.count).fill(0),span=o.max-o.min;
+      function row(price){
+        return Math.max(0,Math.min(o.count-1,Math.floor((o.max-price)/span*o.count)));
+      }
+      function add(price,w){rows[row(price)]+=w;}
+      var prev=open;
+      closes.forEach(function(close,i){
+        var hi=Math.max(prev,close),lo=Math.min(prev,close),steps=Math.max(2,Math.ceil(Math.abs(close-prev)/1.2));
+        add(prev,0.6); add(close,1.2);
+        for(var s=0;s<=steps;s++) add(lo+(hi-lo)*(s/steps),0.72);
+        if(i>7) add(close,1.4);
+        prev=close;
+      });
+      return rows.map(function(v){return Math.round(v*12)+2;});
+    }
+    var visibleStart=67,visibleOpen=rangeSeq[visibleStart-1],visibleCloses=rangeSeq.slice(visibleStart);
+    var vRows=visibleProfileRows(visibleOpen,visibleCloses,{count:20,min:94,max:126});
+    var vMeta=vpProfileMeta(vRows);
+    var rowH=(414-96)/20,bh=10,vy=96,axisX=1216,maxW=178,vMax=Math.max.apply(null,vRows);
+    vRows.forEach(function(v,i){
+      var yy=vy+i*rowH,w=Math.max(3,v/vMax*maxW),fade=0.48+0.52*(v/vMax);
+      if(i<vMeta.valueStart||i>vMeta.valueEnd) fade*=0.34;
+      var split=0.52+0.16*Math.sin(i*1.7);
+      var lightW=Math.max(2,w*split),darkW=Math.max(2,w-lightW);
+      svg.appendChild(E('rect',{x:axisX-w,y:yy,width:darkW,height:bh,rx:0.6,fill:'#565660',opacity:fade.toFixed(2)}));
+      svg.appendChild(E('rect',{x:axisX-w+darkW,y:yy,width:lightW,height:bh,rx:0.6,fill:'#c6c6ce',opacity:fade.toFixed(2)}));
+    });
+    Viz.line(svg,{x1:axisX,y1:vy-8,x2:axisX,y2:vy+vRows.length*rowH+4,color:'#777780',width:1,opacity:0.62});
+    var vp={rowY:function(i){return vy+i*rowH+bh/2;},edgeBefore:function(i){return vy+i*rowH-1.5;},edgeAfter:function(i){return vy+(i+1)*rowH-1.5;},left:axisX-maxW,right:axisX};
+    drawVpLevels(svg,vp,vMeta,{x1:axisX-maxW-4,x2:axisX,labelX:axisX+10,labelSize:9,vaWidth:1,vaOpacity:0.66,pocWidth:2.2,shade:false});
+    Viz.text(svg,'profile from visible candles',axisX-maxW+10,vy+vRows.length*rowH+28,{size:8.5,fill:'#8a8a92'});
+
+    var cards=[
+      {x:64,w:310,title:'SESSION PROFILE',color:'#9cc5ec',lines:['Период: RTH/Asia/NY, день, неделя, месяц.', 'Сравнивай одинаковые периоды между собой.']},
+      {x:402,w:390,title:'FIXED RANGE',color:'#ffd23f',lines:['Тянешь профиль под конкретную гипотезу:', 'balance / expansion / transition / swing / event.', 'Или любой свой диапазон.']},
+      {x:830,w:360,title:'VISIBLE RANGE',color:'#ffb37a',lines:['Профиль справа экрана.', 'Полезен для обзора; меняется при zoom/pan.']}
+    ];
+    cards.forEach(function(c){
+      Viz.note(svg,{x:c.x,y:520,w:c.w,h:82,title:c.title,titleColor:c.color,titleSize:12,size:10.8,lineH:17,lines:c.lines});
+    });
+    Viz.text(svg,'Итог: сначала выбери вопрос и окно измерения. Только потом читай POC / VA / nodes внутри этого окна.',640,628,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpNodeScene(kind){
+    var cfg={
+      poc:{label:'vPOC: максимум объёма выбранного диапазона',title:'vPOC: price rotates around accepted business',band:null,noteA:'POC = пик выбранного профиля',noteB:'Первый тест важнее самой линии',seq:[103,102,105,104,107,109,108,111,113,112,115,117,116,119,118,116,114,112,110,109,111,113,112,110,109,111,110,108,107,109,111,110,112,114,113,111,110,108,106,105,107,109,110,112,111,109,110,112,114,113,111,110,112,115,117,116,119,121,120]},
+      hvn:{label:'HVN: зона исторически плотного бизнеса',title:'HVN: price spends time in the dense node',band:{top:114,bottom:106,color:'#b15cf0',label:'HVN'},noteA:'HVN = плотная зона бизнеса',noteB:'Реакцию подтверждает новый поток',seq:[100,99,101,103,102,105,107,106,109,111,110,113,112,114,111,109,112,110,108,111,113,110,109,112,114,113,111,108,106,109,111,110,112,115,113,110,108,107,109,112,111,113,116,114,112,110,109,111,113,112,115,117,116,119,121,120]},
+      lvn:{label:'LVN: rejection на краю или переход после acceptance',title:'LVN: fast traverse between two accepted nodes',band:{top:115.4,bottom:112.6,color:'#ff8c3a',label:'LVN'},noteA:'До acceptance возможен rejection',noteB:'После acceptance возможен быстрый traverse',seq:[121,119,122,120,118,121,119,117,120,118,116,113,109,107,108,106,109,107,105,108,106,109,111,114,118,120,119,122,120,123,121,119,122,120,118,116,114,111,108,106,107,105,108,106,104,107,105,103]}
+    }[kind];
+    var W=1280,H=600,svg=Viz.canvas({w:W,h:H,label:cfg.label,grid:{start:86,end:390,step:50,x1:258,x2:W-34}});
+    Viz.label(svg,cfg.label,34,34,{w:kind==='lvn'?430:390,size:13});
+    var startPrice=kind==='lvn'?121:101;
+    var priceMin=kind==='lvn'?100:92,priceMax=kind==='lvn'?124:128;
+    var rows=kind==='lvn'
+      ? profileRowsFromCandles(startPrice,cfg.seq,{count:20,min:priceMin,max:priceMax,band:cfg.band,bandWeight:0.16,bandPostWeight:0.46,smooth:2,trimBelow:0.05,internalFloor:0.045})
+      : BELL;
+    var meta=kind==='lvn'?vpMeaningfulMeta(rows,0.16):vpProfileMeta(rows,{valueStart:6,valueEnd:15});
+    var prof=Viz.profile(svg,{rows:rows,x:78,y:108,bw:8,bh:10,g:2,maxB:26,fade:0.9,axis:true,buyColor:'#c6c6ce',sellColor:'#565660',valueStart:meta.valueStart,valueEnd:meta.valueEnd,outsideOpacity:0.32,minRowW:kind==='lvn'?0:3});
+    var chart=priceCandles(svg,{x0:kind==='lvn'?312:354,dx:11.8,cw:5.1,wickWidth:0.8,yTop:prof.top,yBottom:prof.bottom,min:priceMin,max:priceMax,start:startPrice,seq:cfg.seq,seed:kind==='lvn'?2217:1411,wicks:[0.45,0.9,0.35,1.25,0.6,1.05,0.4,1.4,0.55,1.1,0.35,0.8]});
+    var x2=1040;
+    if(cfg.band){
+      svg.appendChild(E('rect',{x:66,y:chart.y(cfg.band.top),width:x2-66,height:chart.y(cfg.band.bottom)-chart.y(cfg.band.top),rx:4,fill:cfg.band.color,opacity:0.13}));
+      addText(svg,cfg.band.label,92,chart.y(cfg.band.top)-8,{size:11,fill:cfg.band.color,weight:700});
+    }
+    drawVpLevels(svg,prof,meta,{x1:58,x2:x2,labelX:x2+14});
+    Viz.text(svg,cfg.title,640,82,{anchor:'middle',size:11,fill:'#8a8a92'});
+    Viz.text(svg,'profile by price',84,414,{size:11,fill:'#8a8a92'});
+    Viz.note(svg,{x:72,y:430,w:390,h:82,title:cfg.noteA,titleColor:kind==='lvn'?'#ffb37a':'#d9b8ff',titleSize:12,size:11,lineH:17,lines:['Исторический объём задаёт location.', 'Сигнал появляется только после реакции.', 'Не торгуй касание линии вслепую.']});
+    Viz.note(svg,{x:814,y:430,w:390,h:82,title:cfg.noteB,titleColor:'#ffe08a',titleSize:12,size:11,lineH:17,lines:['Смотри acceptance / rejection.', 'Подтверждай через CVD, footprint, OI.', 'Учитывай текущий market regime.']});
+    Viz.text(svg,'Profile показывает прошлый бизнес; актуальность уровня подтверждается только текущим потоком и поведением цены.',640,558,{anchor:'middle',size:12,fill:'#c6c6ce'});
     return svg;
   }
 
@@ -947,11 +1272,12 @@
       addText(svg,c.title,c.x+14,c.y+28,{size:12,fill:c.color,weight:700});
       c.lines.forEach(function(line,i){addText(svg,line,c.x+14,c.y+58+i*18,{size:11,fill:'#c6c6ce'});});
     });
-    var walk=Viz.candleWalk(svg,{x0:390,dx:31,cw:12,seed:22,legs:[{n:8,from:360,to:py+30,vol:17,wick:13},{n:5,from:py+30,to:168,vol:18,wick:14},{n:5,from:168,to:py-8,vol:16,wick:12},{n:4,from:py-8,to:350,vol:18,wick:13}]});
-    Viz.marker(svg,{n:1,x:walk.x(7),y:py,color:'#ffd23f'});
-    Viz.marker(svg,{n:2,x:walk.x(17),y:py,color:'#ffb37a'});
-    Viz.text(svg,'первый тест: реакция',walk.x(7),py+42,{anchor:'middle',size:11,fill:'#ffd23f',weight:700});
-    Viz.text(svg,'повторный тест: уровень уже изменён',walk.x(17),py+42,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
+    var npocSeq=[103,102,104,105,103,106,108,107,109,111,110,108,107,109,111,110,112,113,111,110,109,111,110,108,106,105,107,109,108,106,104,103,105,107,106,108,110,111,109,108,106,104,102,101,103,105,104,106,108,107,105,103];
+    var walk=priceCandles(svg,{x0:330,dx:12.6,cw:5.5,wickWidth:0.8,yTop:168,yBottom:366,min:98,max:116,start:103,seq:npocSeq,gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1,0,-1],wicks:[1.4,2.0,1.2,2.7,1.5,2.2,1.3,2.5]});
+    Viz.marker(svg,{n:1,x:walk.x(15),y:py,color:'#ffd23f'});
+    Viz.marker(svg,{n:2,x:walk.x(39),y:py,color:'#ffb37a'});
+    Viz.text(svg,'первый тест: реакция',walk.x(15),py+42,{anchor:'middle',size:11,fill:'#ffd23f',weight:700});
+    Viz.text(svg,'повторный тест: уровень уже изменён',walk.x(39),py+42,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
     Viz.text(svg,'Не считай nPOC вечным магнитом: после взаимодействия оцени новый аукцион.',640,438,{anchor:'middle',size:13,fill:'#c6c6ce'});
     return svg;
   }
@@ -1000,21 +1326,96 @@
   }
 
   function vpTopologySVG(){
-    var W=1280,H=500,svg=Viz.canvas({w:W,h:H,label:'Topology: HVN destinations и LVN corridors',grid:{start:86,end:414,step:54,x1:350,x2:W-24}});
+    var W=1280,H=560,svg=Viz.canvas({w:W,h:H,label:'Topology: HVN destinations и LVN corridors',grid:{start:86,end:394,step:52,x1:350,x2:W-24}});
     Viz.label(svg,'Topology: destinations и corridors',34,34,{w:330,size:13});
-    var rows=[8,18,40,68,82,72,44,18,7,5,6,10,24,52,78,88,70,42,20,9,4];
-    var p=Viz.profile(svg,{rows:rows,x:68,y:100,bw:8,bh:13,g:2,maxB:25,fade:0.96,axis:true});
-    var upper=p.rowY(4),corr=p.rowY(10),lower=p.rowY(15);
-    svg.appendChild(E('rect',{x:50,y:upper-45,width:1160,height:90,rx:4,fill:'#b15cf0',opacity:0.09}));
-    svg.appendChild(E('rect',{x:50,y:corr-28,width:1160,height:56,rx:4,fill:'#ff8c3a',opacity:0.10}));
-    svg.appendChild(E('rect',{x:50,y:lower-45,width:1160,height:90,rx:4,fill:'#b15cf0',opacity:0.09}));
-    addText(svg,'HVN · destination A',72,upper-54,{size:12,fill:'#d9b8ff',weight:700});
-    addText(svg,'LVN · thin corridor',72,corr-36,{size:12,fill:'#ffc599',weight:700});
-    addText(svg,'HVN · destination B',72,lower+66,{size:12,fill:'#d9b8ff',weight:700});
-    var walk=Viz.candleWalk(svg,{x0:400,dx:35,cw:12,seed:31,legs:[{n:7,from:lower+20,to:lower-20,vol:19,wick:14},{n:4,from:lower-20,to:upper+20,vol:17,wick:12},{n:7,from:upper+20,to:upper-18,vol:18,wick:13},{n:5,from:upper-18,to:corr,vol:17,wick:12}]});
-    Viz.line(svg,{x1:walk.x(7),y1:lower-10,x2:walk.x(10),y2:upper+10,color:'#ffc599',width:2.4,arrow:true});
-    Viz.text(svg,'acceptance внутрь corridor → быстрый переход',760,corr-42,{anchor:'middle',size:12,fill:'#ffc599',weight:700});
-    Viz.text(svg,'если внутри corridor строится новый объём, старая topology перестаёт быть актуальной',640,468,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    var priceMin=100,priceMax=126,startPrice=106;
+    var seq=[
+      105,107,104,106,108,105,107,109,106,108,107,109,
+      112,116,119,121,118,120,122,119,121,123,120,122,121,119,118,120,122,
+      121,123,120,118,116,113,110,108,106,107,105
+    ];
+    var corridor={top:115.2,bottom:110.4,color:'#ff8c3a',label:'LVN'};
+    var rows=profileRowsFromCandles(startPrice,seq,{count:22,min:priceMin,max:priceMax,band:corridor,bandWeight:0.07,bandPostWeight:0.42,smooth:2,trimBelow:0.06});
+    var p=Viz.profile(svg,{rows:rows,x:68,y:94,bw:8,bh:10,g:2,maxB:25,fade:0.96,axis:true,buyColor:'#c6c6ce',sellColor:'#565660',minRowW:0});
+    var chart=priceCandles(svg,{x0:374,dx:17.2,cw:6.1,wickWidth:0.85,yTop:p.top,yBottom:p.bottom,min:priceMin,max:priceMax,start:startPrice,
+      seq:seq,seed:3471,wicks:[0.45,0.85,0.35,1.2,0.55,1.0,0.4,1.35,0.5,1.1]});
+    var upperY1=chart.y(123.8),upperY2=chart.y(117.2);
+    var corrY1=chart.y(corridor.top),corrY2=chart.y(corridor.bottom);
+    var lowerY1=chart.y(109.6),lowerY2=chart.y(103.2);
+    svg.appendChild(E('rect',{x:50,y:upperY1,width:1160,height:upperY2-upperY1,rx:4,fill:'#b15cf0',opacity:0.09}));
+    svg.appendChild(E('rect',{x:50,y:corrY1,width:1160,height:corrY2-corrY1,rx:4,fill:'#ff8c3a',opacity:0.10}));
+    svg.appendChild(E('rect',{x:50,y:lowerY1,width:1160,height:lowerY2-lowerY1,rx:4,fill:'#b15cf0',opacity:0.09}));
+    addText(svg,'HVN · destination A',72,upperY1-9,{size:12,fill:'#d9b8ff',weight:700});
+    addText(svg,'LVN · thin corridor',72,corrY1-9,{size:12,fill:'#ffc599',weight:700});
+    addText(svg,'HVN · destination B',72,lowerY2+15,{size:12,fill:'#d9b8ff',weight:700});
+    Viz.line(svg,{x1:chart.x(11),y1:chart.y(108.5),x2:chart.x(15),y2:chart.y(120.6),color:'#ffc599',width:2.4,arrow:true});
+    Viz.note(svg,{x:430,y:426,w:460,h:54,title:'Acceptance inside LVN corridor → быстрый переход к следующему HVN',titleColor:'#ffc599',titleSize:12});
+    Viz.text(svg,'если внутри corridor строится новый объём, старая topology перестаёт быть актуальной',640,526,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  function vpOpenPlaybookSVG(){
+    var W=1280,H=560,svg=Viz.canvas({w:W,h:H,label:'Open location relative to prior profile'});
+    Viz.label(svg,'Day open vs prior profile: A-VAH / A-VAL framework',34,34,{w:412,size:13});
+    Viz.text(svg,'A-VAH / A-VAL = outer value references. Use them as context zones, not mechanical entry signals.',640,74,{anchor:'middle',size:12,fill:'#c6c6ce'});
+
+    var yA=160,yVH=212,yP=266,yVL=320,yAL=372;          // A-VAH · VAH · POC · VAL · A-VAL
+    var levels=[['A-VAH',yA],['VAH',yVH],['POC',yP],['VAL',yVL],['A-VAL',yAL]];
+    var boxY=100,boxH=338,w=178;
+    // повтор референса: stem (head:0, без наконечника) → fork (две стрелки) для 3/4/5/6; зигзаг для 1/2. Все x ≤ 120 (внутри рамки)
+    var panels=[
+      {x:40,  title:'1 · inside under POC', note:'VAL reaction -> POC -> VAH test', open:[40,300], strokes:[
+        {pts:[[40,300],[58,yVL],[86,yP]],head:0},      // реакция от VAL к POC
+        {pts:[[86,yP],[120,322]],head:1},              // POC reject -> вниз
+        {pts:[[86,yP],[106,yVH]],head:0},              // POC accept -> тест VAH
+        {pts:[[106,yVH],[132,yP],[154,318]],head:1},   // VAH reject -> POC и ниже
+        {pts:[[106,yVH],[126,110]],head:1} ]},         // VAH accept -> выше
+      {x:245, title:'2 · inside above POC', note:'VAH reaction -> POC -> VAL test', open:[40,232], strokes:[
+        {pts:[[40,232],[58,yVH],[86,yP]],head:0},      // opening inside value, VAH reaction -> POC
+        {pts:[[86,yP],[120,210]],head:1},              // POC reject -> вверх
+        {pts:[[86,yP],[106,yVL]],head:0},              // POC accept -> тест VAL
+        {pts:[[106,yVL],[132,yP],[154,214]],head:1},   // VAL reject -> POC и выше
+        {pts:[[106,yVL],[126,424]],head:1} ]},         // VAL accept -> ниже
+      {x:450, title:'3 · VAH / A-VAH',     note:'needs follow-through',          open:[46,186], strokes:[
+        {pts:[[46,186],[72,266]],head:0},              // stem: дип к POC
+        {pts:[[72,266],[86,114]],head:1},              // вилка вверх
+        {pts:[[72,266],[114,118]],head:1} ]},          // вилка вверх
+      {x:655, title:'4 · VAL / A-VAL',     note:'accept back or reject lower',   open:[46,346], strokes:[
+        {pts:[[46,346],[80,266]],head:0},              // stem: pop к POC
+        {pts:[[80,266],[98,420]],head:1},              // вилка вниз
+        {pts:[[80,266],[120,416]],head:1} ]},          // вилка вниз
+      {x:860, title:'5 · above A-VAH',     note:'acceptance = initiative',       open:[46,130], strokes:[
+        {pts:[[46,130],[84,212]],head:0},              // stem: дип к VAH
+        {pts:[[84,212],[78,114]],head:1},              // вилка вверх
+        {pts:[[84,212],[110,112]],head:1} ]},          // вилка вверх
+      {x:1065,title:'6 · below A-VAL',     note:'failed return vs continuation', open:[46,402], strokes:[
+        {pts:[[46,402],[82,320]],head:0},              // stem: вверх к VAL
+        {pts:[[82,320],[98,424]],head:1},              // вилка вниз
+        {pts:[[82,320],[120,420]],head:1} ]}           // вилка вниз
+    ];
+    panels.forEach(function(p){
+      var x=p.x;
+      addText(svg,p.title,x+8,boxY-9,{size:10.5,fill:'#c6c6ce',weight:700});               // заголовок НАД рамкой
+      svg.appendChild(E('rect',{x:x,y:boxY,width:w,height:boxH,rx:8,fill:'#0c0c0e',stroke:'#23232a','stroke-width':1}));
+      levels.forEach(function(L,i){                                                          // уровни сплошные
+        var yy=L[1],isP=i===2,isOuter=(i===0||i===4);
+        Viz.line(svg,{x1:x+16,y1:yy,x2:x+w-42,y2:yy,color:isP?'#ececf2':(isOuter?'#5e5e66':'#9a9aa2'),width:isP?2.2:(isOuter?1.2:1.5),opacity:1});
+        addText(svg,L[0],x+w-36,yy+4,{size:9.5,fill:isP?'#ececf2':(isOuter?'#76767e':'#a6a6ae'),weight:700});
+      });
+      p.strokes.forEach(function(s){                                                          // stem (head:0) + стрелки (head:1)
+        var pts=s.pts;
+        for(var i=1;i<pts.length;i++){
+          Viz.line(svg,{x1:x+pts[i-1][0],y1:pts[i-1][1],x2:x+pts[i][0],y2:pts[i][1],color:'#ededf2',width:2.2,opacity:0.96,arrow:s.head&&i===pts.length-1});
+        }
+      });
+      var ox=x+p.open[0],oy=p.open[1];                                                       // точка открытия
+      svg.appendChild(E('circle',{cx:ox,cy:oy,r:11,fill:'#ff8c3a',opacity:0.34}));
+      svg.appendChild(E('circle',{cx:ox,cy:oy,r:5.2,fill:'#ffb27a',stroke:'#0c0c0e','stroke-width':1}));
+      addText(svg,p.note,x+w/2,boxY+boxH+24,{anchor:'middle',size:10,fill:'#8a8a92'});
+    });
+    Viz.note(svg,{x:238,y:476,w:804,h:62,title:'Read left to right',titleColor:'#ececef',titleSize:12,size:11,lineH:17,
+      lines:['location -> acceptance/rejection -> current flow confirmation  ·  orange dot = open',
+             'CVD / footprint / OI and regime decide execution.']});
     return svg;
   }
 
@@ -1069,6 +1470,9 @@
 
   document.querySelectorAll('[data-vp]').forEach(function(d){
     if(d.dataset.vp==='whatis') d.appendChild(vpWhatisSVG());
+    else if(d.dataset.vp==='poc') d.appendChild(vpNodeScene('poc'));
+    else if(d.dataset.vp==='hvn') d.appendChild(vpNodeScene('hvn'));
+    else if(d.dataset.vp==='lvn') d.appendChild(vpNodeScene('lvn'));
     else { var cf=VP[d.dataset.vp]; if(cf)d.appendChild(vpStory(cf)); }
   });
   document.querySelectorAll('[data-vp-migration]').forEach(function(d){d.appendChild(vpocMigrationSVG());});
@@ -1078,6 +1482,7 @@
   document.querySelectorAll('[data-vp-relations]').forEach(function(d){d.appendChild(vpRelationsSVG());});
   document.querySelectorAll('[data-vp-composite]').forEach(function(d){d.appendChild(vpCompositeSVG());});
   document.querySelectorAll('[data-vp-topology]').forEach(function(d){d.appendChild(vpTopologySVG());});
+  document.querySelectorAll('[data-vp-open]').forEach(function(d){d.appendChild(vpOpenPlaybookSVG());});
   document.querySelectorAll('[data-vp-workflow]').forEach(function(d){d.appendChild(vpWorkflowSVG());});
 })();
 </script>
@@ -1095,3 +1500,4 @@
 
 </body>
 </html>
+

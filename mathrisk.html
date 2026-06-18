@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Математика, риск и психология трейдинга</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .nav-sep { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 12px 12px 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: 940px; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: 940px; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: 940px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: 940px; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .formula { font-family: 'JetBrains Mono', monospace; font-size: 14px; background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 8px; padding: 13px 16px; margin: 10px 0; color: #fff; text-align: center; letter-spacing: 0.3px; }
+  .formula .pos { color: #ffd23f; } .formula .neg { color: #ff8c3a; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  td.pos { color: #ffd23f; font-weight: 700; } td.neg { color: #ff8c3a; font-weight: 700; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div class="nav-sep">// фундамент</div>
+    <a class="nav-item active" href="#"><span class="nav-num">18</span> Математика и риск</a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#why">01 · Трейдинг — это математика</a>
+    <a href="#expectancy">02 · Expectancy (матожидание)</a>
+    <a href="#tradeoff">03 · R и winrate: sweet spot</a>
+    <a href="#variance">04 · Variance (разброс)</a>
+    <a href="#sizing">05 · Position sizing</a>
+    <a href="#ruin">06 · Risk of ruin и асимметрия</a>
+    <a href="#psych">07 · Психология: процесс vs исход</a>
+    <a href="#playbook">08 · Связка с базой</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Математика, риск и психология</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Математика, риск и психология</h1>
+    <p>// фундамент под любой order-flow сетап: матожидание · variance · риск · дисциплина</p>
+  </div>
+
+  <!-- ─────── 01. ТРЕЙДИНГ = МАТЕМАТИКА ─────── -->
+  <section class="section" id="why">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Трейдинг — это математика</span>
+      <span class="section-badge">foundation</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Пять установок, которые меняют взгляд на трейдинг:</p>
+        <ul>
+          <li>Большинство гонится за <strong>идеальными входами</strong>, но эдж — в вероятностях и математике</li>
+          <li>Отдельные вин/лосс — почти подбрасывание монеты (<strong>≈50/50</strong> на сделку)</li>
+          <li>Долгосрок решает <strong>математика системы</strong>, а не последняя сделка</li>
+          <li>Одна сделка не значит <strong>ничего</strong></li>
+          <li>Внимание уходит на стратегию/индикаторы/психологию, а на <strong>expectancy — почти нет</strong></li>
+        </ul>
+        <div class="hl green"><span class="hl-label">Суть</span>Проблема не в нехватке усилий, а в их <strong>неверном направлении</strong>. Можно годами учить стратегии и стоять на месте, фокусируясь не на том числе. То самое число — матожидание (§02).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Эта страница — «обёртка» вокруг любого order-flow эджа из базы. Сетап (AMT / CVD / профиль / OI) отвечает на вопрос «где вход с перевесом». Математика отвечает на «выживет ли система, исполняющая такие входы».</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Главное</span>Твоя работа — <strong>исполнение, а не предсказание</strong>. Думай распределениями, а не исходами. Всё ниже — про то, как заставить математику работать на тебя.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. EXPECTANCY ─────── -->
+  <section class="section" id="expectancy">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Expectancy — что реально приносит деньги</span>
+      <span class="section-badge">edge</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Expectancy (матожидание)</strong> — средняя прибыль на сделку. Единственное число, которое в итоге важно — не «как зашла последняя сделка» и не «насколько уверенно я себя чувствовал».</p>
+        <div class="formula">E = <span class="pos">WinRate × AvgWin</span> − <span class="neg">LossRate × AvgLoss</span></div>
+
+        <table>
+          <thead><tr><th>Система</th><th>Win rate</th><th>R</th><th>Матожидание / сделку</th></tr></thead>
+          <tbody>
+            <tr><td>низкий WR, большой R</td><td>15%</td><td>8R</td><td class="pos">+0.35R</td></tr>
+            <tr><td>сбалансированная</td><td>55%</td><td>3R</td><td class="pos">+1.20R</td></tr>
+            <tr><td>высокий WR, малый R</td><td>70%</td><td>1R</td><td class="pos">+0.40R</td></tr>
+            <tr><td>«ловушка винрейта»</td><td>25%</td><td>2R</td><td class="neg">−0.25R</td></tr>
+          </tbody>
+        </table>
+
+        <div class="diagram">
+          <div data-chart="expectancy"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Контринтуитивно</span>15% и 70% винрейта дают <strong>похожее</strong> матожидание. Значит, важен <strong>не винрейт сам по себе и не R сам по себе, а их комбинация</strong>. Система с 8R может терять ~9 из 10 сделок и быть прибыльной.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>E &gt; 0 = прибыльная система.</strong> Матожидание сворачивает всю стратегию в одно число: не «думаю, работает», а «делает X на сделку на большой выборке»</li>
+          <li>⚠️ <strong>Бумажное ≠ реальное:</strong> спред, комиссия, slippage срезают результат. Система может быть плюсовой на бумаге и минусовой в реале. Считай <em>net</em></li>
+          <li><strong>Нужна большая выборка:</strong> первые 10–20 сделок не говорят ничего — правда видна после ~100</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Бросить <em>рабочий</em> эдж до того, как он раскрылся — на просадке малой выборки кривая ещё ничего не доказывает (§04). Многие так уходят от плюсовой системы.</div>
+        <div class="hl azure"><span class="hl-label">Считай в R</span>Меряй результат в <strong>R-мультипликаторах</strong>, а не в долларах — так системы сравнимы между собой и не зависят от размера счёта.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. TRADE-OFF / SWEET SPOT ─────── -->
+  <section class="section" id="tradeoff">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">R и win rate: sweet spot</span>
+      <span class="section-badge">trade-off</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Идеальной стратегии не существует. У каждой — <strong>trade-off</strong>: выше R обычно означает ниже win rate, и наоборот. Обоих сразу не бывает — и именно здесь застревают, ища несуществующее.</p>
+
+        <div class="diagram">
+          <div data-chart="sweetspot"></div>
+        </div>
+
+        <div class="hl note"><span class="hl-label">Почему</span>Чем дальше цель, тем <strong>реже</strong> до неё доходит — это механика рынка, а не твоя ошибка. Больше R = меньше частота попадания.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p><strong>Breakeven по R</strong> (сколько надо побеждать, чтобы не терять):</p>
+        <table>
+          <thead><tr><th>Цель</th><th>1R</th><th>2R</th><th>3R</th><th>4R</th><th>5R</th></tr></thead>
+          <tbody><tr><td>нужен win rate &gt;</td><td>50%</td><td>33%</td><td>25%</td><td>20%</td><td>17%</td></tr></tbody>
+        </table>
+        <p>На 4R можно ошибаться <strong>80% времени</strong> и не терять. <strong>Sweet spot — середина:</strong> 40% @ 4R или 50% @ 3R. Не самый эффектный бэктест, зато исполнимо на сотнях сделок.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Гнаться за «80% винрейт и 5R» = искать то, чего нет. Обычно это <strong>переоптимизированный бэктест</strong>, который ломается в реале.</div>
+        <div class="hl azure"><span class="hl-label">Улучшение</span>Реальный прогресс = сдвиг чуть вправо-вверх (и R, и win rate) понемногу, а не прыжок в идеальный угол. Order-flow-контекст (вход у HVN/LVN, по тренду) как раз поднимает win rate при том же R.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. VARIANCE ─────── -->
+  <section class="section" id="variance">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Variance — почему ломаются эмоционально</span>
+      <span class="section-badge">разброс</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Одна и та же система — одни правила, одно матожидание — даёт <strong>совершенно разные</strong> краткосрочные кривые. Кто-то получает плавный рост, кто-то жёсткую просадку, кто-то — что-то среднее.</p>
+
+        <div class="diagram">
+          <div data-chart="variance"></div>
+        </div>
+
+        <div class="hl red"><span class="hl-label">Жёсткая правда</span>Можно делать <strong>всё правильно</strong> и словить 7 лоссов подряд. И можно нарушить все правила и выиграть 5 подряд — что ещё опаснее (закрепляет плохое поведение).</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Краткосрочный результат не доказывает <strong>ничего</strong>; правду говорит только большая выборка</li>
+          <li><strong>Gambler's fallacy:</strong> после 4 лоссов следующая сделка <strong>не</strong> вероятнее выиграть. Каждая сделка независима — снова ≈50/50</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Tilt</span>Самый частый способ слить — <strong>увеличить размер «на отыгрыш»</strong> после серии лоссов. Ты не «должен» выиграть следующую. Размер не меняется от стрика.</div>
+        <div class="hl azure"><span class="hl-label">Как пережить</span>Единственный способ дожить через variance — <strong>малый риск на сделку</strong> (§05–06). Маленький риск превращает любую серию лоссов в переживаемую.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. POSITION SIZING ─────── -->
+  <section class="section" id="sizing">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Position sizing — дисциплина становится видимой</span>
+      <span class="section-badge">risk</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Ни одна формула из §02–04 не сработает, если ты не дожил до раскрытия эджа. Поэтому:</p>
+        <ul>
+          <li>Держи риск в <strong>$ / %</strong> постоянным на каждой сделке</li>
+          <li>Размер позиции подгоняй под <strong>стоп</strong>: шире стоп → меньше лот, уже стоп → больше лот</li>
+          <li>Риск <strong>0.25–2%</strong> на сделку — это максимум. Одна плохая неделя не должна уничтожать счёт</li>
+        </ul>
+        <div class="formula">Размер = (Счёт × Риск%) ÷ (Стоп в пунктах × Цена пункта)</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Пример расчёта: счёт <code>$1000</code>, риск <code>0.5%</code> = <code>$5</code>, стоп <code>25 пунктов</code> → размер ≈ <code>0.02 лота</code>. Доллар-риск зафиксирован, меняется только лот.</p>
+        <div class="hl note"><span class="hl-label">Инструменты</span>Position-size калькулятор или индикатор «lot size calculator» в TradingView. В <a href="https://app.mmt.gg/" target="_blank" rel="noopener" style="color:#9cc5ec;">MMT</a> — считай R от стопа до структуры (за LVN / своп-лоу), а размер уже под этот стоп.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Kelly</span>Оптимальная доля капитала f* = edge ÷ odds. На практике берут <strong>¼–½ Kelly</strong>: full Kelly слишком волатилен и болезнен на просадке. Фиксированный 0.5–1% риск обычно уже близок к дробному Kelly.</div>
+        <div class="hl red"><span class="hl-label">Скрытый риск</span>Риск на сделку × <strong>коррелированные позиции</strong> = реальный риск. Пять лонгов альткоинов по 2% — это не 2%, а ~10% на одном движении BTC. Считай совокупную экспозицию.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. RISK OF RUIN ─────── -->
+  <section class="section" id="ruin">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Risk of ruin и асимметрия потерь</span>
+      <span class="section-badge">выживание</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Вероятность глубокой просадки растёт <strong>нелинейно</strong> с риском на сделку: чуть больше риска — резко больше шанс разорения.</p>
+
+        <div class="diagram">
+          <div data-chart="ruin"></div>
+        </div>
+
+        <p>И потери с прибылями <strong>несимметричны</strong> — чем глубже просадка, тем непропорционально больше нужно отыграть:</p>
+
+        <div class="diagram">
+          <div data-chart="recovery"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Вероятность 50%-просадки: <strong>1% риска → ~18%</strong>, 2% → ~40%, 5% → ~72%. Это математика, не психология</li>
+          <li>Восстановление: −10% → нужно +11%, −30% → +43%, <strong>−50% → +100%</strong></li>
+        </ul>
+        <div class="hl note"><span class="hl-label">Смысл</span>В момент, когда теряешь половину счёта, рынок требует от тебя <strong>удвоиться</strong> только чтобы выйти в ноль. Вот почему защита капитала первична.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Мартингейл и усреднение в минус — <strong>ускоренный путь к ruin</strong>: ты увеличиваешь риск ровно тогда, когда математика против тебя.</div>
+        <div class="hl azure"><span class="hl-label">Приоритет</span>Сначала «не разориться», потом «заработать». Малый риск + положительное матожидание (§02) = выживание, на котором всё держится.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. ПСИХОЛОГИЯ ─────── -->
+  <section class="section" id="psych">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Психология: процесс vs исход</span>
+      <span class="section-badge">mindset</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Главный вопрос к себе:</p>
+        <div class="hl green"><span class="hl-label">Тот самый вопрос</span>«Что <strong>одно</strong> я делаю неправильно — исправление чего полностью изменит мой трейдинг?» Ответ ты, скорее всего, уже знаешь.</div>
+        <p>Частые кандидаты:</p>
+        <ul>
+          <li>Судить систему по нескольким сделкам</li>
+          <li>Рисковать много, чтобы «что-то почувствовать» (ищешь эмоции, а не торгуешь рынок)</li>
+          <li>Путать удачный <em>исход</em> с хорошим <em>исполнением</em></li>
+          <li>Бросать эдж, как только появляется variance</li>
+          <li>Искать определённость в игре вероятностей</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Outcome bias:</strong> хороший результат ≠ хорошее исполнение (и плохой ≠ плохое). Оценивай <strong>процесс</strong></li>
+          <li><strong>Журнал:</strong> помечай каждую сделку «по системе / не по системе», а не просто «вин / лосс». Наказывай себя только за нарушения процесса, не за нормальные лоссы</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Мантра</span><strong>Consistency &gt; perfection.</strong> Думай вероятностями, не исходами. Оценивай эдж на большой выборке. Рискуй так мало, чтобы пережить variance. Твоя работа — исполнение, не предсказание.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. СВЯЗКА С БАЗОЙ ─────── -->
+  <section class="section" id="playbook">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Как связать с order-flow базой</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Order-flow (AMT, CVD, профиль, OI, funding…) даёт <strong>вход с положительным ожиданием</strong>. Математика этой страницы превращает вход в <strong>систему, которая выживает</strong>. Одно без другого не работает.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Чек-лист перед сделкой:</p>
+        <div class="grid2">
+          <div class="card"><div class="card-title">1 · Эдж</div>Сетап даёт реалистичный R и win rate так, что E &gt; 0? (§02–03)</div>
+          <div class="card"><div class="card-title">2 · Риск</div>Риск ≤ 1–2%, размер посчитан под стоп за структуру? (§05)</div>
+          <div class="card"><div class="card-title">3 · Процесс</div>Решение — по системе, а не по последней сделке? (§07)</div>
+          <div class="card"><div class="card-title">4 · Variance</div>Серия лоссов → размер НЕ меняю (разброс, не поломка)? (§04)</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>(1) order-flow эдж — контекст + триггер → (2) <strong>E &gt; 0</strong> на выборке → (3) риск, переживающий variance → (4) журнал по процессу. Order-flow отвечает «где», математика — «сколько» и «как долго».</div>
+        <div class="hl note"><span class="hl-label">Формула выживания</span>положительное матожидание × малый риск × дисциплина исполнения = единственный способ остаться в игре достаточно долго, чтобы эдж сработал.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── quant charts (expectancy / sweet-spot / variance / ruin / recovery) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#1e1e24',paper:'#08080a',axis:'#3a3a42',yellow:'#ffd23f',orange:'#ff8c3a',purple:'#b15cf0',blue:'#9cc5ec',dim:'#565660'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function txt(svg,s,x,y,o){o=o||{};var e=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)e.setAttribute('font-weight',o.weight); if(o.anchor)e.setAttribute('text-anchor',o.anchor); e.textContent=s; svg.appendChild(e); return e;}
+  function arrowDef(svg){var d=E('defs',{}),m=E('marker',{id:'mrA',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M0 0 L10 5 L0 10 z',fill:C.ink,opacity:0.85}));d.appendChild(m);svg.appendChild(d);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function canvas(w,h,label){var svg=E('svg',{viewBox:'0 0 '+w+' '+h,width:'100%',role:'img','aria-label':label||''});arrowDef(svg);
+    svg.appendChild(E('rect',{x:0,y:0,width:w,height:h,rx:8,fill:C.paper}));return svg;}
+  function line(svg,x1,y1,x2,y2,o){o=o||{};var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+    if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#mrA)'; svg.appendChild(E('line',a));}
+
+  function axes(svg,o){
+    var x0=o.x0,y0=o.y0,w=o.w,h=o.h;
+    function sx(v){return x0+(v-o.xmin)/(o.xmax-o.xmin)*w;}
+    function sy(v){return y0+h-(v-o.ymin)/(o.ymax-o.ymin)*h;}
+    (o.xticks||[]).forEach(function(t){var X=sx(t.v);line(svg,X,y0,X,y0+h,{color:C.grid,width:1,dash:'3 5'});txt(svg,t.l,X,y0+h+16,{anchor:'middle',size:10,fill:'#8a8a92'});});
+    (o.yticks||[]).forEach(function(t){var Y=sy(t.v);line(svg,x0,Y,x0+w,Y,{color:C.grid,width:1,dash:'3 5'});txt(svg,t.l,x0-8,Y+3,{anchor:'end',size:10,fill:'#8a8a92'});});
+    line(svg,x0,y0,x0,y0+h,{color:C.axis,width:1.2});
+    line(svg,x0,y0+h,x0+w,y0+h,{color:C.axis,width:1.2});
+    if(o.xlabel)txt(svg,o.xlabel,x0+w/2,y0+h+34,{anchor:'middle',size:11,fill:'#c6c6ce',weight:700});
+    if(o.ylabel)txt(svg,o.ylabel,x0-4,y0-12,{anchor:'start',size:11,fill:'#c6c6ce',weight:700});
+    return {sx:sx,sy:sy,x0:x0,y0:y0,w:w,h:h};
+  }
+  function pline(svg,sc,pts,o){o=o||{};var d=pts.map(function(p,i){return (i?'L':'M')+sc.sx(p[0]).toFixed(1)+','+sc.sy(p[1]).toFixed(1);}).join(' ');
+    svg.appendChild(E('path',{d:d,fill:'none',stroke:o.color||C.ink,'stroke-width':o.width||2,'stroke-linejoin':'round','stroke-linecap':'round','stroke-dasharray':o.dash||'',opacity:o.opacity==null?1:o.opacity}));}
+  function dot(svg,sc,x,y,o){o=o||{};svg.appendChild(E('circle',{cx:sc.sx(x),cy:sc.sy(y),r:o.r||5,fill:o.fill||C.yellow,stroke:o.stroke||'#08080a','stroke-width':1.6}));
+    if(o.label)txt(svg,o.label,sc.sx(x)+(o.lx==null?9:o.lx),sc.sy(y)+(o.ly==null?4:o.ly),{size:o.size||11,fill:o.lc||'#ececef',weight:600,anchor:o.anchor});}
+
+  /* 02 — equity curve: 8R @ 15% win rate */
+  function expectancyChart(){
+    var W=1180,H=420,svg=canvas(W,H,'8R при 15% winrate — кривая капитала');
+    txt(svg,'8R-система при 15% winrate: теряешь ~9 из 10 — и всё равно в плюсе',24,26,{size:13,fill:'#fff',weight:700,family:"'Manrope',sans-serif"});
+    var r=mb32(7),eq=[0],i;for(i=0;i<92;i++){eq.push(eq[eq.length-1]+(r()<0.15?8:-1));}
+    var mn=Math.min.apply(null,eq),mx=Math.max.apply(null,eq);
+    var sc=axes(svg,{x0:78,y0:56,w:1020,h:300,xmin:0,xmax:eq.length-1,ymin:Math.min(0,mn)-2,ymax:mx+4,
+      xticks:[{v:0,l:'0'},{v:30,l:'30'},{v:60,l:'60'},{v:90,l:'90'}],
+      yticks:[{v:0,l:'0'},{v:Math.round(mx/2),l:'+'+Math.round(mx/2)+'R'},{v:mx,l:'+'+mx+'R'}],
+      xlabel:'сделки (по порядку)',ylabel:'капитал, R'});
+    line(svg,sc.x0,sc.sy(0),sc.x0+sc.w,sc.sy(0),{color:'#4a4a52',width:1.2,dash:'5 4'});
+    pline(svg,sc,eq.map(function(v,i){return [i,v];}),{color:C.yellow,width:2.2});
+    dot(svg,sc,eq.length-1,eq[eq.length-1],{fill:C.yellow,label:'+'+eq[eq.length-1]+'R',lc:'#ffe08a',anchor:'end',lx:-10});
+    txt(svg,'каждый −1R — обычный лосс · редкие +8R вытягивают всю кривую вверх (E = +0.35R)',sc.x0+sc.w,H-12,{anchor:'end',size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  /* 03 — sweet spot: win rate vs R, breakeven boundary */
+  function sweetSpotChart(){
+    var W=1180,H=460,svg=canvas(W,H,'Sweet spot: win rate vs R');
+    txt(svg,'Sweet spot: выше R → ниже win rate. Над кривой — прибыльно, под ней — убыток',24,26,{size:13,fill:'#fff',weight:700,family:"'Manrope',sans-serif"});
+    var sc=axes(svg,{x0:86,y0:58,w:980,h:316,xmin:0.7,xmax:6.3,ymin:0,ymax:100,
+      xticks:[{v:1,l:'1R'},{v:2,l:'2R'},{v:3,l:'3R'},{v:4,l:'4R'},{v:5,l:'5R'},{v:6,l:'6R'}],
+      yticks:[{v:0,l:'0'},{v:20,l:'20%'},{v:40,l:'40%'},{v:60,l:'60%'},{v:80,l:'80%'},{v:100,l:'100%'}],
+      xlabel:'Reward : Risk (R)',ylabel:'win rate, %'});
+    var be=[],R;for(R=0.7;R<=6.3;R+=0.1){be.push([R,100/(1+R)]);}
+    /* shade profitable zone (above breakeven) */
+    var poly=be.map(function(p){return sc.sx(p[0]).toFixed(1)+','+sc.sy(p[1]).toFixed(1);});
+    poly.push(sc.sx(6.3).toFixed(1)+','+sc.sy(100).toFixed(1));
+    poly.push(sc.sx(0.7).toFixed(1)+','+sc.sy(100).toFixed(1));
+    svg.appendChild(E('polygon',{points:poly.join(' '),fill:'rgba(255,210,63,0.07)'}));
+    pline(svg,sc,be,{color:C.orange,width:2,dash:'6 4'});
+    txt(svg,'breakeven',sc.sx(5.2),sc.sy(100/6.2)-8,{size:10,fill:'#ffc599',weight:700});
+    txt(svg,'прибыльно',sc.sx(2.4),sc.sy(78),{size:12,fill:'#ffe08a',weight:700});
+    txt(svg,'убыточно',sc.sx(1.15),sc.sy(20),{size:12,fill:'#ffc599',weight:700});
+    /* sweet-spot blob */
+    svg.appendChild(E('ellipse',{cx:sc.sx(3.7),cy:sc.sy(45),rx:78,ry:46,fill:'rgba(177,92,240,0.13)',stroke:C.purple,'stroke-width':1.4,'stroke-dasharray':'5 4'}));
+    txt(svg,'sweet spot',sc.sx(3.7),sc.sy(45)-52,{size:11,fill:'#d9b8ff',weight:700,anchor:'middle'});
+    dot(svg,sc,1,70,{label:'1R · 70%'});
+    dot(svg,sc,3,55,{label:'3R · 55%'});
+    dot(svg,sc,4,40,{fill:C.purple,label:'4R · 40%',lc:'#d9b8ff'});
+    dot(svg,sc,6,30,{label:'6R · 30%'});
+    dot(svg,sc,2,25,{fill:C.orange,label:'2R · 25% (минус)',lc:'#ffc599',ly:16});
+    return svg;
+  }
+
+  /* 04 — variance: 3 equity curves, same expectancy */
+  function varianceChart(){
+    var W=1180,H=440,svg=canvas(W,H,'Variance: три кривые из одной системы');
+    txt(svg,'Одна система · одно матожидание · три судьбы — это variance',24,26,{size:13,fill:'#fff',weight:700,family:"'Manrope',sans-serif"});
+    function gen(seed){var r=mb32(seed),eq=[0],i;for(i=0;i<100;i++){eq.push(eq[eq.length-1]+(r()<0.5?1.6:-1));}return eq;}
+    var curves=[gen(3),gen(21),gen(54)];
+    function maxDD(eq){var pk=eq[0],dd=0,i;for(i=0;i<eq.length;i++){if(eq[i]>pk)pk=eq[i];if(pk-eq[i]>dd)dd=pk-eq[i];}return dd;}
+    var meta=curves.map(function(e,i){return {e:e,i:i,dd:maxDD(e),end:e[e.length-1]};});
+    var worst=meta.slice().sort(function(a,b){return b.dd-a.dd;})[0];
+    var best=meta.slice().sort(function(a,b){return b.end-a.end;})[0];
+    var allv=[].concat.apply([],curves),mn=Math.min.apply(null,allv),mx=Math.max.apply(null,allv);
+    var sc=axes(svg,{x0:78,y0:58,w:1020,h:300,xmin:0,xmax:100,ymin:mn-3,ymax:mx+4,
+      xticks:[{v:0,l:'0'},{v:25,l:'25'},{v:50,l:'50'},{v:75,l:'75'},{v:100,l:'100'}],
+      yticks:[{v:0,l:'0'},{v:Math.round(mx/2),l:'+'+Math.round(mx/2)+'R'},{v:mx,l:'+'+mx+'R'}],
+      xlabel:'сделки',ylabel:'капитал, R'});
+    line(svg,sc.x0,sc.sy(0),sc.x0+sc.w,sc.sy(0),{color:'#4a4a52',width:1,dash:'5 4'});
+    meta.forEach(function(m){
+      var col=m===worst?C.orange:(m===best?C.yellow:C.dim);
+      var lbl=m===worst?'глубокая просадка':(m===best?'плавный рост':'середина');
+      pline(svg,sc,m.e.map(function(v,i){return [i,v];}),{color:col,width:m===C.dim?1.6:2.2,opacity:m===worst||m===best?1:0.85});
+      var ex=m.e.length-1; dot(svg,sc,ex,m.e[ex],{r:4,fill:col,label:lbl,lc:col,anchor:'start',lx:8,size:10});
+    });
+    /* trough annotation on worst curve */
+    var we=worst.e,ti=0,pk=we[0],dd=0,i;for(i=0;i<we.length;i++){if(we[i]>pk)pk=we[i];if(pk-we[i]>=dd){dd=pk-we[i];ti=i;}}
+    line(svg,sc.sx(ti),sc.sy(we[ti])+10,sc.sx(ti),sc.sy(we[ti])+44,{color:C.orange,width:1,dash:'3 3',opacity:0.8});
+    txt(svg,'здесь трейдер бросает рабочий эдж',sc.sx(ti),sc.sy(we[ti])+58,{anchor:'middle',size:10.5,fill:'#ffc599',weight:700});
+    return svg;
+  }
+
+  /* 06a — risk of ruin */
+  function ruinChart(){
+    var W=1180,H=400,svg=canvas(W,H,'Risk of ruin vs риск на сделку');
+    txt(svg,'Вероятность 50%-просадки растёт нелинейно с риском на сделку',24,26,{size:13,fill:'#fff',weight:700,family:"'Manrope',sans-serif"});
+    var sc=axes(svg,{x0:82,y0:58,w:1000,h:268,xmin:0,xmax:5.3,ymin:0,ymax:100,
+      xticks:[{v:0.5,l:'0.5%'},{v:1,l:'1%'},{v:2,l:'2%'},{v:3,l:'3%'},{v:5,l:'5%'}],
+      yticks:[{v:0,l:'0'},{v:25,l:'25%'},{v:50,l:'50%'},{v:75,l:'75%'},{v:100,l:'100%'}],
+      xlabel:'риск на сделку, %',ylabel:'P(глубокой просадки), %'});
+    /* danger shading risk > 2 */
+    svg.appendChild(E('rect',{x:sc.sx(2),y:sc.y0,width:sc.x0+sc.w-sc.sx(2),height:sc.h,fill:'rgba(255,140,58,0.06)'}));
+    var pts=[[0.5,7],[1,18],[2,40],[3,55],[5,72]];
+    pline(svg,sc,pts,{color:C.orange,width:2.4});
+    pts.forEach(function(p){dot(svg,sc,p[0],p[1],{fill:C.orange,r:5,label:p[1]+'%',lc:'#ffc599',ly:-10,anchor:'middle'});});
+    txt(svg,'зона разорения',sc.sx(3.5),sc.y0+20,{size:11,fill:'#ffc599',weight:700,anchor:'middle'});
+    return svg;
+  }
+
+  /* 06b — loss → required gain asymmetry */
+  function recoveryChart(){
+    var W=1180,H=400,svg=canvas(W,H,'Асимметрия: убыток vs нужный отыгрыш');
+    txt(svg,'Чем глубже просадка, тем непропорционально больше нужно отыграть',24,26,{size:13,fill:'#fff',weight:700,family:"'Manrope',sans-serif"});
+    var sc=axes(svg,{x0:82,y0:58,w:1000,h:268,xmin:0,xmax:70,ymin:0,ymax:160,
+      xticks:[{v:10,l:'10%'},{v:20,l:'20%'},{v:30,l:'30%'},{v:40,l:'40%'},{v:50,l:'50%'},{v:60,l:'60%'}],
+      yticks:[{v:0,l:'0'},{v:50,l:'50%'},{v:100,l:'100%'},{v:150,l:'150%'}],
+      xlabel:'просадка, %',ylabel:'нужно отыграть, %'});
+    /* symmetric reference y=x */
+    pline(svg,sc,[[0,0],[60,60]],{color:'#4a4a52',width:1.2,dash:'5 4'});
+    txt(svg,'симметрия (если бы)',sc.sx(52),sc.sy(52)+14,{size:10,fill:'#6a6a72',anchor:'end'});
+    var pts=[];for(var L=2;L<=62;L+=2){pts.push([L,L/(100-L)*100]);}
+    pline(svg,sc,pts,{color:C.orange,width:2.4});
+    [[10,11],[30,43],[50,100]].forEach(function(p){dot(svg,sc,p[0],p[1],{fill:C.orange,r:5,label:'−'+p[0]+'% → +'+p[1]+'%',lc:'#ffc599',ly:-10,anchor:'middle'});});
+    return svg;
+  }
+
+  var CHARTS={expectancy:expectancyChart,sweetspot:sweetSpotChart,variance:varianceChart,ruin:ruinChart,recovery:recoveryChart};
+  document.querySelectorAll('[data-chart]').forEach(function(d){var f=CHARTS[d.dataset.chart];if(f)d.appendChild(f());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>
