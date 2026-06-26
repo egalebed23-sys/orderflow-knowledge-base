@@ -501,14 +501,14 @@
     <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item active" href="#"><span class="nav-num">07</span> TPO</a>
-    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
     <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
     <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;color:#54545c;letter-spacing:1px;padding:12px 12px 6px;margin-top:6px;border-top:1px solid #25252a;">// фундамент</div>
@@ -722,7 +722,7 @@
 
         <div class="diagram">
           <div class="mpchart" data-npoc-story></div>
-          <div class="diagram-cap">POC, оставленный имбалансом, остаётся магнитом (жёлтая линия = nPOC). Цену тянет назад «снять» его — там самый комфортный для рынка ценник.</div>
+          <div class="diagram-cap">Жёлтая линия показывает POC завершённого профиля, который цена оставила позади во время имбаланса.</div>
         </div>
       </div>
 
@@ -732,7 +732,7 @@
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
           <li><strong>Логика (AMT):</strong> выбитые из баланса участники тянут цену обратно к области, где наторговали больше всего — к нетронутому POC</li>
-          <li><strong>nPOC = магнит и зона интереса.</strong> Цена часто возвращается его снять (sweep) и даёт реакцию</li>
+          <li><strong>nPOC = незавершённый reference.</strong> Первый возврат к нему показывает, сохраняется ли интерес к старой зоне бизнеса</li>
           <li>Чем <strong>свежее и ближе</strong> nPOC, тем сильнее притяжение. Старые и дальние — слабее</li>
         </ul>
       </div>
@@ -741,7 +741,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">Ловушка</span>nPOC — это <strong>зона интереса, а не сигнал</strong>. Не использовать вслепую. Нужен контекст: order flow на подходе (поглощение/дельта-дивергенция), старший ТФ, ключевой уровень. «Магнит» молчит, пока его не подтвердит поток.</div>
+        <div class="hl red"><span class="hl-label">Ловушка</span>nPOC нельзя торговать как автоматический возврат к среднему. Сначала определи режим: balance, trend, liquidation/event. Потом смотри скорость подхода и реакцию у линии.</div>
         <ul>
           <li><strong>Sweep + отказ</strong> (поглощение, дельта-дивергенция) = разворотный триггер. <strong>Sweep + проход</strong> = продолжение</li>
           <li>В <strong>сильном тренде</strong> nPOC остаются позади непротестированными — это само по себе признак силы (рынок не оглядывается)</li>
@@ -1592,7 +1592,7 @@
 
   function npocStorySVG(){
     var W=1280,H=620,svg=Viz.canvas({
-      w:W,h:H,label:'nPOC: оставленный POC как магнит и зона проверки',
+      w:W,h:H,label:'nPOC: оставленный POC как reference',
       grid:{start:82,end:H-58,step:58,x1:22,x2:W-22}
     });
     Viz.label(svg,'nPOC: POC, оставленный трендовым движением',34,36,{w:344,size:13});
@@ -1624,19 +1624,19 @@
     Viz.callout(svg,{text:'сильный тренд может оставить nPOC нетронутым',x:770,y:116,toX:842,toY:npoc2,color:'#ffc599',size:12,weight:700});
     Viz.callout(svg,{text:'поздний sweep',x:1014,y:376,toX:1032,toY:npoc3,color:'#ffd23f',ellipse:{rx:24,ry:22,width:1.4},size:12,weight:700});
 
-    Viz.note(svg,{x:54,y:72,w:302,h:112,title:'Почему это магнит',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,
+    Viz.note(svg,{x:54,y:72,w:302,h:112,title:'Что осталось позади',titleColor:'#ffd23f',size:13,lineH:19,titleSize:13,
       lines:[
-        'POC = где было максимум времени/объёма.',
-        'Если цену резко унесло, уровень остался',
-        'непроверенным. Рынок часто возвращается',
-        'проверить старую комфортную цену.'
+        'POC = центр прошлого бизнеса.',
+        'Имбаланс быстро унёс цену выше/ниже.',
+        'Линия остаётся reference, пока рынок',
+        'не покажет результат на возврате.'
       ]});
     Viz.note(svg,{x:818,y:452,w:348,h:108,title:'Как использовать',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
       lines:[
-        'nPOC — зона интереса, не кнопка входа.',
-        'Sweep + отказ = разворотная идея.',
-        'Sweep + принятие = продолжение.',
-        'В сильном тренде nPOC могут висеть долго.'
+        'First touch: оцени отказ / принятие.',
+        'Retest: уровень уже tested.',
+        'Trend: nPOC может остаться позади.',
+        'Balance: шанс реакции выше.'
       ],stroke:'#3a2a24'});
     return svg;
   }

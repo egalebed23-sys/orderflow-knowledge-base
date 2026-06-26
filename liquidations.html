@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquidations · ликвидации</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .nav-sep { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 12px 12px 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: 940px; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: 940px; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: 940px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: 940px; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  td.s { color: #9cc5ec; font-weight: 700; } td.l { color: #ff8c3a; font-weight: 700; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item active" href="#"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div class="nav-sep">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое ликвидация</a>
+    <a href="#fuel">02 · Почему имеет силу: топливо</a>
+    <a href="#cascade">03 · Liquidation cascade</a>
+    <a href="#exhaustion">04 · Exhaustion / капитуляция</a>
+    <a href="#heatmap">05 · Liquidation levels и heatmap</a>
+    <a href="#confluence">06 · Связки: OI / CVD / funding</a>
+    <a href="#mmt">07 · В MMT</a>
+    <a href="#playbook">08 · Как торговать</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Liquidations · ликвидации</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Liquidations · ликвидации</h1>
+    <p>// принудительная агрессия: топливо каскадов и маркер исчерпания</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">В <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) ликвидации читаются через <strong>Liquidation Heatmap</strong> (кластеры по цене) и фид ликвидаций. Это прямое продолжение <a href="oi.html" style="color:#d9b8ff;border:none;">Open Interest</a> и <a href="funding.html" style="color:#d9b8ff;border:none;">Funding</a>: перегрев плеча → ликвидации → OI flush.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое ликвидация</span>
+      <span class="section-badge">forced close</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Ликвидация</strong> — принудительное закрытие позиции с плечом, когда маржи не хватает. Биржа сама закрывает позицию по ликвидационной цене <strong>рыночным ордером</strong>.</p>
+        <ul>
+          <li><strong>Long-ликвидация = принудительная ПРОДАЖА</strong> → давит цену вниз</li>
+          <li><strong>Short-ликвидация = принудительная ПОКУПКА</strong> → толкает цену вверх</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-liq="whatis"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Суть</span>Ликвидация — это <strong>недобровольная агрессия</strong>: маркет-ордер, который участник не хотел подавать. Именно поэтому она двигает цену сильнее обычной торговли.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Чем выше плечо, тем <strong>ближе</strong> ликвидационная цена к входу</li>
+          <li>Кластеры плеча (после трендового набора OI) → кластеры ликвидаций на одних ценах</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Ликвидации видны в фиде ликвидаций (поток событий) и на <strong>Liquidation Heatmap</strong> — где по цене скоплено плечо, готовое к ликвидации (§05, §07).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. ТОПЛИВО ─────── -->
+  <section class="section" id="fuel">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Почему имеет силу: топливо</span>
+      <span class="section-badge">fuel</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Ликвидация — это <strong>топливо</strong> движения, а не просто следствие:</p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#ffc599;background:var(--surface-2);border:1px solid var(--border-2);border-radius:8px;padding:11px 14px;text-align:center;">forced sell → цена ниже → задеты следующие ликв-цены → ещё forced sell → …</p>
+        <div class="hl green"><span class="hl-label">Главное</span>Вот почему резкие свечи и «вышибания» — это часто <strong>не новая информация, а механический каскад</strong> ликвидаций. Движение само себя подпитывает.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Ликвидации концентрируются там, где <strong>плечо плотное</strong> — обычно после направленного набора OI</li>
+          <li>Участок без плеча = нет топлива → каскад туда не дотягивается / гаснет</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Связь с OI</span>Каскад = резкий <strong>OI flush</strong> (позиции массово закрылись, см. <a href="oi.html" style="color:#d9b8ff;">OI</a>). Если OI не падает на проливе — это не ликвидации, а новый поток. Нет плеча — нет каскада.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. CASCADE ─────── -->
+  <section class="section" id="cascade">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Liquidation cascade</span>
+      <span class="section-badge">cascade</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Каскад</strong> — цепная реакция: цена входит в кластер → forced orders → цена идёт дальше → следующий кластер → … Это <strong>long-squeeze</strong> (вниз через long-ликвидации) или <strong>short-squeeze</strong> (вверх через short-ликвидации).</p>
+
+        <div class="diagram">
+          <div data-liq="cascade"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Каскад = <strong>климактический flush</strong>: вертикальная свеча, пик объёма и ликвидаций, обвал OI</li>
+          <li>Чаще это <strong>конец</strong> движения, а не начало нового тренда — топливо выгорает</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Не лови нож <em>в</em> каскаде — это вход против лавины. Жди исчерпания (§04): пик ликвидаций + absorption, а не «уже сильно упало».</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. EXHAUSTION ─────── -->
+  <section class="section" id="exhaustion">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Exhaustion / капитуляция</span>
+      <span class="section-badge">exhaustion</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Пик ликвидаций часто <strong>маркирует локальный экстремум</strong>: forced-продавцы вымыты → предложение кончилось → разворот.</p>
+
+        <div class="diagram">
+          <div data-liq="exhaustion"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Сетап</span>Spike ликвидаций <strong>+ absorption</strong> (поглощение) на лою = классическое дно. Зеркально для топа: short-liq spike + absorption.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Последовательность разворота: гигантская <strong>liq-свеча</strong> → <strong>absorption</strong> в footprint (forced sells впитаны) → разворот CVD/дельты → <strong>OI flush завершён</strong> (плечо очистилось).</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Тот же absorption</span>Это тот же сетап, что в <a href="keylevels.html" style="color:#d9b8ff;">Key levels</a> / VP: ликвидационный flush = снятие ликвидности + капитуляция → разворот <strong>с подтверждением потоком</strong>, а не на «отлёте».</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. HEATMAP ─────── -->
+  <section class="section" id="heatmap">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Liquidation levels и heatmap</span>
+      <span class="section-badge">magnet</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Ликвидационные уровни</strong> — оценочные цены, где кластеры плеча будут ликвидированы (считаются из OI, плеча и входов). <strong>Liquidation Heatmap</strong> подсвечивает их яркостью.</p>
+
+        <div class="diagram">
+          <div data-liq-heatmap></div>
+        </div>
+
+        <p>Цена <strong>тянется к кластерам</strong> (магнит): рынок ищет ликвидность → «liquidity grab» / охота за ликвидациями.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Кластер <strong>сверху</strong> = магнит вверх (там short-ликвидации); <strong>снизу</strong> = магнит вниз (long-ликвидации)</li>
+          <li>Крупный игрок может толкать цену <em>в</em> кластер, чтобы триггернуть ликвидации (каскад себе в пользу)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Нюанс</span>Heatmap — это <strong>вероятность, не гарантия</strong>; кластеры пересчитываются по мере движения OI. Используй как зону притяжения и где ждать каскад/разворот, а не как точную линию входа.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. СВЯЗКИ ─────── -->
+  <section class="section" id="confluence">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Связки: OI / CVD / funding</span>
+      <span class="section-badge">confluence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Ликвидации — часть картины <strong>делевериджа</strong>. Читай их в связке:</p>
+        <ul>
+          <li><strong>OI flush</strong> — позиции закрылись (<a href="oi.html" style="color:#9cc5ec;">OI</a>)</li>
+          <li><strong>CVD spike</strong> — forced market orders = резкий всплеск дельты (<a href="cvd.html" style="color:#9cc5ec;">CVD</a>)</li>
+          <li><strong>Funding reset</strong> — плечо очистилось, ставка к нулю (<a href="funding.html" style="color:#9cc5ec;">Funding</a>)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Фаза</th><th>OI</th><th>Funding</th><th>Ликвидации</th></tr></thead>
+          <tbody>
+            <tr><td>Перегрев (до каскада)</td><td>↑</td><td>экстрим</td><td>копятся кластеры</td></tr>
+            <tr><td>Каскад вниз</td><td>↓ резко</td><td>→ 0</td><td class="l">long-liq спайк</td></tr>
+            <tr><td>Short-squeeze вверх</td><td>↓ резко</td><td>→ 0</td><td class="s">short-liq спайк</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Разворотный стек</span>Лучший контекст разворота: <strong>liq-spike + OI flush + CVD-absorption + хвост у key level / VP-наки</strong>. Один спайк — гипотеза; стек слоёв — сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. MMT ─────── -->
+  <section class="section" id="mmt">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">В MMT</span>
+      <span class="section-badge">terminal</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Liquidation Heatmap</strong> — кластеры плеча по цене (магниты сверху/снизу)</li>
+          <li><strong>Фид ликвидаций</strong> — поток событий: размер и сторона (long/short)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Где кластеры <strong>сверху/снизу</strong> относительно цены — туда магнит</li>
+          <li>Размер liq-событий — climax (разовый гигант) vs ровный поток</li>
+          <li>Совпадение кластера с key level / naked POC = усиление</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Комбинируй Liquidation Heatmap с VPVR (naked POC) и HL Stops Map: где ликвидации + стопы + объёмный уровень сошлись — сильнейшая зона притяжения и разворота.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. PLAYBOOK ─────── -->
+  <section class="section" id="playbook">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Как торговать</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Ликвидации — это <strong>топливо и индикатор исчерпания</strong>, а не сигнал на вход сам по себе. Они говорят «где будет резко» и «где толпа сдалась», а триггер берёшь у потока.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Fade the flush</div>Liq-spike + absorption на key level → контртренд (разворот после капитуляции).</div>
+          <div class="card"><div class="card-title">Magnet / target</div>Кластер heatmap как цель/магнит — жди подхода и реакции у него.</div>
+          <div class="card"><div class="card-title">Не лови нож</div>В середине каскада не входишь — только после исчерпания.</div>
+          <div class="card"><div class="card-title">Перегрев → каскад</div>OI↑ + funding-экстрим + цена у кластера → жди триггер каскада.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>«Большие ликвидации = надо сразу лонговать» — нет. Нужен <strong>absorption + key level</strong>, иначе каскад продолжится в следующий кластер.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>key level / VP-наки → liq-кластер (магнит) → каскад/исчерпание → absorption (footprint/CVD) → вход. Стоп <strong>за liq-экстремум</strong>, R до следующего кластера/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── liquidations visual engine (candles + liq histogram, + heatmap) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',up:'#e2e5ea',down:'#565660',stroke:'#08080a',longliq:'#ff8c3a',shortliq:'#9cc5ec'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight); if(o.anchor)tx.setAttribute('text-anchor',o.anchor); tx.textContent=text;svg.appendChild(tx);return tx;}
+  function addArrowDef(svg){var defs=E('defs',{}),m=E('marker',{id:'liqA',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));defs.appendChild(m);svg.appendChild(defs);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  var Viz={
+    canvas:function(o){var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});
+      addArrowDef(svg); svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:o.rx||8,fill:o.bg||C.paper}));
+      if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:o.grid.color||C.grid,'stroke-width':1,'stroke-dasharray':o.grid.dash||'3 5'}));}}
+      return svg;},
+    line:function(svg,o){var a={x1:o.x1,y1:o.y1,x2:o.x2,y2:o.y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+      if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#liqA)'; svg.appendChild(E('line',a));},
+    text:function(svg,t,x,y,o){addText(svg,t,x,y,o||{});},
+    label:function(svg,text,x,y,o){o=o||{};var w=o.w||Math.max(36,text.length*6+14),h=o.h||18;
+      svg.appendChild(E('rect',{x:x-7,y:y-h+4,width:w,height:h,rx:o.rx||4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      addText(svg,text,x,y,{size:o.size||10,fill:o.fill||'#ececef',weight:o.weight||700,anchor:o.anchor});},
+    note:function(svg,o){var lines=Array.isArray(o.lines)?o.lines:[o.text||''],pad=o.pad||10,lineH=o.lineH||15;
+      var h=o.h||pad*2+lines.length*lineH,w=o.w||220;
+      svg.appendChild(E('rect',{x:o.x,y:o.y,width:w,height:h,rx:o.rx||6,fill:o.bg||'#101012',stroke:o.stroke||'#313137','stroke-width':1,opacity:o.opacity==null?0.96:o.opacity}));
+      if(o.title)addText(svg,o.title,o.x+pad,o.y+17,{size:o.titleSize||10,fill:o.titleColor||o.color||'#ececef',weight:700});
+      var startY=o.y+pad+(o.title?24:0);
+      lines.forEach(function(line,i){addText(svg,line,o.x+pad,startY+i*lineH,{size:o.size||10,fill:o.color||'#c6c6ce',weight:o.weight});});},
+    candle:function(svg,o){var up=o.c<=o.o,col=o.color||(up?C.up:C.down),cw=o.w||8;
+      Viz.line(svg,{x1:o.x,y1:o.h,x2:o.x,y2:o.l,color:col,width:o.wickWidth||1.05});
+      svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col,rx:o.rx||0}));},
+    candleWalk:function(svg,o){var rnd=mb32(o.seed||7),cs=[];
+      o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+        var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+        var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+        cs.push({o:op,h:hi,l:lo,c:cl});}});
+      cs.forEach(function(k,i){Viz.candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+      return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};},
+    marker:function(svg,o){svg.appendChild(E('circle',{cx:o.x,cy:o.y,r:o.r||11,fill:o.bg||C.paper,stroke:o.color||C.ink,'stroke-width':o.width||1.6}));
+      addText(svg,String(o.n),o.x,o.y+4,{anchor:'middle',size:o.size||12,fill:o.color||C.ink,weight:700});}
+  };
+
+  /* candles (upper) + liquidation histogram (lower): + short-liq up (blue), − long-liq down (orange) */
+  function liqStory(cf){
+    var W=1280,H=cf.h||540;
+    var lpBot=H-54, lpTop=H-176, lpMid=(lpTop+lpBot)/2, candBot=lpTop-16;
+    var svg=Viz.canvas({w:W,h:H,label:cf.label||'',grid:{start:80,end:candBot,step:56,x1:22,x2:W-22}});
+    if(cf.title) Viz.label(svg,cf.title,34,34,{w:cf.titleW||380,size:13});
+    var cw=cf.cw||14;
+    var walk=Viz.candleWalk(svg,{x0:cf.x0||120,dx:cf.dx||44,cw:cw,seed:cf.seed||7,legs:cf.legs});
+    var lvX2=walk.x(walk.n-1)+10;
+    Viz.line(svg,{x1:60,y1:lpTop-8,x2:lvX2+6,y2:lpTop-8,color:'#2a2a30',width:1});
+    Viz.text(svg,'LIQUIDATIONS',64,lpTop+6,{size:10,fill:'#8a8a92',weight:700});
+    Viz.line(svg,{x1:60,y1:lpMid,x2:lvX2+6,y2:lpMid,color:'#3a3a42',width:1,dash:'4 4'});
+    var vals=cf.liq,max=Math.max.apply(null,vals.map(function(v){return Math.abs(v);}))||1,halfH=lpMid-lpTop-6;
+    vals.forEach(function(v,i){var x=walk.x(i),hh=Math.abs(v)/max*halfH,col=v>=0?C.shortliq:C.longliq;
+      var y=v>=0?lpMid-hh:lpMid;
+      svg.appendChild(E('rect',{x:x-cw/2,y:y,width:cw,height:Math.max(2,hh),rx:1,fill:col,opacity:0.85}));});
+    addText(svg,'+ short liq (forced buy)',lvX2+12,lpTop+12,{size:10,fill:C.shortliq,weight:700});
+    addText(svg,'− long liq (forced sell)',lvX2+12,lpBot-2,{size:10,fill:C.longliq,weight:700});
+    (cf.markers||[]).forEach(function(m){Viz.marker(svg,{n:m.n,x:walk.x(m.at),y:m.y,color:m.color});});
+    (cf.notes||[]).forEach(function(nt){Viz.note(svg,nt);});
+    (cf.legend||[]).forEach(function(t,i){Viz.text(svg,t,640,H-26+i*0,{anchor:'middle',size:12,fill:'#c6c6ce'});});
+    return svg;
+  }
+
+  function liqHeatmapSVG(){
+    var W=1280,H=540,svg=Viz.canvas({w:W,h:H,label:'Liquidation heatmap — кластеры как магнит',grid:{start:80,end:470,step:60,x1:22,x2:900}});
+    Viz.label(svg,'Liquidation heatmap: кластеры плеча = магнит цены',34,34,{w:400,size:13});
+    /* heat cluster bands (stacked rows, brighter toward center) */
+    function cluster(yc,half,rgb,x1,x2){var rows=7,i;for(i=0;i<rows;i++){var t=Math.abs(i-(rows-1)/2)/((rows-1)/2);
+      var op=(0.30*(1-t)+0.05).toFixed(2),yy=yc-half+i*(2*half/rows);
+      svg.appendChild(E('rect',{x:x1,y:yy,width:x2-x1,height:2*half/rows+0.6,fill:rgb,opacity:op}));}}
+    cluster(150,30,'rgb(156,197,236)',70,900);     // short-liq cluster (up magnet)
+    cluster(360,34,'rgb(255,140,58)',70,900);       // long-liq cluster (price grabs here)
+    /* candles: balance ~250, dip into lower cluster, reverse up */
+    var walk=Viz.candleWalk(svg,{x0:130,dx:30,cw:11,seed:6,legs:[{n:6,from:250,to:255,vol:9,wick:8},{n:3,from:255,to:360,vol:10,wick:22},{n:7,from:360,to:248,vol:11,wick:10}]});
+    addText(svg,'short-liq cluster — магнит вверх',76,150-38,{size:11,fill:'#bcdcf6',weight:700});
+    addText(svg,'long-liq cluster — сюда тянет, тут grab',76,360+50,{size:11,fill:'#ffc599',weight:700});
+    /* grab marker at the dip */
+    var gx=walk.x(8),gy=362;
+    Viz.line(svg,{x1:gx,y1:gy+18,x2:gx,y2:gy+44,color:'#ffc599',width:1.2,dash:'3 3',opacity:0.8});
+    Viz.marker(svg,{n:1,x:gx,y:gy,color:'#ffc599'});
+    Viz.note(svg,{x:952,y:120,w:300,h:170,title:'Liquidity grab → разворот',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+      lines:['① цена ныряет В нижний кластер','② триггерит long-ликвидации','   (forced sells = пик)','③ топливо выгорает → absorption','④ разворот вверх к верхнему','   кластеру (следующий магнит).']});
+    Viz.text(svg,'Кластер = вероятностная зона притяжения и каскада, не точная линия входа.',470,H-16,{anchor:'middle',size:12,fill:'#8a8a92'});
+    return svg;
+  }
+
+  var LIQ={
+    whatis:{label:'Long-ликвидации давят цену вниз',title:'Падение цены → long-ликвидации (forced sells)',h:540,x0:120,dx:42,cw:14,seed:5,
+      legs:[{n:12,from:300,to:172,vol:12,wick:11}],
+      liq:[-3,-5,-4,-8,-6,-12,-10,-18,-14,-9,-6,-4],
+      notes:[{x:952,y:120,w:300,h:128,title:'Forced selling',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+        lines:['Цена падает → у лонгов кончается','маржа → биржа закрывает их','рыночной ПРОДАЖЕЙ.','Это давит цену ещё ниже.']}],
+      legend:['Long-ликвидация = принудительная продажа → дополнительное давление вниз.']},
+
+    cascade:{label:'Каскад ликвидаций',title:'Каскад: forced sell → ниже → новые ликвидации',h:560,x0:118,dx:42,cw:13,seed:9,
+      legs:[{n:5,from:250,to:256,vol:8,wick:7},{n:8,from:256,to:432,vol:16,wick:13}],
+      liq:[-1,-2,-1,-3,-2,-22,-44,-72,-96,-60,-30,-14,-6],
+      markers:[{n:1,at:7,y:300,color:'#ff8c3a'},{n:2,at:8,y:360,color:'#ffc599'}],
+      notes:[{x:952,y:108,w:300,h:150,title:'Цепная реакция',titleColor:'#ffc599',size:13,lineH:19,titleSize:13,
+        lines:['① цена входит в кластер плеча','② forced sells → ниже','③ задеты следующие ликв-цены','   → новые forced sells.','Вертикаль + пик ликвидаций','+ обвал OI = климакс.']}],
+      legend:['Каскад вниз (long-squeeze): самоусиление через цепочку long-ликвидаций.']},
+
+    exhaustion:{label:'Капитуляция → разворот',title:'Пик ликвидаций = washout → разворот',h:560,x0:120,dx:42,cw:13,seed:3,
+      legs:[{n:7,from:268,to:362,vol:14,wick:12},{n:6,from:362,to:250,vol:12,wick:11}],
+      liq:[-8,-14,-22,-34,-52,-74,-100,-42,-12,4,8,6,3],
+      markers:[{n:1,at:6,y:332,color:'#ff8c3a'}],
+      notes:[{x:952,y:108,w:300,h:158,title:'Исчерпание',titleColor:'#ffe08a',size:13,lineH:19,titleSize:13,
+        lines:['① гигантский long-liq спайк','   = forced-продавцы вымыты','② предложение кончилось','③ absorption на лою','④ разворот вверх','   (short-liq на отскоке).']}],
+      legend:['Spike ликвидаций + absorption на лою = капитуляция → разворот (с подтверждением потоком).']}
+  };
+
+  document.querySelectorAll('[data-liq]').forEach(function(d){var cf=LIQ[d.dataset.liq];if(cf)d.appendChild(liqStory(cf));});
+  document.querySelectorAll('[data-liq-heatmap]').forEach(function(d){d.appendChild(liqHeatmapSVG());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

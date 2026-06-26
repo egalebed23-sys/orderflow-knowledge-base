@@ -118,14 +118,14 @@
     <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item active" href="#"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
-    <a class="nav-item disabled"><span class="nav-num">08</span> OB imbalance <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">09</span> Liquidations <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">10</span> Orderbook heatmap <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
     <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">13</span> VWAP <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">14</span> Key levels <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Stacked imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
     <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
   </div>
@@ -298,9 +298,9 @@
         <div class="hl red"><span class="hl-label">Ловушка (Dalton)</span>POC <strong>нельзя</strong> использовать вслепую. Нужен контекст: в консолидациях/рейнджах работает хорошо, в сильном тренде — хуже. Подтверждай orderflow, моментумом или price action.</div>
         <div class="diagram">
           <div data-vp-npoc></div>
-          <div class="diagram-cap">nPOC — не вечный уровень. После первого теста оцени результат: rejection сохраняет интерес, acceptance/sweep переводит уровень в историю.</div>
+          <div class="diagram-cap">Линия — vPOC завершённого профиля; маркеры показывают first touch и повторное взаимодействие.</div>
         </div>
-        <div class="hl azure"><span class="hl-label">В MMT</span>На первом тесте nPOC наблюдай скорость подхода, CVD и строительство нового объёма. Реакция важнее самого факта касания.</div>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Помечай fresh nPOC и tested nPOC разными статусами. После теста это уже не исходная зона, а часть нового аукциона.</div>
       </div>
 
     </div>
@@ -993,12 +993,12 @@
     Viz.text(svg,'profile by price',166,414,{size:11,fill:'#8a8a92'});
 
     Viz.note(svg,{x:560,y:430,w:300,h:74,title:'Как читать',titleColor:'#c6c6ce',titleSize:12,size:11.5,lineH:18,
-      lines:['VAH/VAL — края value area.', 'POC — пик объёма.', 'Реакцию подтверждает текущий поток.']});
+      lines:['VAH/VAL — края value area.', 'POC — пик объёма.', 'Сначала range, потом уровни.']});
     Viz.note(svg,{x:895,y:430,w:300,h:74,title:'Что показывает VP',titleColor:'#ffe08a',titleSize:12,size:11.5,lineH:18,
       lines:['Объём на каждой цене.', 'Толстые зоны = accepted business.', 'Тонкие зоны = low participation.']});
 
     Viz.text(svg,'Горизонтальная гистограмма: объём распределён по цене, а не по времени. Цвета показывают up/down contribution внутри каждого ряда.',640,540,{anchor:'middle',size:12,fill:'#c6c6ce'});
-    Viz.text(svg,'Профиль — карта прошлого бизнеса; торговая идея появляется только после реакции цены, CVD/footprint/OI и режима.',640,560,{anchor:'middle',size:11,fill:'#8a8a92'});
+    Viz.text(svg,'Главная проверка качества: профиль должен совпадать с теми ценами, где график реально торговался.',640,560,{anchor:'middle',size:11,fill:'#8a8a92'});
     return svg;
   }
 
@@ -1248,9 +1248,9 @@
     drawVpLevels(svg,prof,meta,{x1:58,x2:x2,labelX:x2+14});
     Viz.text(svg,cfg.title,640,82,{anchor:'middle',size:11,fill:'#8a8a92'});
     Viz.text(svg,'profile by price',84,414,{size:11,fill:'#8a8a92'});
-    Viz.note(svg,{x:72,y:430,w:390,h:82,title:cfg.noteA,titleColor:kind==='lvn'?'#ffb37a':'#d9b8ff',titleSize:12,size:11,lineH:17,lines:['Исторический объём задаёт location.', 'Сигнал появляется только после реакции.', 'Не торгуй касание линии вслепую.']});
-    Viz.note(svg,{x:814,y:430,w:390,h:82,title:cfg.noteB,titleColor:'#ffe08a',titleSize:12,size:11,lineH:17,lines:['Смотри acceptance / rejection.', 'Подтверждай через CVD, footprint, OI.', 'Учитывай текущий market regime.']});
-    Viz.text(svg,'Profile показывает прошлый бизнес; актуальность уровня подтверждается только текущим потоком и поведением цены.',640,558,{anchor:'middle',size:12,fill:'#c6c6ce'});
+    Viz.note(svg,{x:72,y:430,w:390,h:82,title:cfg.noteA,titleColor:kind==='lvn'?'#ffb37a':'#d9b8ff',titleSize:12,size:11,lineH:17,lines:['Толстый участок = accepted business.', 'Тонкий участок = быстрый переход.', 'График должен подтверждать форму профиля.']});
+    Viz.note(svg,{x:814,y:430,w:390,h:82,title:cfg.noteB,titleColor:'#ffe08a',titleSize:12,size:11,lineH:17,lines:['Rejection: зона пока держится.', 'Acceptance: уровень меняет роль.', 'Нет реакции: пропускаем.']});
+    Viz.text(svg,'Профиль даёт карту location; текущий аукцион показывает, осталась ли эта карта рабочей.',640,558,{anchor:'middle',size:12,fill:'#c6c6ce'});
     return svg;
   }
 
@@ -1263,9 +1263,9 @@
     Viz.level(svg,{x1:58,x2:1215,y:py,color:'#ffd23f',width:2.2,label:'nPOC · POC завершённого профиля',labelX:60,labelY:py-10,labelSize:13});
     addText(svg,'ПРОШЛЫЙ ПРОФИЛЬ',58,94,{size:12,fill:'#d9b8ff',weight:700});
     var cards=[
-      {x:354,y:58,title:'1 · НЕ ТЕСТИРОВАН',color:'#d9b8ff',lines:['reference остаётся активным','но не обещает реакцию']},
-      {x:640,y:58,title:'2 · ПЕРВЫЙ ТЕСТ',color:'#ffd23f',lines:['наблюдай скорость, CVD','и строительство объёма']},
-      {x:926,y:58,title:'3 · РЕЗУЛЬТАТ',color:'#ffb37a',lines:['rejection сохраняет интерес','acceptance/sweep меняет карту']}
+      {x:354,y:58,title:'1 · FRESH',color:'#d9b8ff',lines:['уровень ещё не обработан','контекст остаётся открытым']},
+      {x:640,y:58,title:'2 · FIRST TOUCH',color:'#ffd23f',lines:['оцени скорость подхода','и новый объём у линии']},
+      {x:926,y:58,title:'3 · STATUS UPDATE',color:'#ffb37a',lines:['оставить как reference','или перевести в историю']}
     ];
     cards.forEach(function(c){
       svg.appendChild(E('rect',{x:c.x,y:c.y,width:250,height:94,rx:7,fill:'#101012',stroke:c.color,'stroke-width':1.3}));
@@ -1276,9 +1276,9 @@
     var walk=priceCandles(svg,{x0:330,dx:12.6,cw:5.5,wickWidth:0.8,yTop:168,yBottom:366,min:98,max:116,start:103,seq:npocSeq,gaps:[0,1,-1,2,-2,0,1,-1,0,2,-2,1,0,-1],wicks:[1.4,2.0,1.2,2.7,1.5,2.2,1.3,2.5]});
     Viz.marker(svg,{n:1,x:walk.x(15),y:py,color:'#ffd23f'});
     Viz.marker(svg,{n:2,x:walk.x(39),y:py,color:'#ffb37a'});
-    Viz.text(svg,'первый тест: реакция',walk.x(15),py+42,{anchor:'middle',size:11,fill:'#ffd23f',weight:700});
-    Viz.text(svg,'повторный тест: уровень уже изменён',walk.x(39),py+42,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
-    Viz.text(svg,'Не считай nPOC вечным магнитом: после взаимодействия оцени новый аукцион.',640,438,{anchor:'middle',size:13,fill:'#c6c6ce'});
+    Viz.text(svg,'first touch',walk.x(15),py+42,{anchor:'middle',size:11,fill:'#ffd23f',weight:700});
+    Viz.text(svg,'tested reference',walk.x(39),py+42,{anchor:'middle',size:11,fill:'#ffb37a',weight:700});
+    Viz.text(svg,'fresh → test → update status',640,438,{anchor:'middle',size:13,fill:'#c6c6ce'});
     return svg;
   }
 

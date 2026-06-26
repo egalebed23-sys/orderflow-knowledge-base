@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VWAP · средняя по объёму</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .nav-sep { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 12px 12px 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: 940px; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: 940px; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: 940px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: 940px; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .formula { font-family: 'JetBrains Mono', monospace; font-size: 14px; background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 8px; padding: 13px 16px; margin: 10px 0; color: #fff; text-align: center; letter-spacing: 0.3px; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item active" href="#"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div class="nav-sep">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое VWAP</a>
+    <a href="#why">02 · Почему имеет силу</a>
+    <a href="#rolling">03 · Rolling: D / W / M</a>
+    <a href="#bands">04 · VWAP bands (σ)</a>
+    <a href="#naked">05 · Naked VWAP</a>
+    <a href="#avwap">06 · Anchored VWAP (AVWAP)</a>
+    <a href="#method">07 · Как использовать</a>
+    <a href="#playbook">08 · Playbook</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>VWAP · средняя по объёму</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>VWAP · средняя цена по объёму</h1>
+    <p>// институциональный fair value: rolling, bands, naked, anchored</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">В <strong>Market Monkey Terminal</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) VWAP — слой с rolling-периодами (D/W/M), σ-полосами и <strong>Anchored VWAP</strong>. Это динамический «справедливый» центр, родственник <a href="keylevels.html" style="color:#d9b8ff;border:none;">key levels</a> (но эволюционирует во времени) и <a href="volumeprofile.html" style="color:#d9b8ff;border:none;">POC</a> (но взвешен по времени, а не статичен).</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое VWAP</span>
+      <span class="section-badge">fair value</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>VWAP</strong> (Volume Weighted Average Price) — средняя цена, <strong>взвешенная по объёму</strong> за период. «Истинная средняя», институциональный бенчмарк справедливой цены.</p>
+        <div class="formula">VWAP = Σ(цена × объём) ÷ Σ(объём)</div>
+
+        <div class="diagram">
+          <div data-vwap="whatis"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Отличие от MA</span>В отличие от простой скользящей средней, VWAP взвешивает по <strong>объёму</strong> — где реально прошёл бизнес. Это «справедливая цена», от которой пляшут алго. Роли: bias-пивот + якорь mean-reversion + динамический S/R.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Сбрасывается на старте периода (session / daily VWAP) и эволюционирует во времени</li>
+          <li><strong>Выше VWAP</strong> = контроль покупателей, <strong>ниже</strong> = продавцов (как opens)</li>
+          <li>Цена тяготеет <strong>вернуться к VWAP</strong> — это якорь</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>VWAP с rolling-периодами (D/W/M, §03), σ-полосами (§04) и Anchored VWAP (§06) — это семейство динамических уровней справедливой цены.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. ПОЧЕМУ ─────── -->
+  <section class="section" id="why">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Почему имеет силу</span>
+      <span class="section-badge">mechanism</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>VWAP держит, потому что это бенчмарк <strong>реальных потоков</strong>:</p>
+        <ul>
+          <li><strong>Алго исполнения</strong> (VWAP/TWAP) равняются на VWAP → реальный поток его защищает</li>
+          <li><strong>Фонды</strong> меряют качество исполнения относительно VWAP: купил выше VWAP — плохо, ниже — хорошо</li>
+          <li>Это «справедливая цена», на которой сходятся интрадей → <strong>mean reversion</strong></li>
+        </ul>
+        <div class="hl green"><span class="hl-label">Главное</span>Вот почему цена возвращается к VWAP — это не магия, а <strong>алго и бенчмарки</strong>, тянущие исполнение к средней. Реальный механизм, а не «линия на графике».</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Чем больше участников меряются по VWAP (ликвидный инструмент, активная сессия) — тем <strong>сильнее притяжение</strong>. На тонком/неликвидном — VWAP слабее.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Связь с opens</span>В <a href="keylevels.html" style="color:#d9b8ff;">Key levels</a> open мин-реверсит к VWAP. VWAP — более «умный» центр, чем raw open: он учитывает, <em>где</em> прошёл объём, а не только точку старта.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. ROLLING ─────── -->
+  <section class="section" id="rolling">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Rolling: session / daily / weekly / monthly</span>
+      <span class="section-badge">rolling</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>VWAP привязан к старту периода и <strong>сбрасывается</strong>:</p>
+        <ul>
+          <li><strong>Session / Daily</strong> — интрадей-бенчмарк (сброс каждый день)</li>
+          <li><strong>Weekly / Monthly</strong> — HTF справедливая цена (свинговый якорь)</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-vwap="rolling"></div>
+        </div>
+
+        <p>Несколько rolling VWAP = <strong>веер референсов</strong> справедливой цены на разных ТФ.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Daily VWAP — интрадей-якорь; weekly/monthly — для свинга</li>
+          <li>Совпадение нескольких rolling VWAP на одной цене = усиление зоны</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Мультитайм</span>Как в Key levels: цена выше weekly VWAP, но ниже daily = смешанный bias. <strong>Выравнивание ТФ</strong> (над/под обоими) = сильный направленный сигнал.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. BANDS ─────── -->
+  <section class="section" id="bands">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">VWAP bands (σ)</span>
+      <span class="section-badge">bands</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Вокруг VWAP строят полосы стандартного отклонения (<strong>±1σ, ±2σ</strong>) — где цена «растянута» от справедливой.</p>
+
+        <div class="diagram">
+          <div data-vwap="bands"></div>
+        </div>
+
+        <ul>
+          <li><strong>Mean reversion:</strong> от ±2σ обратно к VWAP (в рейндже)</li>
+          <li><strong>Band-walk:</strong> в сильном тренде цена «идёт по полосе»</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>±1σ ≈ обычный диапазон; выход за <strong>±2σ</strong> = перерастянуто</li>
+          <li>В рейндже → реверсия к VWAP; в тренде → сила (band-walk)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Не фейди band-walk вслепую: полоса = перерастянутость, но сильный тренд может «ехать» по ±2σ долго. Сначала определи режим (рейндж vs тренд).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. NAKED ─────── -->
+  <section class="section" id="naked">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Naked VWAP</span>
+      <span class="section-badge">magnet</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Naked VWAP</strong> — непротестированный VWAP (или VWAP прошлого периода, к которому ещё не возвращались). Работает как магнит, по аналогии с naked POC: цена тяготеет вернуться.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Naked daily/weekly VWAP прошлой сессии = цель и референс на сегодня</li>
+          <li>Закрытие предыдущего периода у VWAP = ожидаемый ретест</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Naked VWAP + naked POC на одной цене = сильная зона притяжения. Совпадение динамического (VWAP) и статичного (POC) центров справедливой цены.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. AVWAP ─────── -->
+  <section class="section" id="avwap">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Anchored VWAP (AVWAP)</span>
+      <span class="section-badge">anchored</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>AVWAP</strong> — VWAP, привязанный к <strong>конкретному событию</strong> (свинг-хай/лоу, пробой, новость, годовое открытие, листинг), а не к календарю.</p>
+
+        <div class="diagram">
+          <div data-vwap="avwap"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Смысл</span>Это <strong>breakeven когорты</strong>: средняя цена всех, кто вошёл с момента события → «в плюсе или минусе держатели с момента X?». Поэтому AVWAP — сильный S/R.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>AVWAP от значимого <strong>лоя</strong> = поддержка (купившие там — в профите, защищают); от <strong>хая</strong> = сопротивление</li>
+          <li><strong>yVWAP</strong> (годовой anchored) — важный HTF-якорь справедливой цены</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Эдж</span>Якорь к реальному событию (капитуляция, breakout, HTF-свинг) даёт самый «осмысленный» S/R — уровень <strong>безубытка</strong> вошедших там. Реклейм / потеря AVWAP = смена контроля когорты.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. КАК ИСПОЛЬЗОВАТЬ ─────── -->
+  <section class="section" id="method">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Как использовать</span>
+      <span class="section-badge">method</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>VWAP = <strong>bias + mean-reversion + динамический S/R</strong>:</p>
+        <ul>
+          <li>Выше = лонг-уклон, ниже = шорт-уклон</li>
+          <li>От полос (±2σ) — реверсия к VWAP</li>
+          <li>Reclaim / reject VWAP или AVWAP = триггер смены контроля</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Bias-фильтр</div>Торгуй в сторону положения относительно VWAP (над → лонги, под → шорты).</div>
+          <div class="card"><div class="card-title">Band reversion</div>От ±2σ обратно к VWAP — в рейндже / сбалансированном дне.</div>
+          <div class="card"><div class="card-title">AVWAP S/R</div>Фейд / отбой от AVWAP значимого события (свинг, пробой, yVWAP).</div>
+          <div class="card"><div class="card-title">VWAP reclaim</div>Возврат и закрепление через VWAP = смена интрадей-контроля.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Стек конфлюэнса</span>Сильнейшая зона: weekly VWAP + AVWAP от HTF-свинга + naked POC + key level на одной цене. VWAP/AVWAP добавляют <em>динамический</em> слой к статичным уровням.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. PLAYBOOK ─────── -->
+  <section class="section" id="playbook">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Playbook</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>VWAP — динамический центр справедливой цены и <strong>bias-фильтр</strong>, а не вход сам по себе. Триггер берёшь у reclaim/reject + поток.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Чек-лист перед сессией:</p>
+        <ul>
+          <li>Нанеси <strong>daily + weekly VWAP</strong> и σ-полосы</li>
+          <li><strong>AVWAP</strong> от последнего значимого свинга / пробоя (и yVWAP на свинге)</li>
+          <li>Определи bias (выше/ниже) и растянутость (полосы)</li>
+          <li>Жди reclaim / reject у конфлюэнса + подтверждение потоком</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Band-walk в тренде: не фейди ±2σ вслепую — сначала режим. И VWAP сам по себе не сигнал, нужен триггер (reclaim/reject + поток).</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>VWAP/AVWAP (центр/якорь) → bias + растянутость → reclaim/reject у конфлюэнса → поток-триггер (CVD/footprint) → вход. Стоп за VWAP/полосу, R до следующей полосы/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── VWAP visuals: candles + computed VWAP line(s) + bands + AVWAP ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',up:'#e2e5ea',down:'#565660',vwap:'#c98bff',weekly:'#9cc5ec',avwap:'#ffd23f',band:'#6a6a72'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function addText(svg,text,x,y,o){o=o||{};var tx=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)tx.setAttribute('font-weight',o.weight); if(o.anchor)tx.setAttribute('text-anchor',o.anchor); tx.textContent=text;svg.appendChild(tx);return tx;}
+  function arrowDef(svg){var d=E('defs',{}),m=E('marker',{id:'vwA',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:C.ink,opacity:0.82}));d.appendChild(m);svg.appendChild(d);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function canvas(o){var svg=E('svg',{viewBox:'0 0 '+o.w+' '+o.h,width:'100%',role:'img','aria-label':o.label||''});arrowDef(svg);
+    svg.appendChild(E('rect',{x:0,y:0,width:o.w,height:o.h,rx:8,fill:C.paper}));
+    if(o.grid){for(var y=o.grid.start;y<=o.grid.end;y+=o.grid.step){svg.appendChild(E('line',{x1:o.grid.x1||18,y1:y,x2:o.grid.x2||o.w-18,y2:y,stroke:C.grid,'stroke-width':1,'stroke-dasharray':'3 5'}));}}
+    return svg;}
+  function lab(svg,s,x,y,o){o=o||{};var w=o.w||(s.length*6.4+16);
+    svg.appendChild(E('rect',{x:x-7,y:y-14,width:w,height:18,rx:4,fill:'#101012',stroke:'#25252a','stroke-width':1,opacity:0.96}));
+    addText(svg,s,x,y,{size:o.size||11,fill:'#ececef',weight:700});}
+  function candle(svg,o){var up=o.c<=o.o,col=up?C.up:C.down,cw=o.w||9;
+    svg.appendChild(E('line',{x1:o.x,y1:o.h,x2:o.x,y2:o.l,stroke:col,'stroke-width':1.05}));
+    svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col}));}
+  function candleWalk(svg,o){var rnd=mb32(o.seed||7),cs=[];
+    o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+      var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+      var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+      cs.push({o:op,h:hi,l:lo,c:cl});}});
+    cs.forEach(function(k,i){candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+    return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};}
+  function poly(svg,pts,o){o=o||{};var d=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+    svg.appendChild(E('path',{d:d,fill:'none',stroke:o.color||C.ink,'stroke-width':o.width||2,'stroke-linejoin':'round','stroke-dasharray':o.dash||'','marker-end':o.arrow?'url(#vwA)':null}));}
+
+  function vwapStory(cf){
+    var W=1280,H=cf.h||520,svg=canvas({w:W,h:H,label:cf.title||'',grid:{start:90,end:430,step:56,x1:22,x2:W-22}});
+    lab(svg,cf.title,34,34,{w:cf.titleW||420,size:13});
+    var walk=candleWalk(svg,{x0:cf.x0||110,dx:cf.dx||44,cw:cf.cw||12,seed:cf.seed||7,legs:cf.legs});
+    var N=walk.n,cs=walk.cs,lvX2=walk.x(N-1)+8,i;
+    function tp(i){return (cs[i].h+cs[i].l+cs[i].c)/3;}
+    function series(resets,from){from=from||0;var sP=0,sV=0,out=[];for(i=0;i<N;i++){if(resets.indexOf(i)>=0){sP=0;sV=0;}
+      sP+=tp(i);sV++; out.push((i>=from)?sP/sV:null);}return out;}
+    var resets=cf.resets||[];
+    /* bands (behind) */
+    if(cf.bands){var vw0=series(resets,0),up=[],dn=[];
+      for(i=0;i<N;i++){var off=cf.bandBase+i*(cf.bandGrow||0.8);up.push([walk.x(i),vw0[i]-off]);dn.push([walk.x(i),vw0[i]+off]);}
+      poly(svg,up,{color:C.band,width:1.2,dash:'5 5'});poly(svg,dn,{color:C.band,width:1.2,dash:'5 5'});
+      addText(svg,'+2σ',lvX2+4,up[N-1][1]+4,{size:10,fill:C.band,weight:700});
+      addText(svg,'−2σ',lvX2+4,dn[N-1][1]+4,{size:10,fill:C.band,weight:700});}
+    /* weekly vwap (continuous) */
+    if(cf.weekly){var wv=series([],0),wp=wv.map(function(v,i){return [walk.x(i),v];});
+      poly(svg,wp,{color:C.weekly,width:2.2});addText(svg,'weekly VWAP',lvX2+4,wv[N-1]+4,{size:10.5,fill:C.weekly,weight:700});}
+    /* main vwap (daily, segmented by resets) */
+    if(!cf.noMain){var mv=series(resets,0),seg=[];
+      for(i=0;i<N;i++){if(resets.indexOf(i)>=0 && seg.length){poly(svg,seg,{color:C.vwap,width:2.6});seg=[];}seg.push([walk.x(i),mv[i]]);}
+      if(seg.length)poly(svg,seg,{color:C.vwap,width:2.6});
+      addText(svg,cf.mainLabel||'VWAP',lvX2+4,mv[N-1]+4,{size:10.5,fill:C.vwap,weight:700});}
+    /* anchored vwap */
+    if(cf.avwap!=null){var av=series([cf.avwap],cf.avwap),ap=[];for(i=cf.avwap;i<N;i++)ap.push([walk.x(i),av[i]]);
+      poly(svg,ap,{color:C.avwap,width:2.8});addText(svg,'AVWAP',lvX2+4,av[N-1]+4,{size:10.5,fill:C.avwap,weight:700});
+      var ax=walk.x(cf.avwap),ay=tp(cf.avwap);svg.appendChild(E('circle',{cx:ax,cy:ay,r:6,fill:C.avwap}));
+      addText(svg,'anchor',ax-4,ay+22,{size:10,fill:'#ffe08a',weight:700,anchor:'middle'});}
+    (cf.markers||[]).forEach(function(m){svg.appendChild(E('circle',{cx:walk.x(m.at),cy:m.y,r:11,fill:C.paper,stroke:m.color||C.ink,'stroke-width':1.6}));
+      addText(svg,String(m.n),walk.x(m.at),m.y+4,{anchor:'middle',size:12,fill:m.color||C.ink,weight:700});});
+    (cf.notes||[]).forEach(function(n){svg.appendChild(E('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:6,fill:'#101012',stroke:'#313137','stroke-width':1,opacity:0.96}));
+      addText(svg,n.title,n.x+10,n.y+17,{size:12.5,fill:n.titleColor||'#ececef',weight:700});
+      n.lines.forEach(function(l,i){addText(svg,l,n.x+10,n.y+39+i*18,{size:11,fill:'#c6c6ce'});});});
+    if(cf.cap)addText(svg,cf.cap,640,H-14,{anchor:'middle',size:12,fill:'#8a8a92'});
+    return svg;
+  }
+
+  var VW={
+    whatis:{title:'VWAP: цена возвращается к справедливой средней',h:500,x0:120,dx:42,cw:13,seed:5,
+      legs:[{n:6,from:255,to:212,vol:15,wick:12},{n:6,from:212,to:282,vol:16,wick:13},{n:6,from:282,to:222,vol:15,wick:12},{n:6,from:222,to:250,vol:14,wick:11}],
+      mainLabel:'VWAP',
+      notes:[{x:952,y:120,w:300,h:120,title:'Якорь справедливой цены',titleColor:'#d9b8ff',
+        lines:['Средняя, взвешенная по объёму.','Цена растягивается и','возвращается к VWAP (reversion).']}],
+      cap:'Выше VWAP — bias бычий, ниже — медвежий; цена тяготеет к средней.'},
+
+    rolling:{title:'Rolling VWAP: daily (сброс) + weekly (непрерывный)',h:500,x0:110,dx:30,cw:11,seed:8,
+      legs:[{n:24,from:300,to:152,vol:13,wick:11}],
+      resets:[8,16],weekly:true,mainLabel:'daily VWAP',
+      notes:[{x:952,y:120,w:300,h:120,title:'Веер VWAP',titleColor:'#d9b8ff',
+        lines:['Daily сбрасывается каждую','сессию; weekly идёт непрерывно.','Несколько ТФ = веер fair value.']}],
+      cap:'Daily VWAP перезапускается с каждой сессией; weekly — общий HTF-якорь.'},
+
+    bands:{title:'VWAP bands: ±2σ → возврат к VWAP',h:500,x0:120,dx:42,cw:13,seed:11,
+      legs:[{n:6,from:250,to:198,vol:13,wick:11},{n:5,from:198,to:252,vol:13,wick:11},{n:6,from:252,to:304,vol:14,wick:12},{n:7,from:304,to:248,vol:13,wick:11}],
+      bands:true,bandBase:30,bandGrow:0.4,mainLabel:'VWAP',
+      markers:[{at:5,y:190,color:'#ffc599'},{at:16,y:312,color:'#9cc5ec'}],
+      notes:[{x:952,y:120,w:300,h:120,title:'σ-полосы',titleColor:'#ffc599',
+        lines:['±2σ = перерастянуто.','В рейндже → реверсия к VWAP.','В тренде → band-walk (не фейдить).']}],
+      cap:'Растяжение к ±2σ → возврат к VWAP (mean reversion в сбалансированном режиме).'},
+
+    avwap:{title:'Anchored VWAP: якорь от значимого лоя = поддержка',h:500,x0:120,dx:42,cw:13,seed:3,
+      legs:[{n:6,from:232,to:332,vol:14,wick:12},{n:18,from:332,to:178,vol:13,wick:11}],
+      noMain:true,avwap:6,
+      notes:[{x:952,y:120,w:300,h:150,title:'Breakeven когорты',titleColor:'#ffe08a',
+        lines:['AVWAP от лоя = средняя цена','всех, кто вошёл с того момента.','Купившие там — в профите','→ защищают → поддержка.','yVWAP (годовой) — HTF-якорь.']}],
+      cap:'AVWAP от значимого события растёт как поддержка — уровень безубытка вошедшей когорты.'}
+  };
+
+  document.querySelectorAll('[data-vwap]').forEach(function(d){var cf=VW[d.dataset.vwap];if(cf)d.appendChild(vwapStory(cf));});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>

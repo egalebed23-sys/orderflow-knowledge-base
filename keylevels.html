@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key levels · ключевые уровни</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .nav-sep { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 12px 12px 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: 940px; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: 940px; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: 940px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: 940px; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item active" href="#"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
+    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <div class="nav-sep">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что такое key levels</a>
+    <a href="#why-power">02 · Почему уровни имеют силу</a>
+    <a href="#opens">03 · Открытия периодов</a>
+    <a href="#prevhl">04 · Экстремумы прошлых периодов</a>
+    <a href="#monday">05 · Monday range / каркас недели</a>
+    <a href="#sessions">06 · Сессии и Initial Balance</a>
+    <a href="#round">07 · Round numbers и реперы</a>
+    <a href="#method">08 · Как использовать</a>
+    <a href="#playbook">09 · Pre-market чек-лист</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Key levels · ключевые уровни</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Key levels · ключевые уровни</h1>
+    <p>// объективные временны́е и календарные референсы: opens, prev H/L, Monday range</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">MMT</span>
+    <div class="pn-txt">Стандартные key levels — это <strong>объективные временны́е/календарные референсы</strong>, которые видят все: открытия периодов, экстремумы прошлых дней/недель, Monday range, сессии, round numbers. В <strong>MMT</strong> (<a href="https://app.mmt.gg/" target="_blank" rel="noopener">app.mmt.gg</a>) их отмечают session-инструментами; объёмные уровни (naked POC, VAH/VAL) из раздела <a href="volumeprofile.html" style="color:#d9b8ff;border:none;">Volume Profile</a> используются как <em>конфлюэнс</em> поверх них.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЧТО ТАКОЕ ─────── -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Что такое key levels</span>
+      <span class="section-badge">references</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Стандартные <strong>key levels</strong> — объективные ценовые референсы, привязанные ко времени и календарю:</p>
+        <ul>
+          <li><strong>Открытия периодов</strong> — daily / weekly / monthly open</li>
+          <li><strong>Экстремумы прошлых периодов</strong> — PDH/PDL, PWH/PWL (prev day/week high-low)</li>
+          <li><strong>Monday range</strong> — high/low понедельника</li>
+          <li><strong>Сессии</strong> (Asia/London/NY), <strong>round numbers</strong>, prior close</li>
+        </ul>
+
+        <div class="diagram">
+          <div data-kl="map"></div>
+        </div>
+
+        <div class="hl green"><span class="hl-label">Почему работают</span>Эти уровни <strong>однозначны</strong> — открытие вторника или вчерашний лой = одна и та же цена для всех. Все на них смотрят → реакции кластеризуются. Это <strong>самоисполняемые точки решения</strong>.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Их отмечают <strong>до сессии</strong> (pre-market), а не подгоняют задним числом под движение. Объективность и заблаговременность — в этом их сила, в отличие от субъективных трендовых/«красивых» линий.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">В MMT</span>Отметь D/W (и M) open, PDH/PDL, Monday H/L. Затем наложи объёмные уровни из <a href="volumeprofile.html" style="color:#d9b8ff;">Volume Profile</a> (naked POC, VAH/VAL): где временной уровень совпал с объёмным — это A-зона (§08).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. ПОЧЕМУ ИМЕЮТ СИЛУ ─────── -->
+  <section class="section" id="why-power">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Почему уровни имеют силу</span>
+      <span class="section-badge">mechanism</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Уровень держит не «магически» — за ним стоят конкретные силы реальных участников:</p>
+        <ul>
+          <li><strong>Покоящаяся ликвидность</strong> — за уровнями физически лежат стопы, лимитки и брейкаут-ордера. Цену <em>тянет к ликвидности</em> (нужно исполнить крупный объём), и там же она реагирует</li>
+          <li><strong>Якорь P&amp;L</strong> — относительно open все считают прибыль/убыток. Выше open лонги в плюсе и спокойны, шорты в минусе и нервничают → меняется агрессия сторон</li>
+          <li><strong>Общая точка внимания</strong> (Schelling point) — уровень объективен, все смотрят на одну цену → ордера кластеризуются → самоисполнение</li>
+          <li><strong>Память аукциона</strong> — prior H/L = где рынок в прошлый раз развернулся; возврат туда проверяет, держится ли то решение</li>
+          <li><strong>Среднее / fair value</strong> — open и VWAP воспринимаются как «справедливая» цена; алго и маркетмейкеры леанят от краёв обратно → mean reversion</li>
+        </ul>
+        <div class="hl green"><span class="hl-label">Суть</span>Уровни работают, потому что на них <strong>сходятся ордера и решения реальных участников</strong>, а не потому что «линия красиво легла». Нет ликвидности и памяти за линией — нет уровня.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>У каждого типа — своя доминирующая причина силы:</p>
+        <table>
+          <thead><tr><th>Уровень</th><th>Почему держит (механика)</th></tr></thead>
+          <tbody>
+            <tr><td>D / W / M open</td><td>якорь P&amp;L периода + бенчмарк/сеттлмент + репер mean-reversion (VWAP рядом)</td></tr>
+            <tr><td>PDH/PDL, PWH/PWL</td><td>пул ликвидности (стопы за экстремумом) + память разворота + граница «нормального» диапазона</td></tr>
+            <tr><td>Monday range</td><td>старт недельного аукциона + очевидные стопы на краях недели</td></tr>
+            <tr><td>Сессии / IB</td><td>разные пулы участников (Asia / London / NY) + первый час = максимум участия</td></tr>
+            <tr><td>Round numbers</td><td>когнитивный якорь ордеров + опционные страйки → дилерское гамма-хеджирование</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Отсюда sweep</span>Поэтому рынок и делает <strong>sweep</strong>: цена идёт <em>снимать ликвидность</em> за уровнем (стопы — раздел HL Stops / Liquidations), и только потом решает. Подтверждение = реакция <strong>после</strong> снятия, а не сам подход к линии.</div>
+        <div class="hl note"><span class="hl-label">Износ</span>Уровень «выдыхается»: если за ним больше нет ликвидности/участников (старый, многократно протестированный) — сила падает. Свежий, ещё не отработанный (naked) уровень держит сильнее.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─────── 02. ОТКРЫТИЯ ─────── -->
+  <section class="section" id="opens">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Открытия периодов (D / W / M open)</span>
+      <span class="section-badge">bias pivot</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Daily / Weekly / Monthly open</strong> — цена открытия периода. Это <strong>пивот смещения</strong>: выше open = период под контролем покупателей, ниже = продавцов.</p>
+
+        <div class="diagram">
+          <div data-kl="open"></div>
+        </div>
+
+        <p>Крипта: daily open = 00:00 UTC, weekly open = понедельник 00:00 UTC, monthly = 1-е число.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Open-drive:</strong> цена уходит от open и удерживается → направленный (трендовый) период</li>
+          <li><strong>Open-rejection:</strong> цена возвращается сквозь open → ротация / баланс</li>
+          <li>Цена <strong>мин-реверсит</strong> к open и VWAP — это магнит внутри периода</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Эдж</span><strong>Weekly open retest</strong> — частый сетап: возврат к W-open и реакция задают недельный bias. Потеря и принятие ниже W-open (или реклейм выше) = смена недельного уклона. Лонги предпочтительнее выше open периода, шорты — ниже.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. ЭКСТРЕМУМЫ ─────── -->
+  <section class="section" id="prevhl">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Экстремумы прошлых периодов (PDH/PDL, PWH/PWL)</span>
+      <span class="section-badge">liquidity</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>PDH/PDL</strong> (prev day high/low), <strong>PWH/PWL</strong> (prev week) — экстремумы прошлых периодов. За ними <strong>скоплена ликвидность</strong> (стоп-лоссы и брейкаут-ордера).</p>
+
+        <div class="diagram">
+          <div data-kl="prevhl"></div>
+        </div>
+
+        <p>Два исхода на подходе:</p>
+        <ul>
+          <li><strong>Sweep + reclaim</strong> — прокол за уровень (снятие ликвидности) → быстрый возврат внутрь = ложный пробой → <strong>разворот</strong></li>
+          <li><strong>Acceptance</strong> — закрепление за уровнем + объём → <strong>продолжение</strong> к следующему реперу</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Sweep (raid):</strong> рынок целенаправленно идёт за ликвидностью — снимает стопы за PDH/PDL, затем решает. Возврат внутрь = разворот (high-prob); удержание снаружи = тренд</li>
+          <li>Это <strong>accept/reject</strong> в чистом виде: уровень — развилка, реакция — ответ</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Не путай sweep с breakout <em>заранее</em>. Пробой PDH без удержания = bull trap (и наоборот). Жди реакцию — <strong>reclaim</strong> (внутрь) или <strong>acceptance</strong> (снаружи) — и подтверждение потоком (CVD/footprint).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. MONDAY RANGE ─────── -->
+  <section class="section" id="monday">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Monday range / каркас недели</span>
+      <span class="section-badge">weekly</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p><strong>Monday High / Low</strong> — диапазон понедельника. Часто служит <strong>скелетом недели</strong>: неделя расширяется из него.</p>
+
+        <div class="diagram">
+          <div data-kl="monday"></div>
+        </div>
+
+        <ul>
+          <li><strong>Внутри</strong> Monday range = баланс</li>
+          <li><strong>Пробой</strong> Monday H/L = неделя выбирает направление</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Monday H/L — рабочие <strong>пивоты</strong>: цена часто тестит их в среду-четверг (midweek reversal)</li>
+          <li>Комбинируй с weekly open: Monday range обычно строится вокруг W-open</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Эдж</span>Статистически неделя часто ставит свой high или low рано (пн-вт). Удержание Monday range и <strong>реклейм его краёв</strong> после ложного пробоя — рабочие пивоты для свинг-входов.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. СЕССИИ ─────── -->
+  <section class="section" id="sessions">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Сессии и Initial Balance</span>
+      <span class="section-badge">sessions</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Сессии:</strong> Asia / London / NY — свои open и high/low. Прошлый session high/low = интрадей-ликвидность</li>
+          <li><strong>Initial Balance (IB):</strong> диапазон первого часа (из <a href="amt.html" style="color:#9cc5ec;">AMT</a>/<a href="tpo.html" style="color:#9cc5ec;">TPO</a>). IB H/L — интрадей-референс</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li><strong>Передача сессий:</strong> London часто снимает Asia range, NY — London. Sweep экстремума предыдущей сессии → реверс</li>
+          <li>Расширение за <strong>IB</strong> = трендовый день; держится внутри IB = баланс</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Сетап</span>NY open + sweep азиатского/лондонского экстремума + реклейм = частый интрадей-разворот. Сессионные opens работают как мини-bias-пивоты внутри дня.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. ROUND ─────── -->
+  <section class="section" id="round">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Round numbers и реперы</span>
+      <span class="section-badge">psych</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <ul>
+          <li><strong>Круглые / психологические</strong> (63 000, 62 500) — магниты + S/R, у них скоплена ликвидность</li>
+          <li><strong>Prior close / settlement</strong>, гэпы — реперы открытия и цели закрытия гэпа</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Сами по себе круглые — <em>слабее</em> объёмных или временны́х уровней, но ликвидность у них реальна. Главная польза — <strong>усиление</strong>: round рядом с PDH или naked POC делает зону сильнее.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl note"><span class="hl-label">Нюанс</span>Используй round как магнит/цель, когда рядом нет других уровней, и как конфлюэнс — когда есть. Не как самостоятельный сигнал на вход.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. КАК ИСПОЛЬЗОВАТЬ ─────── -->
+  <section class="section" id="method">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Как использовать: bias + sweep/reclaim + конфлюэнс</span>
+      <span class="section-badge">method</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>У каждого типа — своя роль:</p>
+        <ul>
+          <li><strong>Open</strong> = bias-фильтр (выше/ниже периода)</li>
+          <li><strong>Prev H/L</strong> = ликвидность → sweep/reclaim или acceptance</li>
+          <li><strong>Monday range / IB</strong> = каркас и пивоты</li>
+          <li><strong>Round</strong> = магнит и усилитель</li>
+        </ul>
+        <div class="hl green"><span class="hl-label">Сила — в конфлюэнсе</span>standard level + объёмный уровень (naked POC / VAH) + round на одной цене = <strong>A-зона</strong>. Где сходятся 2-3 типа — там готовь сделку.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Sweep + reclaim</div>Прокол PDL/PWL/Monday Low → быстрый возврат внутрь → лонг (ликвидность снята, разворот).</div>
+          <div class="card"><div class="card-title">Open-rejection</div>Возврат сквозь D/W open → фейд к противоположному краю / к VWAP.</div>
+          <div class="card"><div class="card-title">Break + retest</div>Пробой Monday High / PDH с удержанием → ретест → продолжение.</div>
+          <div class="card"><div class="card-title">Bias-фильтр</div>Выше W-open ищем лонги, ниже — шорты. Против bias — только sweep-реверсы.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Стек</span>D/W open + PDH/PDL + Monday range + round + VP-наки. Уровень — гипотеза; реакция (sweep/reclaim или accept/reject) <strong>+ поток</strong> (CVD/footprint/OI) — триггер. Один уровень не торгуем вслепую.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. PLAYBOOK ─────── -->
+  <section class="section" id="playbook">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Pre-market чек-лист</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Отметь объективные уровни <strong>ДО</strong> сессии и торгуй реакцию на них, а не угадывай движение между ними.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Что нанести перед сессией:</p>
+        <ul>
+          <li><strong>Daily / Weekly</strong> open (и Monthly на свинге)</li>
+          <li><strong>PDH / PDL</strong>, <strong>PWH / PWL</strong></li>
+          <li><strong>Monday High / Low</strong></li>
+          <li>ключевые <strong>round</strong>, prior close / гэп</li>
+          <li>session opens (для интрадея) + IB после первого часа</li>
+          <li>→ отметь <strong>конфлюэнс</strong> с VP-уровнями (naked POC, VAH/VAL)</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Исполнение</span>На уровне: sweep/reclaim или accept/reject + поток → вход. Стоп <strong>за уровень / за sweep-экстремум</strong>, R до следующего репера. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl note"><span class="hl-label">Конфлюэнс</span>Лучшие сделки — где сошлись standard level + VP-уровень + поток. Один слой — гипотеза; стек — сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── key-levels visuals (clean horizontal-line geometry) ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#22222a',paper:'#08080a',white:'#ececf2',poc:'#ffd23f',res:'#ff8c3a',blue:'#9cc5ec',azure:'#b15cf0',dim:'#6a6a72'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function txt(svg,s,x,y,o){o=o||{};var e=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)e.setAttribute('font-weight',o.weight); if(o.anchor)e.setAttribute('text-anchor',o.anchor); e.textContent=s; svg.appendChild(e); return e;}
+  function arrowDef(svg){var d=E('defs',{}),m=E('marker',{id:'klA',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M0 0 L10 5 L0 10 z',fill:C.white,opacity:0.9}));d.appendChild(m);svg.appendChild(d);}
+  function canvas(w,h,lbl){var svg=E('svg',{viewBox:'0 0 '+w+' '+h,width:'100%',role:'img','aria-label':lbl||''});arrowDef(svg);
+    svg.appendChild(E('rect',{x:0,y:0,width:w,height:h,rx:8,fill:C.paper}));return svg;}
+  function line(svg,x1,y1,x2,y2,o){o=o||{};var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+    if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#klA)'; svg.appendChild(E('line',a));}
+  function rect(svg,x,y,w,h,fill,o){o=o||{};var a={x:x,y:y,width:w,height:Math.max(0,h),rx:o.rx||3,fill:fill,opacity:o.opacity==null?1:o.opacity};
+    if(o.stroke){a.stroke=o.stroke;a['stroke-width']=o.sw||1;} if(o.dash)a['stroke-dasharray']=o.dash; svg.appendChild(E('rect',a));}
+  function lab(svg,s,x,y,o){o=o||{};var w=o.w||(s.length*6.4+16);
+    svg.appendChild(E('rect',{x:x,y:y-13,width:w,height:18,rx:4,fill:o.bg||'#101012',stroke:o.stroke||'#25252a','stroke-width':1,opacity:0.97}));
+    txt(svg,s,x+8,y,{size:o.size||10.5,fill:o.fill||'#ececef',weight:700});}
+
+  /* 01 — what gets marked (standard level map) */
+  function mapSVG(){
+    var W=1200,H=520,svg=canvas(W,H,'Стандартные key levels');
+    lab(svg,'Стандартные key levels — что отметить ДО сессии',24,30,{w:360,size:12});
+    var pmin=61200,pmax=63600,top=64,bot=470,lx1=160,lx2=900;
+    function py(p){return bot-(p-pmin)/(pmax-pmin)*(bot-top);}
+    var lv=[
+      {p:63400,t:'PDH — prev day high',c:'#c6c6ce',w:1.6,dash:'5 5'},
+      {p:63100,t:'Monday High',c:'#9cc5ec',w:1.8},
+      {p:62800,t:'Weekly open — bias pivot',c:'#ececf2',w:2.6},
+      {p:62500,t:'Daily open',c:'#ffd23f',w:1.8},
+      {p:62000,t:'round 62 000 (psych)',c:'#7a7a82',w:1.4,dash:'2 6'},
+      {p:61700,t:'PDL — prev day low',c:'#c6c6ce',w:1.6,dash:'5 5'},
+      {p:61400,t:'Monday Low',c:'#9cc5ec',w:1.8}
+    ];
+    lv.forEach(function(L){var y=py(L.p);line(svg,lx1,y,lx2,y,{color:L.c,width:L.w,dash:L.dash});
+      txt(svg,(L.p/1000).toFixed(1)+'k',lx2+8,y+4,{size:10.5,fill:L.c,weight:700});
+      txt(svg,L.t,lx2+62,y+4,{size:10.5,fill:L.c==='#ececf2'?'#ececf2':'#9a9aa2',weight:600});});
+    var cy=py(62650);
+    line(svg,lx1,cy,lx2,cy,{color:'#ff5c5c',width:1.4,dash:'3 3',opacity:0.9});
+    lab(svg,'62.65k ◀ NOW',lx1+4,cy-2,{w:104,size:10,fill:'#ffb0b0',stroke:'#5a2a2a'});
+    txt(svg,'Объективные уровни — одна цена для всех. Накладывай VP-уровни (naked POC / VAH) сверху для конфлюэнса.',24,H-16,{size:11,fill:'#8a8a92'});
+    return svg;
+  }
+
+  /* 02 — open as bias pivot */
+  function openSVG(){
+    var W=1200,H=360,svg=canvas(W,H,'Open = пивот смещения');
+    lab(svg,'Open = пивот смещения (bias)',24,30,{w:250,size:12});
+    var oy=190,lx1=150,lx2=1050;
+    rect(svg,lx1,60,lx2-lx1,oy-60,'#ffd23f',{opacity:0.05});
+    rect(svg,lx1,oy,lx2-lx1,300-oy,'#ff8c3a',{opacity:0.06});
+    line(svg,lx1,oy,lx2,oy,{color:C.white,width:2.6});
+    txt(svg,'PERIOD OPEN (D / W / M)',lx1+6,oy-9,{size:11,fill:'#ececf2',weight:700});
+    txt(svg,'выше open — контроль покупателей (bullish)',lx2-8,82,{size:10.5,fill:'#ffe08a',anchor:'end'});
+    txt(svg,'ниже open — контроль продавцов (bearish)',lx2-8,288,{size:10.5,fill:'#ffc599',anchor:'end'});
+    line(svg,210,oy,360,90,{color:C.white,width:2.4,arrow:true});                  // open-drive ↑
+    txt(svg,'open-drive: уход и удержание = тренд',230,330,{size:10.5,fill:'#c6c6ce'});
+    line(svg,630,120,840,290,{color:C.white,width:2.4,arrow:true});               // open-rejection (back through)
+    txt(svg,'open-rejection: возврат сквозь open = баланс',640,330,{size:10.5,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  /* 03 — prev H/L: sweep+reclaim vs acceptance */
+  function prevhlSVG(){
+    var W=1200,H=360,svg=canvas(W,H,'PDH: sweep+reclaim vs acceptance');
+    lab(svg,'Prev H/L: sweep + reclaim ↔ acceptance',24,30,{w:300,size:12});
+    var ly=165,lx1=150,lx2=1050;
+    rect(svg,lx1,ly-30,lx2-lx1,30,'#ff8c3a',{opacity:0.07});
+    line(svg,lx1,ly,lx2,ly,{color:C.white,width:2.4,dash:'6 5'});
+    txt(svg,'PDH / PWH — за уровнем ликвидность (стопы)',lx1+6,ly-10,{size:11,fill:'#ececf2',weight:700});
+    line(svg,200,300,470,ly,{color:C.dim,width:2,opacity:0.85});                   // approach from below
+    /* sweep + reclaim (reject): poke above then back down */
+    line(svg,470,ly,540,118,{color:C.white,width:2.2});                            // poke above
+    line(svg,540,118,690,300,{color:C.white,width:2.4,arrow:true});               // back down
+    txt(svg,'sweep + reclaim → разворот',430,330,{size:10.5,fill:'#ffc599',weight:600});
+    /* acceptance (breakout): hold above */
+    line(svg,470,ly,720,80,{color:C.white,width:2.4,arrow:true});                  // accept up
+    txt(svg,'acceptance → продолжение',760,118,{size:10.5,fill:'#ffe08a',weight:600});
+    svg.appendChild(E('circle',{cx:470,cy:ly,r:5.5,fill:C.res}));
+    return svg;
+  }
+
+  /* 04 — Monday range = weekly skeleton */
+  function mondaySVG(){
+    var W=1200,H=380,svg=canvas(W,H,'Monday range');
+    lab(svg,'Monday range — каркас недели',24,30,{w:280,size:12});
+    var hy=120,loy=290,bx1=170,bx2=820;
+    rect(svg,bx1,hy,bx2-bx1,loy-hy,'#9cc5ec',{opacity:0.07,stroke:'#3a5a72',sw:1.2});
+    line(svg,bx1,hy,1060,hy,{color:C.blue,width:2});
+    line(svg,bx1,loy,1060,loy,{color:C.blue,width:2});
+    txt(svg,'Monday High',1068,hy+4,{size:10.5,fill:'#9cc5ec',weight:700});
+    txt(svg,'Monday Low',1068,loy+4,{size:10.5,fill:'#9cc5ec',weight:700});
+    txt(svg,'Monday range',bx1+10,hy-9,{size:10.5,fill:'#9cc5ec',weight:700});
+    /* price: balance inside (Tue-Wed) then break above */
+    line(svg,230,215,360,168,{color:C.white,width:2});
+    line(svg,360,168,490,250,{color:C.white,width:2});
+    line(svg,490,250,610,175,{color:C.white,width:2});
+    line(svg,610,175,700,128,{color:C.white,width:2});
+    line(svg,700,128,800,70,{color:C.white,width:2.4,arrow:true});                 // breakout up
+    txt(svg,'inside = balance (Tue–Wed)',300,332,{size:10.5,fill:'#8a8a92'});
+    txt(svg,'break Mon H/L = неделя выбирает направление',640,332,{size:10.5,fill:'#c6c6ce'});
+    return svg;
+  }
+
+  var KL={map:mapSVG,open:openSVG,prevhl:prevhlSVG,monday:mondaySVG};
+  document.querySelectorAll('[data-kl]').forEach(function(d){var f=KL[d.dataset.kl];if(f)d.appendChild(f());});
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>
