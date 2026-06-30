@@ -334,9 +334,7 @@
     <a class="nav-item active" href="#"><span class="nav-num">00</span> Старт</a>
     <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
-    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
-    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
@@ -346,9 +344,9 @@
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
     <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
     <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;color:#54545c;letter-spacing:1px;padding:12px 12px 6px;margin-top:6px;border-top:1px solid #25252a;">// фундамент</div>
     <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
@@ -470,7 +468,7 @@
       <div class="study-step execution">
         <div class="study-order">07</div>
         <div>
-          <div class="study-name">Volume bubbles / Footprint / Stacked imbalances <span class="study-phase">execution</span></div>
+          <div class="study-name"><a href="footprint.html">Footprint</a> / <a href="imbalances.html">Stacked imbalances</a> <span class="study-phase">execution</span></div>
           <div class="study-desc">Детализация исполнения и поиск конкретного триггера входа.</div>
         </div>
       </div>
@@ -494,7 +492,7 @@
       <div class="study-step synthesis">
         <div class="study-order">10</div>
         <div>
-          <div class="study-name">Market Regime <span class="study-phase">синтез</span></div>
+          <div class="study-name"><a href="regime.html">OF Regime</a> <span class="study-phase">синтез</span></div>
           <div class="study-desc">Определить среду: баланс, тренд или переходный режим. Одинаковый сигнал в разных режимах читается по-разному.</div>
         </div>
       </div>
@@ -516,7 +514,7 @@
       </div>
     </div>
 
-    <div class="study-summary">AMT → Volume / Profile / TPO → levels → CVD / execution → OI / Funding → Market Regime → forced flow / orderbook</div>
+    <div class="study-summary">AMT → Volume / Profile / TPO → levels → CVD / execution → OI / Funding → OF Regime → forced flow / orderbook</div>
   </div>
 
   <!-- РАЗДЕЛЫ -->
@@ -525,9 +523,7 @@
     <div class="section-cards">
       <a class="sec-card" href="amt.html"><span class="ready">готово</span><div class="num">01</div><div class="name">AMT</div><div class="desc">Фундамент: аукцион, баланс/имбаланс, value, acceptance/rejection, failed auction</div></a>
       <a class="sec-card" href="cvd.html"><span class="ready">готово</span><div class="num">02</div><div class="name">CVD</div><div class="desc">Кумулятивная дельта: агрессия покупателей против продавцов</div></a>
-      <a class="sec-card" href="volume.html"><span class="ready">готово</span><div class="num">03</div><div class="name">Volume</div><div class="desc">Объём как топливо движения, всплески и сухие зоны</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">04</div><div class="name">Volume bubbles</div><div class="desc">Пузыри и кластеры объёма, крупные принты</div></a>
-      <a class="sec-card" href="oi.html"><span class="ready">готово</span><div class="num">05</div><div class="name">Open Interest</div><div class="desc">Открытый интерес: приток и отток позиций</div></a>
+      <a class="sec-card" href="volume.html"><span class="ready">готово</span><div class="num">03</div><div class="name">Volume</div><div class="desc">Объём как топливо движения, всплески и сухие зоны</div></a>      <a class="sec-card" href="oi.html"><span class="ready">готово</span><div class="num">05</div><div class="name">Open Interest</div><div class="desc">Открытый интерес: приток и отток позиций</div></a>
       <a class="sec-card" href="volumeprofile.html"><span class="ready">готово</span><div class="num">06</div><div class="name">Volume Profile</div><div class="desc">Профиль объёма: POC, область стоимости, ноды</div></a>
       <a class="sec-card" href="tpo.html"><span class="ready">готово</span><div class="num">07</div><div class="name">TPO</div><div class="desc">Market Profile: время на цене, формы профиля, day types</div></a>
       <a class="sec-card" href="footprint.html"><span class="ready">готово</span><div class="num">08</div><div class="name">Footprint</div><div class="desc">Кластерный график: bid/ask, delta, absorption</div></a>
@@ -537,9 +533,9 @@
       <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">12</div><div class="name">Order blocks</div><div class="desc">Ордерблоки: зоны интереса крупного капитала</div></a>
       <a class="sec-card" href="vwap.html"><span class="ready">готово</span><div class="num">13</div><div class="name">VWAP</div><div class="desc">Средневзвешенная по объёму, ленты отклонений</div></a>
       <a class="sec-card" href="keylevels.html"><span class="ready">готово</span><div class="num">14</div><div class="name">Key levels</div><div class="desc">Ключевые уровни: HTF, дневные, недельные</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">15</div><div class="name">Imbalances</div><div class="desc">Диагональные имбалансы bid/ask, stacked</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">16</div><div class="name">HL Stops Map</div><div class="desc">Карта стопов Hyperliquid: где стоит плечо</div></a>
-      <a class="sec-card soon"><span class="badge-soon">скоро</span><div class="num">17</div><div class="name">Market regime</div><div class="desc">Режим рынка: тренд, баланс, переход</div></a>
+      <a class="sec-card" href="imbalances.html"><span class="ready">готово</span><div class="num">15</div><div class="name">Imbalances</div><div class="desc">Диагональные имбалансы bid/ask, stacked и проверка инициативы</div></a>
+      <a class="sec-card" href="hlstops.html"><span class="ready">готово</span><div class="num">16</div><div class="name">HL SL / TP</div><div class="desc">Hyperliquid: stop pools для ускорения и TP pools для замедления</div></a>
+      <a class="sec-card" href="regime.html"><span class="ready">готово</span><div class="num">17</div><div class="name">OF Regime</div><div class="desc">Синтез Price, spot/perp CVD, OI, funding, NL/NS и liquidation context</div></a>
       <a class="sec-card" href="mathrisk.html"><span class="ready">готово</span><div class="num">18</div><div class="name">Математика и риск</div><div class="desc">Матожидание, variance, риск-менеджмент, психология</div></a>
     </div>
   </div>

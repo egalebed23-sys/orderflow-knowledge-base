@@ -113,9 +113,7 @@
     <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
     <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
-    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
-    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
@@ -125,9 +123,9 @@
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
     <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
     <div class="nav-sep">// фундамент</div>
     <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
@@ -223,11 +221,10 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Стена держит, потому что это <strong>реальные ордера</strong>, которые цена обязана <em>впитать или съесть</em>, чтобы пройти уровень:</p>
+        <p>Стена показывает <strong>видимую покоящуюся ликвидность</strong>, с которой цене придётся взаимодействовать, <em>если ордера останутся в стакане</em> к моменту подхода:</p>
         <ul>
-          <li><strong>Bid wall</strong> = покупатели готовы → поддержка</li>
-          <li><strong>Ask wall</strong> = продавцы готовы → сопротивление</li>
-          <li>Ликвидность <strong>притягивает</strong> цену (магнит): рынку нужно где-то исполнить объём</li>
+          <li><strong>Bid wall</strong> = потенциальная поддержка; <strong>ask wall</strong> = потенциальное сопротивление</li>
+          <li>Плотная ликвидность может стать местом притяжения и исполнения, но heatmap не доказывает, что кто-то обязательно поведёт туда цену</li>
         </ul>
         <div class="hl green"><span class="hl-label">Главное</span>Но это <strong>намерение, а не история</strong> — стакан меняется за секунды (добавить/снять). Поэтому стена — <em>гипотеза</em>, пока не доказана реакцией (refill / absorption).</div>
       </div>
@@ -237,8 +234,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Чем больше стена <strong>относительно потока</strong> — тем значимее</li>
-          <li>Тонкий стакан = быстрые движения (нет тормозов, §06)</li>
+          <li>Чем больше стена <strong>относительно текущего потока</strong> и чем дольше она остаётся на месте, тем интереснее её проверять</li>
+          <li>Тонкий стакан повышает риск быстрого движения, но новые лимитки могут появиться мгновенно: void — сценарий ускорения, не гарантия</li>
         </ul>
       </div>
 
@@ -264,13 +261,13 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Bid wall = поддержка, ask wall = сопротивление; и обе — <strong>магниты</strong> (цену тянет к ликвидности).</p>
+        <p>Bid wall — потенциальная поддержка, ask wall — потенциальное сопротивление. Любая из них может быть <strong>зоной взаимодействия</strong>: hold, pull или consumption покажут цену только в момент подхода.</p>
 
         <div class="diagram">
           <div data-ob="magnet"></div>
         </div>
 
-        <p>Чтение: цена притянулась к стене → стена <strong>держит</strong> (реджект) или <strong>съедена</strong> (пробой).</p>
+        <p>Чтение: цена подошла к стене → наблюдай <strong>hold/refill</strong>, <strong>pull</strong> или <strong>consumption</strong>. Вход строится после результата, не перед касанием.</p>
       </div>
 
       <hr class="lvl-divider">
@@ -278,8 +275,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Магнит работает, т.к. крупные исполнители ведут цену <strong>к ликвидности</strong>, чтобы залить объём с минимальным проскальзыванием</li>
-          <li>Стена сверху = магнит вверх, снизу = магнит вниз</li>
+          <li>Стена может быть ближайшей зоной исполнения, если между ней и ценой есть свободный путь и текущий поток сохраняет направление</li>
+          <li>Стена сверху/снизу задаёт <strong>две стороны карты</strong>; directional-lean появляется только через acceptance/rejection до неё</li>
         </ul>
       </div>
 
@@ -287,7 +284,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Стена на <a href="keylevels.html" style="color:#d9b8ff;">key level</a> / naked POC = усиление. Стена в пустоте (без контекста) — слабее и чаще оказывается спуфом.</div>
+        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Стена на <a href="keylevels.html" style="color:#d9b8ff;">key level</a> / naked POC создаёт более качественную <strong>зону проверки</strong>. Стена в пустоте слабее; её нельзя уверенно назвать спуфом только по одному снимку.</div>
       </div>
 
     </div>
@@ -305,31 +302,31 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Стены бывают фейковые:</p>
+        <p>Часть видимой ликвидности не переживает подход цены. Это может быть намеренный spoof, но по одной heatmap нельзя доказать мотив отмены — ордера также снимают из-за обычного управления риском.</p>
         <ul>
-          <li><strong>Spoof</strong> — крупный ордер ставят для вида и <strong>снимают перед подходом</strong> цены → ложная S/R → пролёт</li>
-          <li><strong>Iceberg</strong> — наоборот, скрытый размер: выглядит мелко, но постоянно <strong>рефиллит</strong> (настоящая стена в маскировке)</li>
+          <li><strong>Spoof-поведение</strong> — крупный ордер появляется и систематически <strong>снимается перед подходом</strong> цены → видимый S/R не подтверждается</li>
+          <li><strong>Iceberg / скрытая ликвидность</strong> напрямую не видны: о ней можно лишь судить по повторным исполнениям и refill на цене, которая не проходит</li>
         </ul>
 
         <div class="diagram">
           <div data-ob="spoof"></div>
         </div>
 
-        <div class="hl red"><span class="hl-label">Тэлл</span>Спуф — стена <strong>исчезает по мере приближения</strong> цены. Айсберг — мелкий уровень, который не пробивается и постоянно обновляется.</div>
+        <div class="hl red"><span class="hl-label">Что видно на самом деле</span>Снятие стены перед подходом — наблюдаемый <strong>pull</strong>, похожий на spoof-поведение. Малый видимый размер + повторные fills/refill без progress — признак возможной скрытой ликвидности, не доказательство iceberg.</div>
       </div>
 
       <hr class="lvl-divider">
 
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
-        <p>Не торгуй стену <em>заранее</em>. Жди реакцию: настоящая стена <strong>впитывает</strong> (цена стоит, объём refill), спуф <strong>снимается</strong> (цена проваливается в пустоту).</p>
+        <p>Не торгуй стену <em>заранее</em>. Жди результат: hold/refill с отсутствием progress, pull с провалом в свободный стакан или consumption с acceptance через уровень.</p>
       </div>
 
       <hr class="lvl-divider">
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Зачем</span>Спуф используют, чтобы <strong>загнать</strong> цену: создать ложную S/R и развернуть толпу в нужную сторону. Подтверждение всегда — поток (CVD/footprint), а не вид стакана.</div>
+        <div class="hl azure"><span class="hl-label">Правило данных</span>Не приписывай намерение участнику без доказательства. Для решения достаточно наблюдать <strong>динамику</strong> wall + поток (CVD/footprint) + результат цены; мотив отмены не нужен.</div>
       </div>
 
     </div>
@@ -349,8 +346,8 @@
         <span class="lvl-tag">L1 · База</span>
         <p>Когда цена доходит до стены — два исхода:</p>
         <ul>
-          <li><strong>Absorption</strong> — стена держит и рефиллит → агрессия впитана → стоп / разворот</li>
-          <li><strong>Consumption</strong> — стену съели (объём прошёл насквозь) → пробой к следующей ликвидности</li>
+          <li><strong>Absorption</strong> — стена держит и рефиллит → агрессия впитана; для разворота всё ещё нужен reject/reclaim</li>
+          <li><strong>Consumption</strong> — видимую стену съели или сняли, объём прошёл насквозь → continuation подтверждает acceptance к следующей ликвидности</li>
         </ul>
 
         <div class="diagram">
@@ -363,8 +360,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li><strong>Absorption:</strong> пассив сильнее агрессии — CVD растёт, а цена стоит (дивергенция у стены)</li>
-          <li><strong>Consumption:</strong> агрессия сильнее — стена тает на глазах, цена идёт сквозь</li>
+          <li><strong>Absorption:</strong> заметная агрессия, а цена не получает progress; wall держится/re-fillится, затем рынок показывает reject/reclaim</li>
+          <li><strong>Consumption:</strong> wall тает или pull’ится, цена проходит уровень и удерживается за ним; только тогда агрессия выиграла аукцион</li>
         </ul>
       </div>
 
@@ -372,7 +369,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Тот же absorption</span>Это то же поглощение, что в <a href="liquidations.html" style="color:#d9b8ff;">Liquidations</a> / Key levels / VP, но на <strong>живом стакане</strong> — refill виден в реальном времени. Стек: стена + footprint-absorption + key level = сильный разворот.</div>
+        <div class="hl azure"><span class="hl-label">Тот же absorption</span>Это то же поглощение, что в <a href="liquidations.html" style="color:#d9b8ff;">Liquidations</a> / Key levels / VP, но на <strong>живом стакане</strong> refill виден в реальном времени. Стек: wall + footprint-absorption + key level + reject/reclaim = сильный разворотный контекст.</div>
       </div>
 
     </div>
@@ -398,8 +395,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>После съедения стены часто идёт void → <strong>ускорение</strong> к следующей стене</li>
-          <li>Пустота = нет тормозов: движение туда быстрое и «бесплатное» для агрессора</li>
+          <li>После consumption/pull стены void <strong>может</strong> дать ускорение к следующей ликвидности, особенно если есть acceptance</li>
+          <li>Пустота означает меньшую видимую глубину, но не «бесплатное» движение: новые лимитки и обратный поток могут появиться в любой момент</li>
         </ul>
       </div>
 
@@ -444,7 +441,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Сильнейшая зона</span>Где сошлись <strong>OB-стена + naked POC + key level + liq-кластер</strong> — самая мощная зона притяжения и реакции. Один слой — гипотеза; стек — сделка.</div>
+        <div class="hl azure"><span class="hl-label">Сильнейшая зона</span>Где сошлись <strong>OB-стена + naked POC + key level + liq-кластер</strong>, появляется качественная зона реакции. Один слой — гипотеза; стек факторов повышает качество, но сделка появляется только после наблюдаемого результата.</div>
       </div>
 
     </div>
@@ -470,10 +467,10 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <div class="grid2">
-          <div class="card"><div class="card-title">Fade у стены</div>Подход + <strong>absorption</strong> (refill) на key level → контртренд от стены.</div>
-          <div class="card"><div class="card-title">Breakout</div><strong>Consumption</strong> стены + void → продолжение к следующей ликвидности.</div>
-          <div class="card"><div class="card-title">Магнит</div>Тонкий стакан к стене → жди подход и реакцию у неё.</div>
-          <div class="card"><div class="card-title">Анти-спуф</div>Не входи на «большой стене» заранее — жди: снимется или впитает.</div>
+          <div class="card"><div class="card-title">Fade у стены</div>Подход + absorption/refill на key level → reject/reclaim → контртренд от стены.</div>
+          <div class="card"><div class="card-title">Breakout</div>Consumption/pull стены + acceptance → void как путь к следующей ликвидности.</div>
+          <div class="card"><div class="card-title">Магнит</div>Тонкий стакан к стене = сценарий подхода; реакция у стены решает, брать ли continuation или fade.</div>
+          <div class="card"><div class="card-title">Анти-спуф</div>Не входи на «большой стене» заранее: отслеживай persistence, pull/refill и price result.</div>
         </div>
       </div>
 
@@ -481,8 +478,8 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">Ловушка</span>Спуф и айсберг делают вид стакана обманчивым — решает <strong>поток</strong>, а не размер ордера на экране.</div>
-        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>key level / VP-наки → OB-стена (магнит / S-R) → absorb vs consume (footprint / CVD) → вход. Стоп <strong>за стену</strong>, R до следующей стены / void. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Видимый размер ордера не равен намерению и может исчезнуть. Решает <strong>динамика wall + поток + price result</strong>, а не цветная полоска на экране.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>key level / VP-наки → OB-стена как зона взаимодействия → absorb vs consume (footprint / CVD) → вход. Стоп ставится <strong>за фактическую invalidation</strong> — loss/reclaim или acceptance, а не за raw wall, который может быть снят; R — до следующей стены / void. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
       </div>
 
     </div>

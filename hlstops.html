@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyperliquid · SL / TP карты</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --violet:#b15cf0; --violet-soft:#d9b8ff; --buy:#ffd23f; --buy-soft:#ffe08a; --sell:#ff8c3a; --sell-soft:#ffc599; --sidebar-w:264px; --content-max:1280px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { min-height:100vh; display:flex; background:var(--bg); color:var(--text); font:15px/1.7 Manrope,sans-serif; }
+  a { color:inherit; }
+  .sidebar { position:fixed; width:var(--sidebar-w); height:100vh; overflow-y:auto; flex-shrink:0; padding:28px 0 36px; background:var(--surface-2); border-right:1px solid var(--border); }
+  .sidebar-brand { padding:0 24px 20px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .logo { display:block; text-decoration:none; font-size:16px; font-weight:800; letter-spacing:-.3px; background:linear-gradient(90deg,#fff,#8a8a96); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .sub { margin-top:3px; color:var(--muted); font:10.5px 'JetBrains Mono',monospace; letter-spacing:.5px; }
+  .nav-group { padding:0 12px; margin-bottom:18px; }
+  .nav-group-title { padding:0 12px 8px; color:var(--muted-2); font:10px 'JetBrains Mono',monospace; letter-spacing:1px; text-transform:uppercase; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:7px 12px; border-radius:6px; color:var(--muted); text-decoration:none; font-size:13.5px; transition:.15s; }
+  .nav-item:hover { color:var(--text); background:#1a1a1d; }
+  .nav-item.active { color:#fff; background:rgba(255,255,255,.09); }
+  .nav-item.disabled { opacity:.4; cursor:not-allowed; }
+  .nav-num { min-width:18px; color:var(--muted-2); font:10px 'JetBrains Mono',monospace; }
+  .nav-soon { margin-left:auto; padding:1px 5px; border:1px solid #34343a; border-radius:3px; color:var(--muted); font:8px 'JetBrains Mono',monospace; }
+  .toc { margin-top:8px; padding:14px 24px 0; border-top:1px solid var(--border); }
+  .toc a { display:block; padding:3px 0; color:var(--muted); text-decoration:none; font-size:12px; }
+  .toc a:hover { color:#fff; }
+  .main { width:calc(100% - var(--sidebar-w)); max-width:calc(var(--content-max) + var(--sidebar-w)); margin-left:var(--sidebar-w); }
+  .topbar { min-height:68px; display:flex; align-items:center; justify-content:space-between; padding:0 54px; border-bottom:1px solid var(--border); }
+  .crumbs { color:var(--muted); font:11px 'JetBrains Mono',monospace; }
+  .crumbs a { color:var(--muted); text-decoration:none; }
+  .depth { display:flex; align-items:center; gap:5px; }
+  .depth span { margin-right:4px; color:var(--muted-2); font:10px 'JetBrains Mono',monospace; }
+  .level-btn { min-width:32px; padding:4px 7px; border:1px solid var(--border-2); border-radius:4px; background:transparent; color:var(--muted); cursor:pointer; font:10px 'JetBrains Mono',monospace; transition:.15s; }
+  .level-btn:hover,.level-btn.active { border-color:var(--violet); color:#fff; background:rgba(177,92,240,.16); }
+  .hero { max-width:var(--content-max); margin:0 auto; padding:72px 54px 43px; }
+  .kicker { color:var(--violet-soft); font:11px 'JetBrains Mono',monospace; letter-spacing:1.2px; text-transform:uppercase; }
+  h1 { margin-top:10px; font-size:46px; line-height:1.08; letter-spacing:-1.7px; }
+  .hero p { max-width:820px; margin-top:16px; color:var(--muted); font-size:17px; }
+  .accent-line { width:96px; height:3px; margin-top:26px; border-radius:3px; background:linear-gradient(90deg,var(--violet),var(--buy)); }
+  .platform-note { display:flex; align-items:flex-start; gap:12px; max-width:1172px; margin:0 auto 36px; padding:15px 18px; border:1px solid var(--border); border-radius:8px; background:#0d0d10; color:var(--muted); font-size:13px; }
+  .platform-note strong { color:var(--text); }
+  .pn-badge { flex:none; padding:2px 6px; border:1px solid rgba(177,92,240,.55); border-radius:4px; color:var(--violet-soft); font:10px 'JetBrains Mono',monospace; }
+  .content { max-width:var(--content-max); margin:0 auto; padding:0 54px 100px; }
+  .section { padding:48px 0 52px; border-top:1px solid var(--border); }
+  .section-head { display:flex; align-items:baseline; gap:14px; margin-bottom:25px; }
+  .section-num { color:var(--muted-2); font:11px 'JetBrains Mono',monospace; }
+  h2 { font-size:27px; line-height:1.2; letter-spacing:-.7px; }
+  p { color:#c6c6ce; }
+  .lead { max-width:850px; color:#d2d2d8; font-size:16px; }
+  .l1,.l2,.l3 { margin-top:22px; }
+  .lvl-tag { display:inline-block; margin-bottom:10px; color:var(--muted); font:10px 'JetBrains Mono',monospace; letter-spacing:.6px; text-transform:uppercase; }
+  body[data-level="1"] .l2,body[data-level="1"] .l3,body[data-level="2"] .l3 { display:none; }
+  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+  .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .card { min-height:100%; padding:17px 18px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .card-title { margin-bottom:6px; color:#fff; font-size:14px; font-weight:700; }
+  .card p,.card li { color:var(--muted); font-size:13px; }
+  .card ul { padding-left:17px; }
+  .pill { display:inline-block; padding:2px 6px; border-radius:3px; font:10px 'JetBrains Mono',monospace; }
+  .pill.sl { background:rgba(255,140,58,.15); color:var(--sell-soft); }
+  .pill.tp { background:rgba(255,210,63,.15); color:var(--buy-soft); }
+  .pill.ctx { background:rgba(177,92,240,.15); color:var(--violet-soft); }
+  .hl { margin-top:18px; padding:13px 15px; border-left:3px solid var(--violet); border-radius:0 7px 7px 0; background:rgba(177,92,240,.09); color:#d1c4df; }
+  .hl.green { border-color:var(--buy); background:rgba(255,210,63,.08); color:#eee0a5; }
+  .hl.orange { border-color:var(--sell); background:rgba(255,140,58,.09); color:#f2c5a4; }
+  .hl-label { margin-right:9px; color:#fff; font:10px 'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.65px; }
+  .diagram { margin-top:22px; overflow:hidden; border:1px solid var(--border-2); border-radius:9px; background:#08080a; }
+  .diagram svg { display:block; width:100%; height:auto; }
+  .case-caption { padding:12px 16px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; }
+  .case-caption strong { color:#e8e8eb; }
+  .compare { width:100%; margin-top:18px; border-collapse:collapse; overflow:hidden; border:1px solid var(--border); border-radius:7px; font-size:12px; }
+  .compare th,.compare td { padding:11px 13px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+  .compare th { color:var(--muted); background:#0c0c0f; font:10px 'JetBrains Mono',monospace; letter-spacing:.6px; text-transform:uppercase; }
+  .compare td { color:#c7c7ce; }
+  .compare tr:last-child td { border-bottom:0; }
+  .steps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; counter-reset:step; }
+  .step { padding:16px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .step::before { display:block; margin-bottom:8px; color:var(--violet-soft); content:counter(step,decimal-leading-zero); counter-increment:step; font:10px 'JetBrains Mono',monospace; }
+  .step strong { display:block; margin-bottom:5px; font-size:13px; }
+  .step span { color:var(--muted); font-size:12px; }
+  .checklist { display:grid; grid-template-columns:1fr 1fr; gap:10px 26px; margin-top:16px; }
+  .check { position:relative; padding:9px 0 9px 26px; border-bottom:1px solid var(--border); color:#c9c9d0; font-size:13px; }
+  .check::before { position:absolute; left:2px; color:var(--buy); content:'✓'; font-weight:800; }
+  .links { margin-top:16px; color:var(--muted); font-size:13px; }
+  .links a { color:var(--violet-soft); text-decoration:none; border-bottom:1px solid rgba(217,184,255,.35); }
+  .scroll-top { position:fixed; right:24px; bottom:24px; width:42px; height:42px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:50%; background:var(--surface); color:#fff; cursor:pointer; opacity:0; pointer-events:none; transition:.2s; }
+  .scroll-top.visible { opacity:1; pointer-events:auto; }
+  .scroll-top:hover { transform:translateY(-2px); background:#fff; color:#000; }
+  @media(max-width:900px){ body{display:block}.sidebar{position:static;width:100%;height:auto}.main{width:100%;margin-left:0}.toc{display:none}.topbar,.hero,.content{padding-left:24px;padding-right:24px}.grid,.grid.two,.steps,.checklist{grid-template-columns:1fr} }
+  /* === приведение к единому виду базы: ширина 940 / карточки / кнопки === */
+  :root { --content-max:940px; }
+  .main { max-width:none; }
+  .topbar { max-width:940px; margin:0 auto; padding:26px 0 0; min-height:auto; border-bottom:0; }
+  .depth { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:3px; gap:2px; }
+  .depth > span { display:none; }
+  .level-btn .lbl { display:inline; font-weight:600; }
+  .level-btn .desc { display:inline; margin-left:4px; opacity:.75; font-weight:400; }
+  .section-head { align-items:center; }
+  .section-head .section-badge { order:9; margin-left:auto; padding:3px 8px; border-radius:4px; font:11px 'JetBrains Mono',monospace; background:linear-gradient(90deg,rgba(255,255,255,.13),rgba(255,255,255,.04)); color:#e2e2e8; }
+  .level-btn { min-width:auto; border:1px solid transparent; border-radius:5px; padding:6px 12px; background:transparent; color:var(--muted); }
+  .level-btn:hover { color:var(--text); background:transparent; border-color:transparent; }
+  .level-btn.active { background:linear-gradient(180deg,#fff,#cfcfd4); color:#000; border-color:#fff; }
+  .hero { max-width:940px; margin:18px auto 0; padding:6px 0 6px 20px; border-left:3px solid transparent; border-image:linear-gradient(180deg,#fff,#2e2e34) 1; }
+  .hero h1 { font-size:30px; line-height:1.14; letter-spacing:-.6px; }
+  .hero .kicker { font-size:11px; letter-spacing:1px; }
+  .hero p { max-width:860px; font-size:14px; }
+  .accent-line { display:none; }
+  .mmt-note, .platform-note { max-width:940px; margin:18px auto 28px; padding:13px 18px; border-radius:10px; border:1px solid var(--border); border-left:3px solid var(--violet); background:linear-gradient(90deg,rgba(177,92,240,.10),rgba(255,210,63,.04)); }
+  .content { max-width:940px; margin:0 auto; padding:0 0 80px; }
+  .section { max-width:940px; margin:0 auto 28px; padding:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .section-head { margin:0; padding:16px 24px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+  .section-head h2 { font-size:17px; line-height:1.3; letter-spacing:-.2px; }
+  .l1, .l2, .l3 { margin:0; padding:20px 26px 6px; }
+  .section > .l1:last-child, .section > .l2:last-child, .section > .l3:last-child { padding-bottom:22px; }
+</style>
+</head>
+<body data-level="3">
+<aside class="sidebar">
+  <div class="sidebar-brand"><a class="logo" href="index.html">Order Flow · База</a><div class="sub">// trading knowledge base</div></div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+        <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item active" href="#"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
+    <div style="font:9.5px 'JetBrains Mono',monospace;text-transform:uppercase;color:#54545c;letter-spacing:1px;padding:12px 12px 6px;margin-top:6px;border-top:1px solid #25252a;">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
+  </div>
+  <nav class="toc">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#what">01 · Что измеряют карты</a>
+    <a href="#stops">02 · Stop pools</a>
+    <a href="#tp">03 · TP pools</a>
+    <a href="#story">04 · Кейс: ускорение → фиксация</a>
+    <a href="#asymmetry">05 · Positioning asymmetry</a>
+    <a href="#mmt">06 · MMT и данные HL</a>
+    <a href="#playbook">07 · Execution playbook</a>
+    <a href="#traps">08 · Ловушки</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar"><div class="crumbs"><a href="index.html">Order Flow</a> / <span>Hyperliquid · SL / TP карты</span></div><div class="depth"><span>Глубина</span><button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button><button class="level-btn" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button><button class="level-btn active" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button></div></div>
+  <header class="hero"><div class="kicker">§16 · Hyperliquid positioning</div><h1>Hyperliquid<br>SL / TP карты</h1><p>Стопы показывают, где движение может <strong>ускориться</strong>; тейки — где оно может <strong>замедлиться</strong> после fill. Это карта positioning на HL, а не готовые support/resistance или сигнал «войти в кластер».</p><div class="accent-line"></div></header>
+  <div class="platform-note"><span class="pn-badge">MMT</span><div>В <strong>Market Monkey Terminal</strong> читай <strong>Hyperliquid Stop Heatmap</strong> и <strong>TP Heatmap</strong> раздельно. Сначала визуально проверь активные плотные кластеры у текущей цены, затем используй <code>hl_data.py</code> на том же окне как второй слой: для точных price buckets и ranking, а не для создания зон из воздуха.</div></div>
+
+  <div class="content">
+    <section class="section" id="what">
+      <div class="section-head"><span class="section-num">01</span><span class="section-badge">what</span><h2>Что измеряют SL и TP карты</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · база</span><p class="lead">Обе карты показывают скопления сценарных ордеров участников <strong>Hyperliquid</strong> вокруг текущей цены. <strong>SL heatmap</strong> помогает увидеть зоны, где loss/retest может включить принудительную агрессию. <strong>TP heatmap</strong> показывает вероятные области фиксации, где после fill/partial fill цена чаще замедляется или проверяет реакцию.</p>
+        <div class="grid" style="margin-top:18px;"><div class="card"><div class="card-title"><span class="pill sl">SL</span> Ускорение</div><p>Стопы выше цены могут усилить squeeze вверх после acceptance; стопы ниже — ускорить движение вниз после loss/retest.</p></div><div class="card"><div class="card-title"><span class="pill tp">TP</span> Замедление</div><p>TP-кластер — вероятная зона planned profit-taking. Он не разворачивает рынок сам, но делает реакцию после fill более вероятной.</p></div><div class="card"><div class="card-title"><span class="pill ctx">HL-SCOPE</span> Не весь рынок</div><p>Данные описывают Hyperliquid, а не глобальный рынок и не точные личные ордера каждого трейдера. Их читают как локальную positioning-карту.</p></div></div>
+        <div class="hl green"><span class="hl-label">Ключевое различие</span>SL отвечает: <strong>где может начаться acceleration</strong>. TP отвечает: <strong>где после движения возможны фиксация, slowdown и реакция</strong>. Не меняй им роли.</div>
+      </div>
+      <div class="l2"><span class="lvl-tag">L2 · чтение</span><div class="grid two"><div class="card"><div class="card-title">Не liquidation heatmap</div><p>Ликвидации — уже произошедший или оцениваемый forced-flow слой. SL/TP карты описывают positioning и возможную последовательность до факта ликвидаций.</p></div><div class="card"><div class="card-title">Не orderbook heatmap</div><p>OB heatmap — видимая пассивная ликвидность в стакане. SL/TP — возможные активные действия участников при достижении цены.</p></div></div></div>
+      <div class="l3"><span class="lvl-tag">L3 · эдж</span><div class="hl orange"><span class="hl-label">Сначала цена</span>Кластер без контекста — наблюдение. Роль появляется только вместе с уровнем и исходом: <strong>acceptance через stop pool</strong> даёт acceleration-case; <strong>TP fill + rejection/reclaim</strong> может дать slowdown/fade-case.</div></div>
+    </section>
+
+    <section class="section" id="stops">
+      <div class="section-head"><span class="section-num">02</span><span class="section-badge">stop pools</span><h2>Stop pools: ускорение только после триггера</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · база</span><p>Стоп-кластер не является поддержкой или сопротивлением. Он становится значимым, когда цена подходит к нему с направленным flow и <strong>принимает</strong> цены за промежуточной границей.</p>
+        <table class="compare"><thead><tr><th>Положение stop pool</th><th>Что может произойти</th><th>Что подтверждает</th></tr></thead><tbody><tr><td>Выше текущей цены</td><td>Возможный upside squeeze / short-cover.</td><td>Acceptance выше локального сопротивления, затем удержание/retest.</td></tr><tr><td>Ниже текущей цены</td><td>Возможное downside acceleration через long stops.</td><td>Loss поддержки, retest снизу или acceptance ниже.</td></tr></tbody></table>
+      </div>
+      <div class="l2"><span class="lvl-tag">L2 · чтение</span><div class="checklist"><div class="check"><strong>Путь:</strong> между ценой и pool должен быть понятный route без более близкой реактивной зоны, которая способна остановить движение.</div><div class="check"><strong>Density:</strong> важен плотный активный кластер, не одиночная старая линия.</div><div class="check"><strong>Trigger:</strong> acceptance / loss-retest должен случиться <em>до</em> ставки на acceleration.</div><div class="check"><strong>После fill:</strong> следующий pool — возможная цель; TP / passive liquidity — возможная зона замедления.</div></div></div>
+      <div class="l3"><span class="lvl-tag">L3 · эдж</span><div class="hl orange"><span class="hl-label">Анти-fade</span>Не шорти «потому что сверху стопы» и не лонгуй «потому что снизу стопы». Стопы — топливо для стороны, которая уже получила acceptance; против них работает только подтверждённый failed acceptance/reclaim.</div></div>
+    </section>
+
+    <section class="section" id="tp">
+      <div class="section-head"><span class="section-num">03</span><span class="section-badge">tp pools</span><h2>TP pools: фиксация — это место проверки</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · база</span><p>TP heatmap читается как <strong>planned profit-taking / slowdown-reaction zones</strong>. После fill или частичного fill часть движения может быть закрыта, поэтому цена чаще теряет скорость, строит паузу или даёт реакцию. Это не команда контртрендового входа.</p>
+        <div class="grid two" style="margin-top:18px;"><div class="card"><div class="card-title">TP совпадает с сопротивлением</div><p>Восходящий ход приходит в TP cluster у prior high / VAH / sell-side liquidity → ищи slowdown, absorption или rejection; без него тренд может пройти дальше.</p></div><div class="card"><div class="card-title">TP совпадает с поддержкой</div><p>Нисходящий ход приходит в TP cluster у support / VAL / buy-side liquidity → частичная фиксация может замедлить продажу; long появляется только после reclaim/rejection.</p></div></div>
+      </div>
+      <div class="l2"><span class="lvl-tag">L2 · чтение</span><table class="compare"><thead><tr><th>После TP fill</th><th>Price result</th><th>Вывод</th></tr></thead><tbody><tr><td>Замедление + reject</td><td>Цена не удерживает экстремум, возвращается через локальный уровень.</td><td>Фиксация стала реакцией; возможен fade при ясной invalidation.</td></tr><tr><td>Пауза + acceptance</td><td>Рынок балансируется, но удерживается за TP-зоной.</td><td>TP лишь замедлил ход; continuation к следующей цели остаётся активным.</td></tr><tr><td>Быстрый проход</td><td>TP cluster не даёт заметного результата.</td><td>Не придумывай разворот; следующая зона важнее.</td></tr></tbody></table></div>
+      <div class="l3"><span class="lvl-tag">L3 · эдж</span><div class="hl green"><span class="hl-label">Роль тейков</span>TP pool часто улучшает <strong>take-profit план</strong> для уже открытой сделки. Для нового countertrend entry сначала нужны price result и микро-триггер — иначе это попытка поймать поезд за рукав.</div></div>
+    </section>
+
+    <section class="section" id="story">
+      <div class="section-head"><span class="section-num">04</span><span class="section-badge">case</span><h2>Кейс: stop acceleration → TP slowdown</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · кейс</span><p class="lead">Цена стоит под сопротивлением. Кластер SL сверху не даёт лонг сам по себе: рабочая идея появляется после acceptance через сопротивление. Stop pool ускоряет squeeze; следующий TP pool становится местом, где прибыль фиксируют и цена должна доказать continuation или дать реакцию.</p><div class="diagram"><div id="hl-story"></div><div class="case-caption"><strong>История на одном экране:</strong> уровень → acceptance → stop-fuel → TP fill → price result. Оба кластера — этапы маршрута, не независимые сигналы.</div></div></div>
+      <div class="l2"><span class="lvl-tag">L2 · причинность</span><div class="grid two"><div class="card"><div class="card-title">До stop pool</div><p>Пока сопротивление не принято, верхний SL cluster — только возможная цель. Рынок может отвергнуть уровень и не пойти за стопами.</p></div><div class="card"><div class="card-title">После TP pool</div><p>Пока TP fill не дал rejection, тейки — не short. Пауза над зоной и acceptance переводят фокус на следующий target.</p></div></div></div>
+      <div class="l3"><span class="lvl-tag">L3 · сделка как фреймворк</span><div class="steps"><div class="step"><strong>Контекст</strong><span>Сопротивление + pool сверху; есть следующий clear target и нет близкого opposing level.</span></div><div class="step"><strong>Триггер</strong><span>Acceptance выше resistance, затем retest/hold или break high реакции.</span></div><div class="step"><strong>Управление</strong><span>SL cluster — ускоритель пути; TP cluster — место снизить риск и заново прочитать flow.</span></div><div class="step"><strong>Отмена</strong><span>Failed acceptance/reclaim сопротивления отменяет continuation до stop pool.</span></div></div></div>
+    </section>
+
+    <section class="section" id="asymmetry">
+      <div class="section-head"><span class="section-num">05</span><span class="section-badge">asymmetry</span><h2>Positioning asymmetry: где battle zone</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · база</span><p>Карта полезна не количеством линий, а <strong>асимметрией ближайших активных clusters</strong>: где плотнее SL, где расположен первый TP и какая зона станет ближайшей борьбой при движении цены.</p><div class="grid"><div class="card"><div class="card-title">Stops выше, TP выше</div><p>После acceptance вверх путь может ускориться к SL, затем встретить TP slowdown. Это маршрут continuation, пока price result его не отменил.</p></div><div class="card"><div class="card-title">Stops ниже, TP ниже</div><p>Зеркальная логика: loss/retest вниз может ускорить ход к SL, а TP below — стать первым slowdown checkpoint.</p></div><div class="card"><div class="card-title">Плотность с обеих сторон</div><p>Двусторонние pools сами по себе дают range / whipsaw-risk. Не выдумывай lean без структуры и acceptance границы.</p></div></div></div>
+      <div class="l2"><span class="lvl-tag">L2 · чтение</span><div class="hl"><span class="hl-label">Позиционный вывод</span>В заметке не перечисляй весь heatmap. Пиши: где ближний <strong>acceleration pool</strong>, где первый <strong>slowdown pool</strong>, какой уровень отделяет bull от bear и что должно случиться, чтобы карта сменила роль.</div></div>
+      <div class="l3"><span class="lvl-tag">L3 · эдж</span><div class="hl orange"><span class="hl-label">Не смешивай слои</span>SL/TP-карта описывает HL positioning. Orderbook показывает пассивные лимитки, liquidation map — плечо/forced flow, footprint — исполненную агрессию. Конфлюэнс собирается только после того, как каждый слой прочитан в своей роли.</div></div>
+    </section>
+
+    <section class="section" id="mmt">
+      <div class="section-head"><span class="section-num">06</span><span class="section-badge">mmt</span><h2>MMT и данные HL: сначала карта, потом ranking</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · workflow</span><div class="steps"><div class="step"><strong>Отдельные карты</strong><span>Открой Stop Heatmap и TP Heatmap по отдельности. Смешанный screenshot ломает чтение роли кластера.</span></div><div class="step"><strong>Активный масштаб</strong><span>Держи текущую цену и ближайшие pools сверху/снизу в приближенном view; старый дальний контекст вторичен.</span></div><div class="step"><strong>Визуальный read</strong><span>Отметь только плотные, живые кластеры и их расположение относительно price/structure.</span></div><div class="step"><strong>Проверка API</strong><span><code>hl_data.py</code> на том же TF/окне уточняет buckets и ranking; screen остаётся проверкой актуальности.</span></div></div></div>
+      <div class="l2"><span class="lvl-tag">L2 · что даёт hl_data.py</span><table class="compare"><thead><tr><th>Данные</th><th>Полезно для</th><th>Не использовать как</th></tr></thead><tbody><tr><td>Stop clusters</td><td>Ranking ближайших acceleration pools above/below, расстояние и плотность касаний.</td><td>Автоматический сигнал или точную линию входа.</td></tr><tr><td>TP clusters</td><td>Ranking slowdown/reaction checkpoints и план частичной фиксации.</td><td>Гарантированный разворот.</td></tr><tr><td>Decay / recent rows</td><td>Приоритет свежей активной плотности над старым следом.</td><td>Замена визуальной проверки stale/inactive линий.</td></tr></tbody></table></div>
+      <div class="l3"><span class="lvl-tag">L3 · правило качества</span><div class="hl orange"><span class="hl-label">Если данные расходятся</span>Не выбирай автоматически API. Визуал приоритетнее для активности и формы кластера; API — для bucket, score и ranking. Если плотного живого pool на карте нет, не создавай зону только по числу из скрипта.</div><div class="links">Связанные слои: <a href="liquidations.html">Liquidations</a>, <a href="obheatmap.html">Orderbook heatmap</a>, <a href="footprint.html">Footprint</a>, <a href="oi.html">Open Interest</a>.</div></div>
+    </section>
+
+    <section class="section" id="playbook">
+      <div class="section-head"><span class="section-num">07</span><span class="section-badge">playbook</span><h2>Execution playbook: маршрут, триггер, инвалидация</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · каркас</span><div class="steps"><div class="step"><strong>Выбери сторону</strong><span>Структура / value / key level задают сценарий. HL карта лишь уточняет путь и ближайшие battle zones.</span></div><div class="step"><strong>Найди pool</strong><span>Stop cluster = acceleration target; TP cluster = slowdown checkpoint. Не называй их S/R без реакции.</span></div><div class="step"><strong>Дождись цены</strong><span>Acceptance/loss-retest для stop-case; fill + rejection/reclaim для TP-fade.</span></div><div class="step"><strong>Управляй риском</strong><span>Сокращайся у TP checkpoint, runner оставляй только при continuation acceptance к следующему pool.</span></div></div></div>
+      <div class="l2"><span class="lvl-tag">L2 · рабочие сценарии</span><table class="compare"><thead><tr><th>Идея</th><th>Триггер</th><th>Инвалидация</th></tr></thead><tbody><tr><td><strong>Stop-run continuation</strong></td><td>Loss/retest или acceptance через границу в сторону ближайшего SL pool.</td><td>Failed acceptance / reclaim границы до запуска acceleration.</td></tr><tr><td><strong>TP slowdown fade</strong></td><td>TP fill у внешнего level → absorption/rejection → break/retest микро-структуры.</td><td>Acceptance через TP-зону и удержание за ней.</td></tr><tr><td><strong>TP as management</strong></td><td>Открытая сделка приходит в первый TP pool без контрсигнала.</td><td>Не вход, а причина частично зафиксировать и повторно оценить continuation.</td></tr></tbody></table></div>
+      <div class="l3"><span class="lvl-tag">L3 · риск</span><div class="hl green"><span class="hl-label">Стоп и цель</span>Стоп ставится за <strong>фактическую invalidation</strong> структуры — acceptance против идеи, loss/reclaim или sweep — не за границу HL cluster. TP1 строится от ближайшего slowdown / magnet, TP2 — от следующей профильной или liquidity-zone. Если TP1 не даёт R:R, идея не обязана быть сделкой.</div></div>
+    </section>
+
+    <section class="section" id="traps">
+      <div class="section-head"><span class="section-num">08</span><span class="section-badge">traps</span><h2>Ловушки чтения SL / TP карт</h2></div>
+      <div class="l1"><span class="lvl-tag">L1 · анти-чеклист</span><div class="grid two"><div class="card"><div class="card-title">Стопы ≠ направление</div><p>Кластер выше не делает рынок бычьим, ниже — медвежьим. Это топливо, которое работает только за стороной с acceptance.</p></div><div class="card"><div class="card-title">Тейки ≠ разворот</div><p>TP cluster может дать паузу, частичную фиксацию или реакцию; сильный тренд часто принимает цену дальше.</p></div><div class="card"><div class="card-title">Один venue ≠ весь рынок</div><p>HL positioning нельзя выдавать за глобальную карту BTC. Его сила растёт, когда price action и независимые слои не конфликтуют.</p></div><div class="card"><div class="card-title">Старый след ≠ active pool</div><p>Кластеры меняются. Свежая плотность и визуальная активность важнее красивого старого уровня из API или прошлого screenshot.</p></div></div></div>
+      <div class="l2"><span class="lvl-tag">L2 · быстрый вопрос</span><div class="hl"><span class="hl-label">Перед кликом</span><strong>Это SL или TP? Где price относительно pool? Что запускает реакцию? Что отменяет сценарий?</strong> Если один ответ отсутствует — перед тобой карта, а не торговый сетап.</div></div>
+    </section>
+  </div>
+</main>
+<button class="scroll-top" aria-label="Наверх"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>
+(function(){
+  var buttons=document.querySelectorAll('.level-btn'),body=document.body;buttons.forEach(function(btn){btn.addEventListener('click',function(){buttons.forEach(function(b){b.classList.remove('active');});btn.classList.add('active');body.dataset.level=btn.dataset.lvl;});});var top=document.querySelector('.scroll-top');window.addEventListener('scroll',function(){top.classList.toggle('visible',window.scrollY>300);});top.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+  var NS='http://www.w3.org/2000/svg';function E(t,a){var e=document.createElementNS(NS,t);Object.keys(a||{}).forEach(function(k){e.setAttribute(k,a[k]);});return e;}function tx(svg,s,x,y,o){o=o||{};var e=E('text',{x:x,y:y,fill:o.fill||'#c6c6ce','font-size':o.size||12,'font-family':"'JetBrains Mono', monospace",'font-weight':o.weight||500,'text-anchor':o.anchor||'start'});e.textContent=s;svg.appendChild(e);return e;}function r(svg,x,y,w,h,o){o=o||{};var e=E('rect',{x:x,y:y,width:w,height:h,rx:o.rx||0,fill:o.fill||'none',stroke:o.stroke||'none','stroke-width':o.width||0,opacity:o.opacity==null?1:o.opacity});svg.appendChild(e);return e;}function ln(svg,x1,y1,x2,y2,o){o=o||{};var e=E('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:o.stroke||'#45454b','stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity});if(o.dash)e.setAttribute('stroke-dasharray',o.dash);svg.appendChild(e);return e;}function p(svg,d,o){o=o||{};var e=E('path',{d:d,fill:'none',stroke:o.stroke||'#ececef','stroke-width':o.width||1.7,'stroke-linecap':'round','stroke-linejoin':'round'});if(o.dash)e.setAttribute('stroke-dasharray',o.dash);svg.appendChild(e);return e;}function candle(svg,x,a,b,hi,lo){var up=b<a,col=up?'#f0f0f2':'#505057',y=Math.min(a,b),h=Math.max(4,Math.abs(a-b));ln(svg,x+6,hi,x+6,lo,{stroke:col,width:1.1});r(svg,x,y,12,h,{fill:col,stroke:up?'#f0f0f2':'#606068',width:.7});}
+  function story(){var svg=E('svg',{viewBox:'0 0 1280 610',role:'img','aria-label':'Кейс Hyperliquid: acceptance в stop pool, ускорение и TP slowdown'});r(svg,0,0,1280,610,{fill:'#08080a'});r(svg,24,19,280,22,{rx:4,fill:'#111116',stroke:'#303038',width:1});tx(svg,'КЕЙС · ACCEPTANCE → SL → TP',34,34,{size:10,fill:'#d9b8ff',weight:700});
+    [[28,78,356,'1 · До: сопротивление не принято'],[394,78,380,'2 · SL pool ускоряет только после acceptance'],[786,78,466,'3 · TP pool проверяет continuation']].forEach(function(a){r(svg,a[0],a[1],a[2],330,{rx:8,fill:'#0e0e12',stroke:'#2a2a31',width:1});tx(svg,a[3],a[0]+16,a[1]+26,{size:11,fill:'#c6c6ce',weight:700});});
+    ln(svg,48,274,362,274,{stroke:'#9a9aa2',width:1.1,dash:'5 4'});tx(svg,'resistance',55,267,{size:10,fill:'#c6c6ce'});[[286,286,275,305],[279,270,260,291],[272,281,258,293],[281,274,264,290],[274,282,261,291],[281,270,256,289]].forEach(function(c,i){candle(svg,81+i*32,c[0],c[1],c[2],c[3]);});tx(svg,'верхний pool — только target, пока нет acceptance',48,382,{size:10,fill:'#8a8a92'});
+    ln(svg,414,260,754,260,{stroke:'#9a9aa2',width:1.1,dash:'5 4'});tx(svg,'accepted resistance',583,253,{size:10,fill:'#c6c6ce'});r(svg,414,180,340,47,{rx:5,fill:'rgba(255,140,58,.10)',stroke:'#ff8c3a',width:1});tx(svg,'HL STOP POOL · squeeze fuel',430,202,{size:10.5,fill:'#ffc599',weight:700});[[300,282,270,312],[280,258,247,292],[259,226,214,269],[227,196,180,237],[197,179,164,209],[180,164,150,191]].forEach(function(c,i){candle(svg,448+i*38,c[0],c[1],c[2],c[3]);});p(svg,'M 554 252 L 593 217 L 642 176',{stroke:'#ff8c3a',width:2.2});tx(svg,'acceptance → stop acceleration',432,382,{size:10,fill:'#ffc599'});
+    r(svg,806,152,426,49,{rx:5,fill:'rgba(255,210,63,.10)',stroke:'#ffd23f',width:1});tx(svg,'HL TP POOL · planned profit-taking',822,176,{size:10.5,fill:'#ffe08a',weight:700});[[248,221,208,260],[221,185,170,229],[186,166,150,196],[166,181,150,194],[181,174,160,192],[174,160,149,183],[160,145,132,170]].forEach(function(c,i){candle(svg,842+i*40,c[0],c[1],c[2],c[3]);});ln(svg,820,216,1228,216,{stroke:'#ffd23f',width:1,dash:'4 4'});tx(svg,'fill → скорость падает; решение даёт rejection или acceptance',806,382,{size:10,fill:'#ffe08a'});
+    ln(svg,28,451,1252,451,{stroke:'#303038'});tx(svg,'Гипотеза',40,485,{size:11,fill:'#d9b8ff',weight:700});tx(svg,'структура задаёт сторону; HL pools описывают путь.',40,506,{size:10.5,fill:'#b7b7be'});tx(svg,'Подтверждение',434,485,{size:11,fill:'#ffc599',weight:700});tx(svg,'acceptance + hold/retest запускают stop-fuel.',434,506,{size:10.5,fill:'#b7b7be'});tx(svg,'Управление',838,485,{size:11,fill:'#ffe08a',weight:700});tx(svg,'TP pool — checkpoint: фиксируй/переоцени, не разворачивай вслепую.',838,506,{size:10.5,fill:'#b7b7be'});tx(svg,'SL = acceleration zone · TP = slowdown zone · price result decides.',640,568,{size:11,fill:'#ececef',anchor:'middle',weight:600});return svg;}
+  document.getElementById('hl-story').appendChild(story());
+})();
+</script>
+</body>
+</html>

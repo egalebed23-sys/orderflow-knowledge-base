@@ -114,9 +114,7 @@
     <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
     <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
-    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
-    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
@@ -126,9 +124,9 @@
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item active" href="#"><span class="nav-num">13</span> VWAP</a>
     <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
     <div class="nav-sep">// фундамент</div>
     <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
@@ -178,7 +176,7 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p><strong>VWAP</strong> (Volume Weighted Average Price) — средняя цена, <strong>взвешенная по объёму</strong> за период. «Истинная средняя», институциональный бенчмарк справедливой цены.</p>
+        <p><strong>VWAP</strong> (Volume Weighted Average Price) — средняя цена, <strong>взвешенная по объёму</strong> за выбранный период. Это торговый бенчмарк средней цены исполнения, а не объективная «истинная стоимость» рынка.</p>
         <div class="formula">VWAP = Σ(цена × объём) ÷ Σ(объём)</div>
 
         <div class="diagram">
@@ -194,8 +192,8 @@
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
           <li>Сбрасывается на старте периода (session / daily VWAP) и эволюционирует во времени</li>
-          <li><strong>Выше VWAP</strong> = контроль покупателей, <strong>ниже</strong> = продавцов (как opens)</li>
-          <li>Цена тяготеет <strong>вернуться к VWAP</strong> — это якорь</li>
+          <li><strong>Выше VWAP</strong> = цена торгуется выше средней текущего окна, <strong>ниже</strong> — ниже неё. Направление подтверждают slope, acceptance и контекст аукциона.</li>
+          <li>В балансе VWAP часто работает как якорь mean-reversion; в displacement цена может долго не возвращаться к нему.</li>
         </ul>
       </div>
 
@@ -221,13 +219,13 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>VWAP держит, потому что это бенчмарк <strong>реальных потоков</strong>:</p>
+        <p>VWAP полезен, потому что это распространённый <strong>бенчмарк исполнения и контекста</strong>, а не потому, что сама линия обязана «держать» цену:</p>
         <ul>
-          <li><strong>Алго исполнения</strong> (VWAP/TWAP) равняются на VWAP → реальный поток его защищает</li>
-          <li><strong>Фонды</strong> меряют качество исполнения относительно VWAP: купил выше VWAP — плохо, ниже — хорошо</li>
-          <li>Это «справедливая цена», на которой сходятся интрадей → <strong>mean reversion</strong></li>
+          <li><strong>Алго исполнения</strong> (VWAP/TWAP) используют среднюю цену как benchmark, поэтому она помогает интерпретировать качество и расположение исполнения</li>
+          <li><strong>Фонды</strong> часто меряют качество исполнения относительно VWAP, но «выше = плохо, ниже = хорошо» зависит от стороны, задачи и размера сделки</li>
+          <li>В сбалансированном аукционе средняя цена становится естественным центром ротации; в тренде её роль может смениться на dynamic S/R</li>
         </ul>
-        <div class="hl green"><span class="hl-label">Главное</span>Вот почему цена возвращается к VWAP — это не магия, а <strong>алго и бенчмарки</strong>, тянущие исполнение к средней. Реальный механизм, а не «линия на графике».</div>
+        <div class="hl green"><span class="hl-label">Главное</span>VWAP помогает назвать, <strong>где проходит средняя цена бизнеса</strong>. Реакцию создаёт текущий аукцион: balance даёт ротацию к центру, accepted trend — удержание с одной стороны от него.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -259,7 +257,7 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>VWAP привязан к старту периода и <strong>сбрасывается</strong>:</p>
+        <p>VWAP привязан к старту периода и <strong>сбрасывается</strong>. Сначала зафиксируй, какой именно календарь/сессия используется в площадке: дневной VWAP с разным временем reset — это разные референсы.</p>
         <ul>
           <li><strong>Session / Daily</strong> — интрадей-бенчмарк (сброс каждый день)</li>
           <li><strong>Weekly / Monthly</strong> — HTF справедливая цена (свинговый якорь)</li>
@@ -277,8 +275,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Daily VWAP — интрадей-якорь; weekly/monthly — для свинга</li>
-          <li>Совпадение нескольких rolling VWAP на одной цене = усиление зоны</li>
+          <li>Daily VWAP — интрадей-якорь; weekly/monthly — для свинга. Не сравнивай текущий daily с прошлым без учёта reset.</li>
+          <li>Совпадение нескольких rolling VWAP на одной цене = более интересная зона проверки; конфликт daily и weekly означает смешанный контекст, а не готовый сигнал.</li>
         </ul>
       </div>
 
@@ -304,7 +302,7 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Вокруг VWAP строят полосы стандартного отклонения (<strong>±1σ, ±2σ</strong>) — где цена «растянута» от справедливой.</p>
+        <p>Вокруг VWAP строят полосы стандартного отклонения (<strong>±1σ, ±2σ</strong>) — это измерение текущего разброса цены вокруг средней, а не автоматические границы разворота.</p>
 
         <div class="diagram">
           <div data-vwap="bands"></div>
@@ -321,8 +319,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>±1σ ≈ обычный диапазон; выход за <strong>±2σ</strong> = перерастянуто</li>
-          <li>В рейндже → реверсия к VWAP; в тренде → сила (band-walk)</li>
+          <li>Не читай σ как фиксированные 68/95%: распределение крипторынка не обязано быть нормальным, а метод расчёта полос в платформах может отличаться.</li>
+          <li>В рейндже ±2σ часто создаёт место для проверки реверсии; в тренде band-walk означает силу только при acceptance и price progress.</li>
         </ul>
       </div>
 
@@ -341,14 +339,14 @@
   <section class="section" id="naked">
     <div class="section-header">
       <span class="section-num">05</span>
-      <span class="section-title">Naked VWAP</span>
+      <span class="section-title">VWAP прошлого периода / «naked»</span>
       <span class="section-badge">magnet</span>
     </div>
     <div class="section-body">
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p><strong>Naked VWAP</strong> — непротестированный VWAP (или VWAP прошлого периода, к которому ещё не возвращались). Работает как магнит, по аналогии с naked POC: цена тяготеет вернуться.</p>
+        <p><strong>Naked VWAP</strong> — непротестированный VWAP прошлого периода. Это полезный reference средней цены предыдущего аукциона, но не обязательный «магнит»: цена может долго строить value в новом месте и не возвращаться к нему.</p>
       </div>
 
       <hr class="lvl-divider">
@@ -356,8 +354,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Naked daily/weekly VWAP прошлой сессии = цель и референс на сегодня</li>
-          <li>Закрытие предыдущего периода у VWAP = ожидаемый ретест</li>
+          <li>Naked daily/weekly VWAP прошлого периода = возможная цель и reference на сегодня, особенно если он совпадает с value / ликвидностью</li>
+          <li>Закрытие предыдущего периода у VWAP даёт важный контекст, но ретест должен подтвердить текущий flow и acceptance/rejection</li>
         </ul>
       </div>
 
@@ -397,7 +395,7 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>AVWAP от значимого <strong>лоя</strong> = поддержка (купившие там — в профите, защищают); от <strong>хая</strong> = сопротивление</li>
+          <li>AVWAP от значимого <strong>лоя</strong> может стать поддержкой после hold/reclaim; от <strong>хая</strong> — сопротивлением после reject. Участники не обязаны «защищать» безубыток автоматически.</li>
           <li><strong>yVWAP</strong> (годовой anchored) — важный HTF-якорь справедливой цены</li>
         </ul>
       </div>
@@ -406,7 +404,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Эдж</span>Якорь к реальному событию (капитуляция, breakout, HTF-свинг) даёт самый «осмысленный» S/R — уровень <strong>безубытка</strong> вошедших там. Реклейм / потеря AVWAP = смена контроля когорты.</div>
+        <div class="hl azure"><span class="hl-label">Эдж</span>Якорь выбирают по <strong>проверяемому событию</strong> (капитуляция, breakout, HTF-свинг), а не под желаемую сделку. Один событийно осмысленный AVWAP сильнее веера случайных линий; reclaim / потеря затем проверяют смену контроля когорты.</div>
       </div>
 
     </div>
@@ -426,7 +424,7 @@
         <span class="lvl-tag">L1 · База</span>
         <p>VWAP = <strong>bias + mean-reversion + динамический S/R</strong>:</p>
         <ul>
-          <li>Выше = лонг-уклон, ниже = шорт-уклон</li>
+          <li>Положение выше/ниже = контекст текущего аукциона; bias появляется только вместе со slope и acceptance/rejection</li>
           <li>От полос (±2σ) — реверсия к VWAP</li>
           <li>Reclaim / reject VWAP или AVWAP = триггер смены контроля</li>
         </ul>
@@ -437,7 +435,7 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <div class="grid2">
-          <div class="card"><div class="card-title">Bias-фильтр</div>Торгуй в сторону положения относительно VWAP (над → лонги, под → шорты).</div>
+          <div class="card"><div class="card-title">Bias-фильтр</div>Положение и наклон VWAP задают контекст; вход — только после удержания/reclaim или reject, а не потому что цена оказалась «над».</div>
           <div class="card"><div class="card-title">Band reversion</div>От ±2σ обратно к VWAP — в рейндже / сбалансированном дне.</div>
           <div class="card"><div class="card-title">AVWAP S/R</div>Фейд / отбой от AVWAP значимого события (свинг, пробой, yVWAP).</div>
           <div class="card"><div class="card-title">VWAP reclaim</div>Возврат и закрепление через VWAP = смена интрадей-контроля.</div>
@@ -475,9 +473,9 @@
         <span class="lvl-tag">L2 · Чтение</span>
         <p>Чек-лист перед сессией:</p>
         <ul>
-          <li>Нанеси <strong>daily + weekly VWAP</strong> и σ-полосы</li>
-          <li><strong>AVWAP</strong> от последнего значимого свинга / пробоя (и yVWAP на свинге)</li>
-          <li>Определи bias (выше/ниже) и растянутость (полосы)</li>
+          <li>Нанеси <strong>daily + weekly VWAP</strong>, σ-полосы и проверь время reset</li>
+          <li><strong>AVWAP</strong> только от объективного события: последнего значимого свинга, капитуляции или пробоя (и yVWAP на свинге)</li>
+          <li>Определи режим (balance / displacement), затем location, slope и растянутость</li>
           <li>Жди reclaim / reject у конфлюэнса + подтверждение потоком</li>
         </ul>
       </div>
@@ -487,7 +485,7 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl red"><span class="hl-label">Ловушка</span>Band-walk в тренде: не фейди ±2σ вслепую — сначала режим. И VWAP сам по себе не сигнал, нужен триггер (reclaim/reject + поток).</div>
-        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>VWAP/AVWAP (центр/якорь) → bias + растянутость → reclaim/reject у конфлюэнса → поток-триггер (CVD/footprint) → вход. Стоп за VWAP/полосу, R до следующей полосы/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>VWAP/AVWAP (центр/якорь) → режим + location → reclaim/reject у конфлюэнса → поток-триггер (CVD/footprint) → вход. Стоп ставится за <strong>фактическую invalidation</strong> (loss/reclaim или sweep), а не механически за VWAP/полосу; R — до следующей полосы/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
       </div>
 
     </div>

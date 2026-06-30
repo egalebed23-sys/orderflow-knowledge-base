@@ -114,9 +114,7 @@
     <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
     <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
-    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
-    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
@@ -126,9 +124,9 @@
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
     <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
     <div class="nav-sep">// фундамент</div>
     <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
@@ -178,7 +176,7 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p><strong>Ликвидация</strong> — принудительное закрытие позиции с плечом, когда маржи не хватает. Биржа сама закрывает позицию по ликвидационной цене <strong>рыночным ордером</strong>.</p>
+        <p><strong>Ликвидация</strong> — принудительное сокращение или закрытие позиции с плечом, когда маржи не хватает. Механика исполнения зависит от биржи, но для потока это <strong>недобровольная агрессивная продажа или покупка</strong>, способная ускорить движение.</p>
         <ul>
           <li><strong>Long-ликвидация = принудительная ПРОДАЖА</strong> → давит цену вниз</li>
           <li><strong>Short-ликвидация = принудительная ПОКУПКА</strong> → толкает цену вверх</li>
@@ -272,8 +270,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Каскад = <strong>климактический flush</strong>: вертикальная свеча, пик объёма и ликвидаций, обвал OI</li>
-          <li>Чаще это <strong>конец</strong> движения, а не начало нового тренда — топливо выгорает</li>
+          <li>Каскад часто выглядит как <strong>климактический flush</strong>: вертикальная свеча, пик объёма и ликвидаций, обвал OI</li>
+          <li>Но сам flush не говорит «разворот»: при acceptance через экстремум и следующем плотном кластере он может продолжиться. Конец движения подтверждают absorption и reclaim, а не размер свечи.</li>
         </ul>
       </div>
 
@@ -343,7 +341,7 @@
           <div data-liq-heatmap></div>
         </div>
 
-        <p>Цена <strong>тянется к кластерам</strong> (магнит): рынок ищет ликвидность → «liquidity grab» / охота за ликвидациями.</p>
+        <p>Кластер — возможный <strong>магнит и ускоритель</strong>, а не обещание маршрута: цена может дойти до него при подходящем flow и свободном пути, а может развернуться раньше у другой зоны ликвидности.</p>
       </div>
 
       <hr class="lvl-divider">
@@ -351,8 +349,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Кластер <strong>сверху</strong> = магнит вверх (там short-ликвидации); <strong>снизу</strong> = магнит вниз (long-ликвидации)</li>
-          <li>Крупный игрок может толкать цену <em>в</em> кластер, чтобы триггернуть ликвидации (каскад себе в пользу)</li>
+          <li>Кластер <strong>сверху</strong> может ускорить ход вверх через short-ликвидации; <strong>снизу</strong> — ход вниз через long-ликвидации. Направление подтверждает price action до кластера.</li>
+          <li>Планируй кластер как <strong>зону события</strong>: до fill — возможный target, после fill — смотри, есть ли acceptance для continuation или absorption для reversal.</li>
         </ul>
       </div>
 
@@ -394,8 +392,8 @@
           <thead><tr><th>Фаза</th><th>OI</th><th>Funding</th><th>Ликвидации</th></tr></thead>
           <tbody>
             <tr><td>Перегрев (до каскада)</td><td>↑</td><td>экстрим</td><td>копятся кластеры</td></tr>
-            <tr><td>Каскад вниз</td><td>↓ резко</td><td>→ 0</td><td class="l">long-liq спайк</td></tr>
-            <tr><td>Short-squeeze вверх</td><td>↓ резко</td><td>→ 0</td><td class="s">short-liq спайк</td></tr>
+            <tr><td>Каскад вниз</td><td>↓ резко</td><td>часто нормализуется</td><td class="l">long-liq спайк</td></tr>
+            <tr><td>Short-squeeze вверх</td><td>↓ резко</td><td>часто нормализуется</td><td class="s">short-liq спайк</td></tr>
           </tbody>
         </table>
       </div>
@@ -433,9 +431,9 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li>Где кластеры <strong>сверху/снизу</strong> относительно цены — туда магнит</li>
-          <li>Размер liq-событий — climax (разовый гигант) vs ровный поток</li>
-          <li>Совпадение кластера с key level / naked POC = усиление</li>
+          <li>Где кластеры <strong>сверху/снизу</strong> относительно цены — там потенциальный магнит/ускорение, но не готовая directional-ставка</li>
+          <li>Размер liq-событий — climax (разовый гигант) vs ровный поток; различай <strong>прогноз heatmap</strong> и уже случившийся принудительный поток в фиде</li>
+          <li>Совпадение кластера с key level / naked POC даёт место для проверки реакции, не вход на касание</li>
         </ul>
       </div>
 
@@ -443,7 +441,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Комбинируй Liquidation Heatmap с VPVR (naked POC) и HL Stops Map: где ликвидации + стопы + объёмный уровень сошлись — сильнейшая зона притяжения и разворота.</div>
+        <div class="hl azure"><span class="hl-label">Конфлюэнс</span>Сверяй Liquidation Heatmap с VPVR (naked POC) и <a href="hlstops.html" style="color:#d9b8ff;">HL SL / TP картой</a>. Совпадение ликвидаций, стопов и объёмного уровня создаёт качественную зону наблюдения; реакцию и направление всё равно подтверждают цена и поток.</div>
       </div>
 
     </div>
@@ -469,10 +467,10 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <div class="grid2">
-          <div class="card"><div class="card-title">Fade the flush</div>Liq-spike + absorption на key level → контртренд (разворот после капитуляции).</div>
-          <div class="card"><div class="card-title">Magnet / target</div>Кластер heatmap как цель/магнит — жди подхода и реакции у него.</div>
-          <div class="card"><div class="card-title">Не лови нож</div>В середине каскада не входишь — только после исчерпания.</div>
-          <div class="card"><div class="card-title">Перегрев → каскад</div>OI↑ + funding-экстрим + цена у кластера → жди триггер каскада.</div>
+          <div class="card"><div class="card-title">Fade the flush</div>Liq-spike у decision level → absorption → reclaim экстремума / break микро-структуры. Без reclaim это не разворотный вход.</div>
+          <div class="card"><div class="card-title">Magnet / target</div>Кластер heatmap — маршрутная цель, пока цена к нему идёт; после fill заново оцени acceptance или rejection.</div>
+          <div class="card"><div class="card-title">Continuation after flush</div>Не лови нож в каскаде: continuation допустим лишь после acceptance через первый кластер и ясного следующего target.</div>
+          <div class="card"><div class="card-title">Перегрев → каскад</div>OI↑ + funding-экстремум + loss/retest ключевой границы → триггер возможного каскада. Сам кластер не является триггером.</div>
         </div>
       </div>
 
@@ -480,8 +478,8 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">Ловушка</span>«Большие ликвидации = надо сразу лонговать» — нет. Нужен <strong>absorption + key level</strong>, иначе каскад продолжится в следующий кластер.</div>
-        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>key level / VP-наки → liq-кластер (магнит) → каскад/исчерпание → absorption (footprint/CVD) → вход. Стоп <strong>за liq-экстремум</strong>, R до следующего кластера/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl red"><span class="hl-label">После fill — два вопроса</span>Есть ли <strong>acceptance</strong> через экстремум к следующему кластеру, или forced flow уже <strong>поглощён</strong> и цена вернула уровень? Этот выбор определяет continuation против fade.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>key level / VP-наки → liq-кластер как маршрут → каскад/исчерпание → acceptance либо absorption (footprint/CVD) → вход. Стоп ставится <strong>за фактическую invalidation</strong>: acceptance через уровень для fade или loss/reclaim для continuation; R — до следующего кластера/уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
       </div>
 
     </div>

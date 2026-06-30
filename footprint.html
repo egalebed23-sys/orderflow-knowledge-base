@@ -113,9 +113,7 @@
     <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
     <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
     <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
-    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
-    <a class="nav-item disabled"><span class="nav-num">04</span> Volume bubbles <span class="nav-soon">скоро</span></a>
-    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
     <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
     <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
     <a class="nav-item active" href="#"><span class="nav-num">08</span> Footprint</a>
@@ -125,9 +123,9 @@
     <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
     <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
     <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
-    <a class="nav-item disabled"><span class="nav-num">15</span> Imbalances <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">16</span> HL Stops Map <span class="nav-soon">скоро</span></a>
-    <a class="nav-item disabled"><span class="nav-num">17</span> Market regime <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
     <div class="nav-sep">// фундамент</div>
     <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
   </div>
@@ -183,7 +181,7 @@
           <div data-fp="anatomy"></div>
         </div>
 
-        <div class="hl green"><span class="hl-label">Суть</span>Обычная свеча = итог (O/H/L/C). Footprint = <strong>как</strong> он сложился: где прошёл объём и кто (агрессор) двигал цену на каждом тике. Это микроструктура движения.</div>
+        <div class="hl green"><span class="hl-label">Суть</span>Обычная свеча = итог (O/H/L/C). Footprint = <strong>как</strong> он сложился: где прошёл объём и какая сторона исполнялась агрессивно на каждом тике. Это микроструктура движения, а не паспорт конкретного участника.</div>
       </div>
 
       <hr class="lvl-divider">
@@ -194,6 +192,7 @@
           <li>Каждая ячейка = цена × (bid vol | ask vol)</li>
           <li><strong>bid</strong> = торговля по биду (агрессивная продажа); <strong>ask</strong> = по аску (агрессивная покупка)</li>
           <li>Виды отображения: bid×ask, delta, volume, profile</li>
+          <li>Чтение зависит от источника, агрегации и размера бара: сравнивай сигналы на одной настройке и не переносишь вывод с одного масштаба на другой без проверки</li>
         </ul>
       </div>
 
@@ -222,7 +221,7 @@
         <p>Footprint ценен тем, что показывает <strong>агрессора и его исход</strong>:</p>
         <ul>
           <li>видно, кто бил рынок (инициатива) и сработала ли она — продолжение или <strong>absorption</strong></li>
-          <li>это «причина» движения, а не только «результат» (тело свечи)</li>
+          <li>это доказательство <strong>усилия и результата</strong>, которое дополняет тело свечи, а не заменяет контекст уровня</li>
         </ul>
         <div class="hl green"><span class="hl-label">Главное</span>Две свечи могут выглядеть одинаково, а footprint внутри — противоположный (накопление vs распределение). Вот эта разница и есть эдж.</div>
       </div>
@@ -259,7 +258,7 @@
         <ul>
           <li><strong>bid volume</strong> = агрессивная продажа (бьют в бид)</li>
           <li><strong>ask volume</strong> = агрессивная покупка (берут оффер)</li>
-          <li><strong>delta</strong> = ask − bid (на ячейку и на бар; накопленная дельта = <a href="cvd.html" style="color:#9cc5ec;">CVD</a>)</li>
+          <li><strong>delta</strong> = ask − bid (на ячейку и на бар); <a href="cvd.html" style="color:#9cc5ec;">CVD</a> суммирует такую агрессию во времени по выбранному источнику/агрегации</li>
         </ul>
         <div class="hl note"><span class="hl-label">Связь</span>Дельта бара &gt; 0 = покупатель агрессивнее. Накопленная дельта по барам и есть CVD. Footprint показывает, <em>где внутри бара</em> прошла эта дельта.</div>
       </div>
@@ -269,8 +268,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li><strong>Delta divergence:</strong> цена новый экстремум, а дельта — нет → слабость инициативы</li>
-          <li>Дельта в одну сторону + цена идёт = здоровое движение; дельта есть, цена стоит = absorption (§05)</li>
+          <li><strong>Delta divergence:</strong> цена новый экстремум, а дельта — нет → повод проверить слабость инициативы, не самостоятельный разворотный сигнал</li>
+          <li>Дельта в одну сторону + price progress = initiative; дельта есть, а цена стоит/возвращается = вероятное absorption (§05), которое требует подтверждения reject/reclaim</li>
         </ul>
       </div>
 
@@ -331,27 +330,27 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p><strong>Absorption</strong> — крупный объём/дельта в одну сторону, но цена <strong>не идёт</strong> → пассив (лимитки) впитал агрессию → разворот.</p>
+        <p><strong>Absorption</strong> — крупный объём/дельта в одну сторону, но цена <strong>не получает progress</strong>: пассив (лимитки) вероятно впитал агрессию. Разворот становится рабочей гипотезой только после rejection/reclaim.</p>
 
         <div class="diagram">
           <div data-fp="absorb"></div>
         </div>
 
-        <div class="hl green"><span class="hl-label">Смысл</span>«Агрессия проиграла»: бьют-бьют в стену, а цена стоит → агрессор истощается → разворот. Зеркало imbalance (где агрессия побеждает).</div>
+        <div class="hl green"><span class="hl-label">Смысл</span>«Агрессия пока проигрывает»: бьют-бьют в стену, а цена стоит. Это зеркало imbalance, но вход появляется лишь когда цена подтверждает отказ от продолжения.</div>
       </div>
 
       <hr class="lvl-divider">
 
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
-        <p>Тэлл: большая дельта <strong>+ цена на месте или против дельты</strong> = дивергенция → разворот. Часто видно крупные одинаковые принты bid и ask на одной цене (поглощение).</p>
+        <p>Тэлл: большая дельта <strong>+ цена на месте или против дельты</strong> = возможное поглощение. Затем ищи failed acceptance, reclaim уровня или слом локальной структуры; крупные принты сами по себе могут быть лишь паузой перед continuation.</p>
       </div>
 
       <hr class="lvl-divider">
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Сетап</span>Absorption у key level + хвост + разворот CVD = сильный разворотный контекст (разбирали на BTC: forced sells впитаны зелёным → отскок).</div>
+        <div class="hl azure"><span class="hl-label">Сетап</span>Absorption у key level + хвост + разворот CVD + reclaim = сильный разворотный контекст. Forced sells, которые остановились на поддержке, — не лонг до тех пор, пока рынок не покажет этот reclaim.</div>
       </div>
 
     </div>
@@ -371,8 +370,8 @@
         <span class="lvl-tag">L1 · База</span>
         <p>На самом краю бара (high/low):</p>
         <ul>
-          <li><strong>Finished auction</strong> — на крае 0 с одной стороны (напр. 0 bid на лою) = аукцион закрылся, экстремум «защищён»</li>
-          <li><strong>Unfinished auction</strong> — объём с <em>обеих</em> сторон на самом крае = аукцион не закончен → рынок вернётся «доторговать»</li>
+          <li><strong>Finished auction</strong> — на крае 0 с одной стороны (напр. 0 bid на лою): экстремум выглядит завершённым в рамках этого бара</li>
+          <li><strong>Unfinished auction</strong> — объём с <em>обеих</em> сторон на самом крае: экстремум остаётся незавершённым reference, который рынок <em>может</em> перепроверить</li>
         </ul>
 
         <div class="diagram">
@@ -385,8 +384,8 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <ul>
-          <li><strong>Unfinished high/low</strong> = цель/магнит (родственник poor high/low в <a href="tpo.html" style="color:#9cc5ec;">TPO</a>)</li>
-          <li><strong>Finished</strong> экстремум = надёжнее как S/R</li>
+          <li><strong>Unfinished high/low</strong> = потенциальный магнит/цель (родственник poor high/low в <a href="tpo.html" style="color:#9cc5ec;">TPO</a>), не обязательный ретест</li>
+          <li><strong>Finished</strong> экстремум лучше описывает закрытие аукциона этого бара, но сам по себе не делает поддержку/сопротивление</li>
         </ul>
       </div>
 
@@ -394,7 +393,7 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Магнит</span>Unfinished auction + naked POC / key level на той же цене = высоковероятная цель ретеста.</div>
+        <div class="hl azure"><span class="hl-label">Магнит</span>Unfinished auction + naked POC / key level на той же цене повышает качество <strong>сценария ретеста</strong>. Проверяй путь цены и acceptance: даже сильный reference не задаёт время и не гарантирует fill.</div>
       </div>
 
     </div>
@@ -418,11 +417,11 @@
         </div>
 
         <ul>
-          <li><strong>P-shape</strong> — объём сгущается сверху после движения вверх (шорт-сквиз / накопление снизу) — часто бычье основание</li>
-          <li><strong>b-shape</strong> — объём снизу, распродажа вниз (лонг-ликвидация) — часто медвежье</li>
+          <li><strong>P-shape</strong> — объём сгущается сверху после движения вверх: возможны short-covering, принятие higher value или поздняя покупка. Направление решает последующий аукцион.</li>
+          <li><strong>b-shape</strong> — объём сгущается снизу после движения вниз: возможны long-liquidation, responsive buying или принятие lower value. Форма не равна медвежьему сигналу без контекста.</li>
           <li><strong>Delta divergence</strong> — цена новый экстремум, дельта нет → слабость</li>
           <li><strong>Trapped traders</strong> — дельта/инициатива в одну сторону, но цена реверсит → толпа в ловушке</li>
-          <li><strong>Imbalance</strong> — диагональный перекос bid/ask → подробно в разделе <strong>Imbalances (§15)</strong></li>
+          <li><strong>Imbalance</strong> — диагональный перекос bid/ask → подробно в разделе <a href="imbalances.html" style="color:#9cc5ec;"><strong>Imbalances (§15)</strong></a></li>
         </ul>
       </div>
 
@@ -465,7 +464,7 @@
         <p>Чек-лист у уровня:</p>
         <div class="grid2">
           <div class="card"><div class="card-title">Absorption или imbalance?</div>Агрессию впитали (разворот) или она перебила (продолжение)?</div>
-          <div class="card"><div class="card-title">Finished / unfinished?</div>Экстремум закрыт или рынок вернётся доторговать?</div>
+          <div class="card"><div class="card-title">Finished / unfinished?</div>Есть ли reference незавершённого экстремума и подтверждает ли текущий аукцион сценарий его ретеста?</div>
           <div class="card"><div class="card-title">Delta</div>Подтверждает движение или дивергенция?</div>
           <div class="card"><div class="card-title">Footprint POC</div>Где центр тяжести бара относительно уровня?</div>
         </div>
@@ -475,8 +474,8 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>макро-уровень (VP / key level) → footprint-подтверждение (absorption / imbalance / exhaustion + delta) → вход. Стоп за экстремум бара, R до следующего уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
-        <div class="hl note"><span class="hl-label">См. также</span>Диагональные имбалансы (buy/sell, stacked, правило 3×) — отдельный раздел <strong>Imbalances (§15)</strong>.</div>
+        <div class="hl azure"><span class="hl-label">Рабочий каркас</span>макро-уровень (VP / key level) → footprint-подтверждение (absorption / imbalance / exhaustion + delta) → вход. Стоп ставится за <strong>фактическую invalidation</strong> — sweep, loss/reclaim или acceptance через уровень, а не механически за экстремум бара; R — до следующего уровня. Риск ≤1–2% (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl note"><span class="hl-label">См. также</span>Диагональные имбалансы (buy/sell, stacked, правило 3×) — отдельный раздел <a href="imbalances.html" style="color:#9cc5ec;"><strong>Imbalances (§15)</strong></a>.</div>
       </div>
 
     </div>
