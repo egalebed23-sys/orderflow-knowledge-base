@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практика · всё вместе</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --bg:#000000; --surface:#101012; --surface-2:#08080a; --border:#25252a; --border-2:#313137; --accent:#ffffff; --accent-azure:#b15cf0; --green:#ffd23f; --red:#ff8c3a; --text:#ececef; --muted:#8a8a92; --muted-2:#54545c; --tag-bg:#1a1a1d; --sidebar-w:264px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.7; display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface-2); border-right: 1px solid var(--border); padding: 28px 0 40px; position: fixed; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .sidebar-brand a.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; text-decoration: none; background: linear-gradient(90deg, #ffffff, #8a8a96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-brand .sub { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .nav-group { padding: 0 12px; margin-bottom: 18px; }
+  .nav-group-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 0 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13.5px; transition: all 0.15s; cursor: pointer; }
+  .nav-item:hover { background: var(--tag-bg); color: var(--text); }
+  .nav-item.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  .nav-item.active .nav-num { color: var(--accent); }
+  .nav-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: var(--muted); }
+  .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted-2); min-width: 20px; }
+  .nav-soon { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted-2); background: #161618; padding: 1px 6px; border-radius: 3px; }
+  .nav-sep { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; color: var(--muted-2); letter-spacing: 1px; padding: 12px 12px 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .toc-inner { padding: 0 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .toc-inner a { display: block; padding: 5px 12px 5px 28px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-radius: 4px; border-left: 2px solid transparent; margin-left: 8px; }
+  .toc-inner a:hover { color: var(--text); border-left-color: var(--accent); }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+  .topbar { max-width: 940px; margin: 0 auto 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .crumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs span { color: var(--text); }
+  .level-switch { margin-left: auto; display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .level-btn { background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.4px; }
+  .level-btn:hover { color: var(--text); }
+  .level-btn.active { background: linear-gradient(180deg, #ffffff, #cfcfd4); color: #000; }
+  .level-btn .lbl { font-weight: 600; }
+  .level-btn .desc { display: inline; opacity: 0.75; margin-left: 4px; font-weight: 400; }
+  .header { max-width: 940px; margin: 0 auto 24px; border-left: 3px solid transparent; border-image: linear-gradient(180deg, #ffffff, #2e2e34) 1; padding-left: 20px; }
+  .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; color: #fff; }
+  .header p { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .platform-note { max-width: 940px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(90deg, rgba(177,92,240,0.10), rgba(255,210,63,0.04)); border: 1px solid var(--border); border-left: 3px solid var(--accent-azure); border-radius: 10px; padding: 13px 18px; }
+  .platform-note .pn-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #d9b8ff; background: rgba(177,92,240,0.16); padding: 3px 9px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+  .platform-note .pn-txt { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .platform-note .pn-txt strong { color: #fff; }
+  .platform-note a { color: #ffe08a; text-decoration: none; border-bottom: 1px solid rgba(255,224,138,0.35); }
+  .platform-note a:hover { color: #fff; }
+  .section { max-width: 940px; margin: 0 auto 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); min-width: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04)); color: #e2e2e8; }
+  .section-body { padding: 22px 26px; }
+  .lvl { margin-bottom: 18px; position: relative; }
+  .lvl:last-child { margin-bottom: 0; }
+  .lvl-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .lvl-1 .lvl-tag { background: rgba(255,255,255,0.06); color: #9a9aa2; }
+  .lvl-2 .lvl-tag { background: rgba(255,255,255,0.10); color: #c6c6ce; }
+  .lvl-3 .lvl-tag { background: rgba(255,255,255,0.16); color: #ffffff; }
+  body[data-level="1"] .lvl-2, body[data-level="1"] .lvl-3 { display: none; }
+  body[data-level="2"] .lvl-3 { display: none; }
+  .lvl-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 4px 0 4px 16px; position: relative; color: var(--text); font-size: 14px; }
+  ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+  ul li strong { color: #fff; font-weight: 700; }
+  p { font-size: 14px; margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: #cfc6e8; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
+  .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
+  .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
+  .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
+  .hl.red { background: rgba(255,140,58,0.12); border-color: var(--red); color: #ffc599; }
+  .hl.azure { background: rgba(177,92,240,0.12); border-color: var(--accent-azure); color: #d9b8ff; }
+  .hl.note { background: rgba(255,255,255,0.035); border-color: var(--muted); color: #c6c6cf; }
+  .hl-label { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 6px; opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  td strong { color: #fff; }
+  td.loc { color: #c98bff; font-weight:700; } td.flow { color: #9cc5ec; font-weight:700; } td.fuel { color: #ff8c3a; font-weight:700; } td.trig { color: #ffd23f; font-weight:700; }
+  .diagram { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px 14px 10px; margin: 14px 0; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram-cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.55; }
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    body { flex-direction: column; }
+    .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .level-switch { margin-left: 0; }
+  }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { background: #ffffff; border-color: #ffffff; color: #000; transform: translateY(-2px); }
+  .scroll-top svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body data-level="2">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a class="logo" href="index.html">Order Flow · База</a>
+    <div class="sub">// trading knowledge base</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Разделы</div>
+    <a class="nav-item" href="index.html"><span class="nav-num">00</span> Старт</a>
+    <a class="nav-item" href="amt.html"><span class="nav-num">01</span> AMT</a>
+    <a class="nav-item" href="cvd.html"><span class="nav-num">02</span> CVD</a>
+    <a class="nav-item" href="volume.html"><span class="nav-num">03</span> Volume</a>
+    <a class="nav-item" href="oi.html"><span class="nav-num">05</span> Open Interest</a>
+    <a class="nav-item" href="volumeprofile.html"><span class="nav-num">06</span> Volume Profile</a>
+    <a class="nav-item" href="tpo.html"><span class="nav-num">07</span> TPO</a>
+    <a class="nav-item" href="footprint.html"><span class="nav-num">08</span> Footprint</a>
+    <a class="nav-item" href="liquidations.html"><span class="nav-num">09</span> Liquidations</a>
+    <a class="nav-item" href="obheatmap.html"><span class="nav-num">10</span> Orderbook heatmap</a>
+    <a class="nav-item" href="funding.html"><span class="nav-num">11</span> Funding rate</a>
+    <a class="nav-item disabled"><span class="nav-num">12</span> Order blocks <span class="nav-soon">скоро</span></a>
+    <a class="nav-item" href="vwap.html"><span class="nav-num">13</span> VWAP</a>
+    <a class="nav-item" href="keylevels.html"><span class="nav-num">14</span> Key levels</a>
+    <a class="nav-item" href="imbalances.html"><span class="nav-num">15</span> Imbalances</a>
+    <a class="nav-item" href="hlstops.html"><span class="nav-num">16</span> HL SL / TP</a>
+    <a class="nav-item" href="regime.html"><span class="nav-num">17</span> OF Regime</a>
+    <div class="nav-sep">// фундамент</div>
+    <a class="nav-item" href="mathrisk.html"><span class="nav-num">18</span> Математика и риск</a>
+    <div class="nav-sep">// синтез</div>
+    <a class="nav-item active" href="#"><span class="nav-num">★</span> Практика · всё вместе</a>
+  </div>
+  <div class="toc-inner">
+    <div class="nav-group-title">На этой странице</div>
+    <a href="#why">01 · Зачем синтез</a>
+    <a href="#map">02 · Карта слоёв</a>
+    <a href="#framework">03 · Каркас сделки</a>
+    <a href="#caseA">04 · Кейс A: разворот</a>
+    <a href="#caseB">05 · Кейс B: продолжение</a>
+    <a href="#caseC">06 · Кейс C: фейд ловушки</a>
+    <a href="#matrix">07 · Конфлюэнс-матрица</a>
+    <a href="#checklist">08 · Чек-лист</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="index.html">Order Flow</a> / <span>Практика · всё вместе</span></div>
+    <div class="level-switch" role="tablist">
+      <button class="level-btn" data-lvl="1"><span class="lbl">L1</span><span class="desc">База</span></button>
+      <button class="level-btn active" data-lvl="2"><span class="lbl">L2</span><span class="desc">+ Чтение</span></button>
+      <button class="level-btn" data-lvl="3"><span class="lbl">L3</span><span class="desc">+ Эдж</span></button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Практика · сводим слои вместе</h1>
+    <p>// от контекста до исполнения: как все разделы работают в одной сделке</p>
+  </div>
+
+  <div class="platform-note">
+    <span class="pn-badge">СИНТЕЗ</span>
+    <div class="pn-txt">Это <strong>мастер-страница</strong>: она не вводит новых концептов, а собирает все разделы базы в один каркас и показывает на кейсах, как их комбинировать. Детали каждого слоя — в его разделе; здесь — <em>как они складываются в сделку</em>.</div>
+  </div>
+
+
+  <!-- ─────── 01. ЗАЧЕМ ─────── -->
+  <section class="section" id="why">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Зачем синтез</span>
+      <span class="section-badge">why</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Ни один слой не торгуется в одиночку. Каждый отвечает на свой вопрос, а сила — в <strong>стеке</strong>, где несколько независимых слоёв сходятся в одну историю.</p>
+        <div class="hl green"><span class="hl-label">Главное правило</span>Один слой = <strong>гипотеза</strong>; стек слоёв у заранее выбранной зоны = <strong>сделка</strong>. Порядок чтения: <strong>контекст → локация → поток → триггер → риск</strong>.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Слои не равны: <strong>контекст</strong> (AMT/режим) и <strong>локация</strong> (VP/levels) — первичны</li>
+          <li><strong>Поток</strong> (CVD/footprint) — подтверждение; <strong>топливо</strong> (OI/funding/liq) — качество движения; <strong>риск</strong> — выживание</li>
+          <li>90% «сигналов» — шум, пока их не подтвердил контекст уровня и поток</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Эдж</span>Не ищи «грааль-индикатор». Ищи <strong>совпадение независимых слоёв</strong> у заранее найденной зоны. Чем больше слоёв в одну сторону — тем выше вероятность; конфликт слоёв — повод уменьшить размер или пропустить.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 02. КАРТА СЛОЁВ ─────── -->
+  <section class="section" id="map">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Карта слоёв: какой вопрос решает каждый</span>
+      <span class="section-badge">map</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <table>
+          <thead><tr><th>Вопрос</th><th>Слой / разделы</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Какой режим?</strong></td><td><a href="amt.html">AMT</a>, <a href="regime.html">OF Regime</a></td></tr>
+            <tr><td class="loc"><strong>Где? (стоимость, уровни)</strong></td><td><a href="volumeprofile.html">Volume Profile</a>, <a href="tpo.html">TPO</a>, <a href="keylevels.html">Key levels</a>, <a href="vwap.html">VWAP</a></td></tr>
+            <tr><td class="flow"><strong>Кто давит? (агрессия)</strong></td><td><a href="cvd.html">CVD</a>, <a href="footprint.html">Footprint</a>, <a href="imbalances.html">Imbalances</a>, <a href="volume.html">Volume</a></td></tr>
+            <tr><td class="fuel"><strong>Топливо / перегрев?</strong></td><td><a href="oi.html">Open Interest</a>, <a href="funding.html">Funding</a>, <a href="liquidations.html">Liquidations</a></td></tr>
+            <tr><td><strong>Ликвидность: стены, стопы?</strong></td><td><a href="obheatmap.html">Orderbook heatmap</a>, <a href="hlstops.html">HL SL/TP</a></td></tr>
+            <tr><td class="trig"><strong>Сколько? (выживание)</strong></td><td><a href="mathrisk.html">Математика и риск</a></td></tr>
+          </tbody>
+        </table>
+
+        <div class="diagram">
+          <div data-pr="pipeline"></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Читай <strong>сверху вниз</strong>: режим → где → кто → топливо → риск. Пропуск верхних слоёв (вошёл по «сигналу» без контекста и локации) = торговля шума.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Дубли и конфликты</span>Слои-<strong>дубли</strong> (spot CVD ↑ + footprint absorption + OI build) усиливают одну историю. Слои-<strong>конфликты</strong> (perp ведёт, а спот против) — это предупреждение о хрупкости (кейс C).</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 03. КАРКАС ─────── -->
+  <section class="section" id="framework">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Каркас сделки: 5 шагов</span>
+      <span class="section-badge">framework</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Универсальный пайплайн — он одинаков для любого сетапа:</p>
+        <ul>
+          <li><strong>1 · Контекст</strong> — режим (AMT), bias (VWAP / open), где в value</li>
+          <li><strong>2 · Локация</strong> — A-зона: key level + VP-наки + стена / стопы сошлись</li>
+          <li><strong>3 · Поток</strong> — у зоны: absorption / imbalance + CVD + OI / funding / liq</li>
+          <li><strong>4 · Триггер</strong> — accept / reject / reclaim / sweep+reclaim + footprint</li>
+          <li><strong>5 · Риск</strong> — стоп за структуру, R до следующей зоны, размер ≤ 1–2%</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="hl note"><span class="hl-label">Гейт</span>Вход появляется, только когда совпали <strong>все 5</strong>. Нет локации — нет сделки; нет потока — это гипотеза; нет посчитанного риска — это азарт.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Связь</span>Это та же логика «zone → regime → trigger → invalidation → magnet» из <a href="regime.html" style="color:#d9b8ff;">OF Regime</a>, расширенная на VP / levels (локация) и <a href="mathrisk.html" style="color:#d9b8ff;">риск</a>.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. КЕЙС A ─────── -->
+  <section class="section" id="caseA">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Кейс A: разворот на уровне (absorption)</span>
+      <span class="section-badge">reversal</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="diagram">
+          <div data-pr="reversal"></div>
+        </div>
+        <ul>
+          <li><strong>Локация:</strong> цена долетела до composite naked POC / стека поддержки (Key levels + VP)</li>
+          <li><strong>Топливо:</strong> liq-flush — каскад long-ликвидаций + OI flush (капитуляция)</li>
+          <li><strong>Поток:</strong> footprint absorption (forced sells впитаны) + spot-CVD дивергенция (price LL, spot CVD HL)</li>
+          <li><strong>Триггер:</strong> reclaim уровня → лонг; стоп за sweep-лой, R до vPOC выше</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Каждый слой по отдельности — гипотеза. Вместе (уровень + flush + absorption + дивергенция) = высоковероятный разворот: продавцов вымыли, а пассив их впитал.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Без <strong>reclaim</strong> не лови нож: liq-flush может продолжиться в следующий кластер. Absorption — гипотеза, пока цена не отбила вверх.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 05. КЕЙС B ─────── -->
+  <section class="section" id="caseB">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Кейс B: продолжение / пробой</span>
+      <span class="section-badge">continuation</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="diagram">
+          <div data-pr="continuation"></div>
+        </div>
+        <ul>
+          <li><strong>Контекст:</strong> баланс / inside day, выход вверх (AMT imbalance, LVN над VAH)</li>
+          <li><strong>Локация:</strong> пробой VAH + LVN-пролёт к naked POC выше</li>
+          <li><strong>Поток:</strong> OI растёт (новые лонги) + spot CVD ведёт (реальный спрос) + stacked buy imbalances в импульсе</li>
+          <li><strong>Триггер:</strong> VWAP / VAH reclaim на ретесте → лонг продолжения; стоп под VAH, R до naked POC</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Spot-led + OI build + acceptance за границей = <strong>здоровый тренд</strong>, а не perp-сквиз. Ретест удержан → инициатива принята.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Развилка</span>Если spot <strong>НЕ</strong> ведёт (perp-only) и funding скачет — это уже не кейс B, а <strong>кейс C</strong> (фейд). Один и тот же рост, разный поток → противоположная сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. КЕЙС C ─────── -->
+  <section class="section" id="caseC">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Кейс C: фейд ловушки (perp-led)</span>
+      <span class="section-badge">fade</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="diagram">
+          <div data-pr="fade"></div>
+        </div>
+        <ul>
+          <li><strong>Локация:</strong> ралли в HTF resistance / OB ask-стену</li>
+          <li><strong>Топливо:</strong> perp CVD ведёт, spot плоский / против; funding-спайк (лонги переполнены, платят); OI растёт (заёмный)</li>
+          <li><strong>Поток:</strong> footprint absorption на топе (агрессивные покупки впитаны) + дельта-дивергенция</li>
+          <li><strong>Триггер:</strong> failed reclaim / loss локального low → шорт-фейд; стоп за хай, R до VWAP / наки ниже</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <p>Это «хрупкий рост» из <a href="regime.html" style="color:#9cc5ec;">OF Regime</a>: вид бычий, но спот не верит, плечо переполнено → фейд у стены, когда инициатива выдыхается.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Фейд — только по триггеру (reject / loss структуры), не по «funding высокий» вслепую. Перегрев тянется дольше, чем кажется.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 07. МАТРИЦА ─────── -->
+  <section class="section" id="matrix">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Конфлюэнс-матрица</span>
+      <span class="section-badge">confluence</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <table>
+          <thead><tr><th>Комбо слоёв</th><th>Смысл</th></tr></thead>
+          <tbody>
+            <tr><td class="loc">key level + naked POC + стена / стопы</td><td>A-локация (где готовить сделку)</td></tr>
+            <tr><td class="flow">spot CVD ведёт + footprint absorption + OI build</td><td>подтверждённая инициатива → continuation</td></tr>
+            <tr><td>liq-flush + absorption + хвост у уровня</td><td>капитуляция → разворот (кейс A)</td></tr>
+            <tr><td class="fuel">perp ведёт + funding-экстрим + OI build (без спота)</td><td>хрупко → фейд (кейс C)</td></tr>
+            <tr><td class="trig">imbalance + acceptance + VWAP reclaim</td><td>пробой → continuation (кейс B)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <ul>
+          <li>Больше <strong>независимых</strong> слоёв в одну сторону = выше вероятность</li>
+          <li>Конфликт слоёв (спот против перпа) = меньше размер или пропуск</li>
+        </ul>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Определение A-сделки</span><strong>≥ 3 независимых слоя</strong> в одну сторону у заранее выбранной зоны + чистый триггер + R ≥ 2. Меньше — это наблюдение, а не сделка.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 08. ЧЕК-ЛИСТ ─────── -->
+  <section class="section" id="checklist">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Чек-лист и анти-чек-лист</span>
+      <span class="section-badge">checklist</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Перед кликом пройди 5 шагов. Если на любом «нет ответа» — это <strong>наблюдение, а не сделка</strong>.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">✓ Pre-trade</div>① Режим/контекст определён? ② Цена у A-зоны (стек уровней)? ③ Поток подтверждает (CVD/footprint/OI)? ④ Чистый триггер (accept/reject/reclaim)? ⑤ Стоп / R / размер посчитаны?</div>
+          <div class="card"><div class="card-title">✗ Анти-чек-лист</div>Торговать середину диапазона · гнаться за perp-сквизом · ловить нож в каскаде · входить на одном «красивом» слое · путать absorption и imbalance · двигать стоп против себя.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Каркас (резюме)</span>контекст (<a href="amt.html" style="color:#d9b8ff;">AMT</a>/<a href="regime.html" style="color:#d9b8ff;">regime</a>) → локация (<a href="volumeprofile.html" style="color:#d9b8ff;">VP</a>/<a href="keylevels.html" style="color:#d9b8ff;">levels</a>) → поток (<a href="cvd.html" style="color:#d9b8ff;">CVD</a>/<a href="footprint.html" style="color:#d9b8ff;">footprint</a>/<a href="oi.html" style="color:#d9b8ff;">OI</a>/<a href="funding.html" style="color:#d9b8ff;">funding</a>/<a href="liquidations.html" style="color:#d9b8ff;">liq</a>) → триггер → риск (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl note"><span class="hl-label">Напоминание</span>Это мастер-страница. Детали и схемы каждого слоя — в его собственном разделе.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<button class="scroll-top" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+/* ── practice visuals: layer pipeline + 3 case candle charts ── */
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var C={ink:'#c6c6ce',grid:'#24242a',paper:'#08080a',up:'#e2e5ea',down:'#565660',stroke:'#08080a',
+    loc:'#c98bff',flow:'#9cc5ec',fuel:'#ff8c3a',trig:'#ffd23f',white:'#ececf2'};
+  function E(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function txt(svg,s,x,y,o){o=o||{};var e=E('text',{x:x,y:y,fill:o.fill||C.ink,'font-size':o.size||11,'font-family':o.family||"'JetBrains Mono', monospace"});
+    if(o.weight)e.setAttribute('font-weight',o.weight); if(o.anchor)e.setAttribute('text-anchor',o.anchor); e.textContent=s; svg.appendChild(e); return e;}
+  function arrowDef(svg){var d=E('defs',{}),m=E('marker',{id:'prA',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    m.appendChild(E('path',{d:'M0 0 L10 5 L0 10 z',fill:C.ink,opacity:0.85}));d.appendChild(m);svg.appendChild(d);}
+  function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function canvas(w,h,lbl,grid){var svg=E('svg',{viewBox:'0 0 '+w+' '+h,width:'100%',role:'img','aria-label':lbl||''});arrowDef(svg);
+    svg.appendChild(E('rect',{x:0,y:0,width:w,height:h,rx:8,fill:C.paper}));
+    if(grid){for(var y=grid.s;y<=grid.e;y+=grid.step){svg.appendChild(E('line',{x1:grid.x1||18,y1:y,x2:grid.x2||w-18,y2:y,stroke:C.grid,'stroke-width':1,'stroke-dasharray':'3 5'}));}}
+    return svg;}
+  function lab(svg,s,x,y,o){o=o||{};var w=o.w||(s.length*6.4+16);
+    svg.appendChild(E('rect',{x:x-7,y:y-14,width:w,height:18,rx:4,fill:'#101012',stroke:'#25252a','stroke-width':1,opacity:0.96}));
+    txt(svg,s,x,y,{size:o.size||11,fill:'#ececef',weight:700});}
+  function line(svg,x1,y1,x2,y2,o){o=o||{};var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:o.color||C.ink,'stroke-width':o.width||1,opacity:o.opacity==null?1:o.opacity};
+    if(o.dash)a['stroke-dasharray']=o.dash; if(o.arrow)a['marker-end']='url(#prA)'; svg.appendChild(E('line',a));}
+  function candle(svg,o){var up=o.c<=o.o,col=up?C.up:C.down,cw=o.w||9;
+    line(svg,o.x,o.h,o.x,o.l,{color:col,width:1.05});
+    svg.appendChild(E('rect',{x:o.x-cw/2,y:Math.min(o.o,o.c),width:cw,height:Math.max(2,Math.abs(o.c-o.o)),fill:col}));}
+  function candleWalk(svg,o){var rnd=mb32(o.seed||7),cs=[];
+    o.legs.forEach(function(s){var i;for(i=0;i<s.n;i++){var op=cs.length?cs[cs.length-1].c:s.from;
+      var target=s.from+(s.to-s.from)*((i+1)/s.n);var cl=target+(rnd()-0.5)*(s.vol||16);
+      var hi=Math.min(op,cl)-rnd()*(s.wick||10);var lo=Math.max(op,cl)+rnd()*(s.wick||10);
+      cs.push({o:op,h:hi,l:lo,c:cl});}});
+    cs.forEach(function(k,i){candle(svg,{x:o.x0+i*o.dx,o:k.o,h:k.h,l:k.l,c:k.c,w:o.cw||9});});
+    return {cs:cs,n:cs.length,x:function(i){return o.x0+i*o.dx;}};}
+  function marker(svg,x,y,n,color){svg.appendChild(E('circle',{cx:x,cy:y,r:11,fill:C.paper,stroke:color||C.ink,'stroke-width':1.7}));
+    txt(svg,String(n),x,y+4,{anchor:'middle',size:12,fill:color||C.ink,weight:700});}
+  function note(svg,o){svg.appendChild(E('rect',{x:o.x,y:o.y,width:o.w,height:o.h,rx:6,fill:'#101012',stroke:'#313137','stroke-width':1,opacity:0.97}));
+    txt(svg,o.title,o.x+12,o.y+19,{size:12.5,fill:o.titleColor||'#ececef',weight:700});
+    o.lines.forEach(function(l,i){txt(svg,l[0],o.x+12,o.y+42+i*19,{size:11,fill:l[1]||'#c6c6ce',weight:l[2]?700:500});});}
+
+  /* §02 — 5-step pipeline */
+  function pipelineSVG(){
+    var W=1280,H=300,svg=canvas(W,H,'Каркас: контекст → локация → поток → триггер → риск');
+    lab(svg,'Каркас сделки: 5 слоёв в одну историю',24,30,{w:330,size:12});
+    var steps=[
+      {t:'1 · КОНТЕКСТ',c:'#c6c6ce',a:['AMT · режим','VWAP/open · bias','где в value']},
+      {t:'2 · ЛОКАЦИЯ',c:C.loc,a:['VP-наки · POC','key levels','стена/стопы']},
+      {t:'3 · ПОТОК',c:C.flow,a:['CVD · footprint','OI · funding','liquidations']},
+      {t:'4 · ТРИГГЕР',c:C.trig,a:['accept/reject','reclaim · sweep','footprint']},
+      {t:'5 · РИСК',c:'#ffb27a',a:['стоп за структуру','R до зоны','размер ≤1–2%']}
+    ];
+    var bw=222,gap=18,x0=30,y0=70,bh=150;
+    steps.forEach(function(s,i){var x=x0+i*(bw+gap);
+      svg.appendChild(E('rect',{x:x,y:y0,width:bw,height:bh,rx:8,fill:'#0d0d10',stroke:s.c,'stroke-width':1.2,opacity:0.92}));
+      txt(svg,s.t,x+14,y0+26,{size:11.5,fill:s.c,weight:700});
+      s.a.forEach(function(t,j){txt(svg,'· '+t,x+14,y0+52+j*22,{size:11,fill:'#c6c6ce'});});
+      if(i<steps.length-1)line(svg,x+bw+2,y0+bh/2,x+bw+gap-2,y0+bh/2,{color:'#8a8a92',width:1.4,arrow:true});});
+    txt(svg,'Один слой = гипотеза. Все 5 совпали у одной зоны = сделка.',640,H-28,{anchor:'middle',size:12,fill:'#c6c6ce',weight:600});
+    return svg;
+  }
+
+  /* generic case chart */
+  function caseChart(cf){
+    var W=1280,H=cf.h||520,svg=canvas(W,H,cf.title,{s:80,e:H-60,step:56,x1:22,x2:920});
+    lab(svg,cf.title,24,30,{w:cf.titleW||420,size:12});
+    var walk=candleWalk(svg,{x0:cf.x0||110,dx:cf.dx||26,cw:cf.cw||11,seed:cf.seed||7,legs:cf.legs});
+    var lvX2=walk.x(walk.n-1)+8;
+    (cf.levels||[]).forEach(function(L){line(svg,60,L.y,lvX2,L.y,{color:L.color,width:L.width||1.8,opacity:0.9,dash:L.dash});
+      txt(svg,L.label,24,L.y-6,{size:11,fill:L.color,weight:700});});
+    (cf.markers||[]).forEach(function(m){marker(svg,walk.x(m.at),m.y,m.n,m.color);});
+    if(cf.note)note(svg,cf.note);
+    if(cf.cap)txt(svg,cf.cap,470,H-16,{anchor:'middle',size:11.5,fill:'#8a8a92'});
+    return svg;
+  }
+
+  var PR={
+    reversal:{title:'Кейс A: liq-flush + absorption + дивергенция → разворот',h:540,x0:110,dx:26,seed:5,
+      legs:[{n:9,from:300,to:404,vol:13,wick:12},{n:9,from:404,to:296,vol:13,wick:11}],
+      levels:[{y:398,color:C.loc,label:'naked POC / стек поддержки',width:2},{y:424,color:'#ff8c3a',label:'stop (за sweep-лоем)',dash:'4 4'},{y:300,color:C.trig,label:'target · vPOC выше',dash:'5 5'}],
+      markers:[{at:8,y:392,n:1,color:C.fuel},{at:9,y:404,n:2,color:C.flow},{at:10,y:388,n:3,color:C.flow},{at:13,y:352,n:4,color:C.trig}],
+      note:{x:952,y:96,w:300,h:206,title:'Слои в стеке',titleColor:'#d9b8ff',lines:[
+        ['① liq-flush + OI flush','#ffc599'],['   = капитуляция',''],
+        ['② footprint absorption','#bcdcf6'],['   forced sells впитаны',''],
+        ['③ spot-CVD дивергенция','#bcdcf6'],['   price LL, CVD HL',''],
+        ['④ reclaim → ЛОНГ','#ffe08a',1]]},
+      cap:'Уровень + flush + absorption + дивергенция → лонг по reclaim. Стоп за лой, R до vPOC.'},
+
+    continuation:{title:'Кейс B: пробой + spot CVD + OI build → продолжение',h:540,x0:110,dx:26,seed:9,
+      legs:[{n:6,from:252,to:250,vol:9,wick:8},{n:5,from:250,to:212,vol:11,wick:9},{n:8,from:212,to:150,vol:12,wick:10}],
+      levels:[{y:250,color:C.loc,label:'VAH / граница баланса',width:2},{y:160,color:C.trig,label:'target · naked POC выше',dash:'5 5'},{y:272,color:'#ff8c3a',label:'stop (назад в баланс)',dash:'4 4'}],
+      markers:[{at:6,y:244,n:1,color:C.loc},{at:8,y:230,n:2,color:C.fuel},{at:10,y:208,n:3,color:C.flow},{at:11,y:246,n:4,color:C.trig}],
+      note:{x:952,y:96,w:300,h:206,title:'Слои в стеке',titleColor:'#d9b8ff',lines:[
+        ['① AMT imbalance / пробой','#d9b8ff'],['   VAH + LVN над ним',''],
+        ['② OI растёт','#ffc599'],['   новые лонги',''],
+        ['③ spot CVD ведёт','#bcdcf6'],['   реальный спрос',''],
+        ['④ VAH reclaim → ЛОНГ','#ffe08a',1]]},
+      cap:'Spot-led + OI build + acceptance = здоровый тренд. Лонг на reclaim VAH, R до naked POC.'},
+
+    fade:{title:'Кейс C: perp-led + funding + absorption у стены → фейд',h:540,x0:110,dx:26,seed:3,
+      legs:[{n:9,from:352,to:212,vol:13,wick:11},{n:8,from:212,to:300,vol:13,wick:11}],
+      levels:[{y:208,color:C.fuel,label:'HTF resistance / OB ask-стена',width:2},{y:188,color:'#ff8c3a',label:'stop (за хаем)',dash:'4 4'},{y:300,color:C.trig,label:'target · VWAP / наки ниже',dash:'5 5'}],
+      markers:[{at:6,y:262,n:1,color:C.fuel},{at:8,y:214,n:2,color:C.flow},{at:9,y:212,n:3,color:C.flow},{at:12,y:256,n:4,color:C.trig}],
+      note:{x:952,y:96,w:300,h:206,title:'Слои в стеке',titleColor:'#d9b8ff',lines:[
+        ['① perp ведёт + funding↑','#ffc599'],['   спот плоский, OI↑',''],
+        ['② OB ask-стена','#bcdcf6'],['   у HTF resistance',''],
+        ['③ footprint absorption','#bcdcf6'],['   покупки впитаны',''],
+        ['④ loss low → ШОРТ','#ffe08a',1]]},
+      cap:'Хрупкий рост: perp ведёт, спот не верит, перегрев. Фейд у стены по loss структуры.'}
+  };
+
+  document.querySelectorAll('[data-pr]').forEach(function(d){
+    if(d.dataset.pr==='pipeline')d.appendChild(pipelineSVG());
+    else { var cf=PR[d.dataset.pr]; if(cf)d.appendChild(caseChart(cf)); }
+  });
+})();
+</script>
+
+<script>
+  var buttons = document.querySelectorAll('.level-btn');
+  var body = document.body;
+  buttons.forEach(function(btn){ btn.addEventListener('click', function(){ buttons.forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); body.setAttribute('data-level', btn.dataset.lvl); }); });
+  var scrollBtn = document.querySelector('.scroll-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function(){ if (window.scrollY > 300) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible'); });
+    scrollBtn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+</script>
+
+</body>
+</html>
