@@ -71,8 +71,17 @@
   p:last-child { margin-bottom: 0; }
   em { color: #cfc6e8; font-style: italic; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .card { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; }
   .card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  .card small { display:block; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.45; margin-top: 6px; }
+  .mono { font-family: 'JetBrains Mono', monospace; color: #c6c6ce; font-size: 12.5px; }
+  .muted { color: var(--muted); }
+  .pill-row { display:flex; flex-wrap:wrap; gap:8px; margin: 10px 0; }
+  .pill { font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#dcdce2; background:#151518; border:1px solid var(--border); border-radius:999px; padding:3px 9px; }
+  .script-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .script { background:#0b0b0d; border:1px solid var(--border); border-radius:7px; padding:10px 12px; font-size:12.5px; color:#cfcfd6; }
+  .script strong { color:#fff; display:block; font-family:'JetBrains Mono', monospace; font-size:11px; margin-bottom:3px; }
   code { font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #e4e4ea; }
   .hl { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; margin: 10px 0; color: #dcdce2; }
   .hl.green { background: rgba(255,210,63,0.10); border-color: var(--green); color: #ffe08a; }
@@ -92,7 +101,7 @@
     .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
     body { flex-direction: column; }
     .main { margin-left: 0; max-width: 100%; padding: 24px 16px 60px; }
-    .grid2 { grid-template-columns: 1fr; }
+    .grid2, .grid3, .script-grid { grid-template-columns: 1fr; }
     .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
     .level-switch { margin-left: 0; }
   }
@@ -137,12 +146,16 @@
     <div class="nav-group-title">На этой странице</div>
     <a href="#why">01 · Зачем синтез</a>
     <a href="#map">02 · Карта слоёв</a>
-    <a href="#framework">03 · Каркас сделки</a>
-    <a href="#caseA">04 · Кейс A: разворот</a>
-    <a href="#caseB">05 · Кейс B: продолжение</a>
-    <a href="#caseC">06 · Кейс C: фейд ловушки</a>
-    <a href="#matrix">07 · Конфлюэнс-матрица</a>
-    <a href="#checklist">08 · Чек-лист</a>
+    <a href="#daily">03 · Дневной workflow</a>
+    <a href="#framework">04 · Каркас сделки</a>
+    <a href="#setups">05 · Библиотека сетапов</a>
+    <a href="#caseA">06 · Кейс A: разворот</a>
+    <a href="#caseB">07 · Кейс B: продолжение</a>
+    <a href="#caseC">08 · Кейс C: фейд ловушки</a>
+    <a href="#execution">09 · Live execution</a>
+    <a href="#drills">10 · Replay drills</a>
+    <a href="#matrix">11 · Скоринг</a>
+    <a href="#checklist">12 · Чек-лист / журнал</a>
   </div>
 </aside>
 
@@ -164,7 +177,7 @@
 
   <div class="platform-note">
     <span class="pn-badge">СИНТЕЗ</span>
-    <div class="pn-txt">Это <strong>мастер-страница</strong>: она не вводит новых концептов, а собирает все разделы базы в один каркас и показывает на кейсах, как их комбинировать. Детали каждого слоя — в его разделе; здесь — <em>как они складываются в сделку</em>.</div>
+    <div class="pn-txt">Это <strong>мастер-страница</strong>: она не вводит новых индикаторов, а собирает разделы базы в рабочий протокол. Цель — не «найти сигнал», а каждый раз пройти один и тот же путь: <em>карта → сценарий → зона → подтверждение → риск → разбор</em>.</div>
   </div>
 
 
@@ -237,7 +250,7 @@
 
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
-        <p>Читай <strong>сверху вниз</strong>: режим → где → кто → топливо → риск. Пропуск верхних слоёв (вошёл по «сигналу» без контекста и локации) = торговля шума.</p>
+        <p>Читай <strong>сверху вниз</strong>: режим → где → кто → топливо → триггер → риск. Пропуск верхних слоёв (вошёл по «сигналу» без контекста и локации) = торговля шума.</p>
       </div>
 
       <hr class="lvl-divider">
@@ -251,10 +264,62 @@
   </section>
 
 
-  <!-- ─────── 03. КАРКАС ─────── -->
-  <section class="section" id="framework">
+  <!-- ─────── 03. ДНЕВНОЙ WORKFLOW ─────── -->
+  <section class="section" id="daily">
     <div class="section-header">
       <span class="section-num">03</span>
+      <span class="section-title">Дневной workflow: от карты к live-решению</span>
+      <span class="section-badge">routine</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Практика начинается <strong>до входа</strong>. Ты заранее строишь карту, затем ждёшь цену в зоне и только там читаешь поток. Если зона не подготовлена заранее — сигнал почти всегда превращается в догонялку.</p>
+        <table>
+          <thead><tr><th>Фаза</th><th>Что сделать</th><th>Результат</th></tr></thead>
+          <tbody>
+            <tr><td class="loc">1 · Карта</td><td>Отметить value, naked уровни, VWAP, key levels, OB, heatmap/HL pools.</td><td>2–3 long-зоны и 2–3 short-зоны, не больше.</td></tr>
+            <tr><td>2 · Сценарий</td><td>Для каждой зоны написать: откуда подход, какая роль, какой режим нужен.</td><td><code>if price → zone, then wait for ...</code></td></tr>
+            <tr><td class="flow">3 · Live</td><td>У зоны проверить CVD, OI, funding, liquidations, footprint, acceptance/rejection.</td><td>Вход / меньший размер / пропуск.</td></tr>
+            <tr><td class="trig">4 · Исполнение</td><td>Вход только после trigger: reclaim, reject, retest, failed auction, absorption + price response.</td><td>Стоп за invalidation, цель до следующего магнита.</td></tr>
+            <tr><td>5 · Разбор</td><td>После сделки записать не PnL, а качество: карта, режим, поток, риск, менеджмент.</td><td>Один вывод, который улучшает следующий день.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">До сессии</div>Сначала строится <strong>карта возможностей</strong>, а не прогноз. В плане должны быть роли зон: support/demand, resistance/supply, magnet, acceleration pool, slowdown/TP area.</div>
+          <div class="card"><div class="card-title">Во время сессии</div>Live orderflow отвечает только на вопрос: <strong>рынок подтверждает заранее подготовленную гипотезу или отменяет её?</strong> Он не должен создавать сделку из воздуха.</div>
+        </div>
+        <div class="script-grid">
+          <div class="script"><strong>Карта уровней</strong><code>value_area.py</code>, <code>vwap_levels.py</code>, <code>key_levels.py</code>, <code>order_blocks.py</code></div>
+          <div class="script"><strong>Ликвидность</strong><code>hl_data.py</code> для HL SL/TP; <code>limit_clusters.py</code> для пассивных стен</div>
+          <div class="script"><strong>Live OF</strong><code>active_of.py</code> для текущего режима; <code>accept_reject.py</code> для статуса зоны</div>
+          <div class="script"><strong>Вход и мониторинг</strong><code>entry_check.py</code>, <code>aggression_finder.py</code>, <code>zone_monitor.py</code></div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Правило дня</span>Хороший день — это не день, где ты «угадал направление». Хороший день — где были заранее заданные зоны, сценарии, invalidation и ты торговал только те реакции, которые рынок реально подтвердил.</div>
+        <div class="hl red"><span class="hl-label">Мусор</span>Убрать из практики: входы в середине value, “CVD красивый” без уровня, “funding высокий” без слома, ловлю ликвидационного каскада без reclaim, сделки без цели до следующей зоны.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 04. КАРКАС ─────── -->
+  <section class="section" id="framework">
+    <div class="section-header">
+      <span class="section-num">04</span>
       <span class="section-title">Каркас сделки: 5 шагов</span>
       <span class="section-badge">framework</span>
     </div>
@@ -262,20 +327,31 @@
 
       <div class="lvl lvl-1">
         <span class="lvl-tag">L1 · База</span>
-        <p>Универсальный пайплайн — он одинаков для любого сетапа:</p>
+        <p>Универсальный пайплайн одинаков для любого сетапа. Сделка существует только если ты можешь заполнить все 5 полей:</p>
         <ul>
-          <li><strong>1 · Контекст</strong> — режим (AMT), bias (VWAP / open), где в value</li>
-          <li><strong>2 · Локация</strong> — A-зона: key level + VP-наки + стена / стопы сошлись</li>
-          <li><strong>3 · Поток</strong> — у зоны: absorption / imbalance + CVD + OI / funding / liq</li>
-          <li><strong>4 · Триггер</strong> — accept / reject / reclaim / sweep+reclaim + footprint</li>
-          <li><strong>5 · Риск</strong> — стоп за структуру, R до следующей зоны, размер ≤ 1–2%</li>
+          <li><strong>1 · Режим</strong> — баланс, тренд, transition, fragile leverage-led move или de-risk move</li>
+          <li><strong>2 · Локация</strong> — A-зона: value boundary / naked level / VWAP / key level / OB / heatmap pool</li>
+          <li><strong>3 · Сценарий</strong> — что должно случиться у зоны: reject, accept, sweep+reclaim, retest, acceleration</li>
+          <li><strong>4 · Подтверждение</strong> — CVD, OI, funding, liquidations, footprint/imbalances не конфликтуют с тезисом</li>
+          <li><strong>5 · Риск</strong> — стоп за фактическую invalidation, цель до следующего магнита, размер от качества стека</li>
         </ul>
+        <div class="hl green"><span class="hl-label">Фраза перед входом</span>«Я торгую <strong>[сторону]</strong> от <strong>[зоны]</strong>, потому что <strong>[режим]</strong>; подтверждение — <strong>[trigger/flow]</strong>; я неправ, если <strong>[invalidation]</strong>; цель — <strong>[следующая зона]</strong>». Если фраза не собирается — сетап сырой.</div>
       </div>
 
       <hr class="lvl-divider">
 
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Гейт</th><th>Проходит</th><th>Не проходит</th></tr></thead>
+          <tbody>
+            <tr><td>Режим</td><td>Понятно, какую тактику рынок разрешает: fade edge, continuation, no-trade middle.</td><td>«Кажется вверх/вниз», но непонятно balance это или imbalance.</td></tr>
+            <tr><td>Локация</td><td>Цена у заранее отмеченной зоны с ролью и ближайшей целью.</td><td>Вход по сигналу в пустоте или в середине value.</td></tr>
+            <tr><td>Поток</td><td>Есть подтверждение/ловушка: spot vs perp, OI, funding, footprint, liq читаются в одну историю.</td><td>Один индикатор красивый, остальные молчат или против.</td></tr>
+            <tr><td>Триггер</td><td>Цена показала реакцию: reclaim/reject/retest/acceptance, а не просто коснулась уровня.</td><td>Попытка купить/продать “первое касание” без evidence.</td></tr>
+            <tr><td>Риск</td><td>Стоп логичен, цель не через стену, R ≥ 2 или размер снижен.</td><td>Стоп “куда-нибудь”, цель “а вдруг поедет”.</td></tr>
+          </tbody>
+        </table>
         <div class="hl note"><span class="hl-label">Гейт</span>Вход появляется, только когда совпали <strong>все 5</strong>. Нет локации — нет сделки; нет потока — это гипотеза; нет посчитанного риска — это азарт.</div>
       </div>
 
@@ -284,16 +360,68 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl azure"><span class="hl-label">Связь</span>Это та же логика «zone → regime → trigger → invalidation → magnet» из <a href="regime.html" style="color:#d9b8ff;">OF Regime</a>, расширенная на VP / levels (локация) и <a href="mathrisk.html" style="color:#d9b8ff;">риск</a>.</div>
+        <div class="grid3" style="margin-top:12px;">
+          <div class="card"><div class="card-title">Full setup</div>Режим + зона + flow + trigger + R. Можно брать нормальный размер по плану.</div>
+          <div class="card"><div class="card-title">Starter</div>Зона и trigger есть, но flow смешанный. Только маленький размер / частичный вход / быстрый invalidation.</div>
+          <div class="card"><div class="card-title">No trade</div>Нет зоны, нет trigger, OF конфликтует или цель слишком близко. Лучшее действие — ждать.</div>
+        </div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 04. КЕЙС A ─────── -->
+  <!-- ─────── 05. БИБЛИОТЕКА СЕТАПОВ ─────── -->
+  <section class="section" id="setups">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Библиотека сетапов: что именно тренировать</span>
+      <span class="section-badge">playbook</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Практика должна повторять одни и те же формации. Ниже — не “сигналы”, а <strong>шаблоны поведения рынка</strong>: у каждого есть контекст, подтверждение и точка отмены.</p>
+        <table>
+          <thead><tr><th>Сетап</th><th>Предусловие</th><th>Подтверждение</th><th>Инвалидация</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Flush → reclaim</strong></td><td>Цена пришла в support / naked POC / HL stop pool снизу.</td><td>Long liq + OI flush, продажи впитаны, reclaim зоны.</td><td>Acceptance ниже зоны, новый flush без возврата.</td></tr>
+            <tr><td><strong>Acceptance continuation</strong></td><td>Баланс с явной границей, над/под ней LVN / air pocket / stop pool.</td><td>Пробой + удержание за границей, spot CVD и OI по направлению.</td><td>Возврат внутрь value и failed retest.</td></tr>
+            <tr><td><strong>Perp-led trap fade</strong></td><td>Цена у HTF resistance/support, движение ведёт плечо.</td><td>Perp CVD/OI/funding перегреты, spot не подтверждает, absorption у стены.</td><td>Spot начинает вести, уровень принимается, стены съедены.</td></tr>
+            <tr><td><strong>Balance edge mean reversion</strong></td><td>Рынок в балансе, цена у VAH/VAL или range high/low.</td><td>Reject края, CVD не подтверждает пробой, возврат внутрь.</td><td>Acceptance outside + value migration.</td></tr>
+            <tr><td><strong>De-risk bounce</strong></td><td>Падение на OI↓ / long unwind, не fresh shorts.</td><td>Продажи иссякают, цена перестаёт делать прогресс вниз, reclaim micro-level.</td><td>OI снова растёт на sell pressure и цена принимает ниже.</td></tr>
+            <tr><td><strong>TP slowdown reaction</strong></td><td>Цена пришла в HL TP cluster или следующий VP/VWAP magnet.</td><td>Скорость падает, footprint показывает фиксацию/absorption, structure ломается.</td><td>Trend acceptance через TP cluster без slowdown.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid3">
+          <div class="card"><div class="card-title">Разворот</div>Нужен не просто “уровень”, а <strong>ошибка толпы</strong>: поздние продавцы/покупатели получили плохую цену, а рынок не дал им продолжения.</div>
+          <div class="card"><div class="card-title">Продолжение</div>Нужна не просто “зелёная свеча”, а <strong>acceptance</strong>: цена удерживает новую область, а flow поддерживает перенос value.</div>
+          <div class="card"><div class="card-title">Фейд ловушки</div>Нужен не просто “перегрев”, а <strong>провал инициативы</strong>: агрессия есть, прогресса нет, уровень не принят.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Отбор</span>Тренируй один сетап за раз. 20 повторов “flush → reclaim” дадут больше, чем 20 разных сделок с разными причинами. Практика — это накопление одинаковых сравнений.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 06. КЕЙС A ─────── -->
   <section class="section" id="caseA">
     <div class="section-header">
-      <span class="section-num">04</span>
+      <span class="section-num">06</span>
       <span class="section-title">Кейс A: разворот на уровне (absorption)</span>
       <span class="section-badge">reversal</span>
     </div>
@@ -317,6 +445,10 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <p>Каждый слой по отдельности — гипотеза. Вместе (уровень + flush + absorption + дивергенция) = высоковероятный разворот: продавцов вымыли, а пассив их впитал.</p>
+        <div class="grid2" style="margin-top:12px;">
+          <div class="card"><div class="card-title">Что должно быть видно</div>Новый low по цене, но хуже/слабее давление по spot CVD или дельте; OI флашится; нижний объём в footprint не даёт продолжения вниз.</div>
+          <div class="card"><div class="card-title">Что делать руками</div>Не покупать сам flush. Отметить sweep-low, дождаться reclaim зоны/микро-структуры, входить ближе к retest, стоп за фактический low.</div>
+        </div>
       </div>
 
       <hr class="lvl-divider">
@@ -324,16 +456,17 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl red"><span class="hl-label">Ловушка</span>Без <strong>reclaim</strong> не лови нож: liq-flush может продолжиться в следующий кластер. Absorption — гипотеза, пока цена не отбила вверх.</div>
+        <div class="hl azure"><span class="hl-label">Drill</span>На replay найди 10 long-liquidation flush у заранее видимого support. Для каждого пометь: был ли OI flush, была ли CVD divergence, где reclaim, где был бы стоп и дошла ли цена до следующего magnet.</div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 05. КЕЙС B ─────── -->
+  <!-- ─────── 07. КЕЙС B ─────── -->
   <section class="section" id="caseB">
     <div class="section-header">
-      <span class="section-num">05</span>
+      <span class="section-num">07</span>
       <span class="section-title">Кейс B: продолжение / пробой</span>
       <span class="section-badge">continuation</span>
     </div>
@@ -357,6 +490,10 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <p>Spot-led + OI build + acceptance за границей = <strong>здоровый тренд</strong>, а не perp-сквиз. Ретест удержан → инициатива принята.</p>
+        <div class="grid2" style="margin-top:12px;">
+          <div class="card"><div class="card-title">Признак силы</div>Пробой не просто проткнул границу, а начал строить бизнес выше/ниже: закрытия за уровнем, retest держит, pullback сухой, stacked imbalances не сразу полностью перекрыты.</div>
+          <div class="card"><div class="card-title">Вход</div>Лучше не гнаться за первой свечой. Рабочие точки: retest VAH/VAL, reclaim VWAP после shallow pullback, continuation после удержания stacked imbalance.</div>
+        </div>
       </div>
 
       <hr class="lvl-divider">
@@ -364,16 +501,17 @@
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl azure"><span class="hl-label">Развилка</span>Если spot <strong>НЕ</strong> ведёт (perp-only) и funding скачет — это уже не кейс B, а <strong>кейс C</strong> (фейд). Один и тот же рост, разный поток → противоположная сделка.</div>
+        <div class="hl red"><span class="hl-label">Отмена</span>Возврат внутрь прежней value после пробоя = не “дешёвый вход”, а failed auction. Для continuation цена должна принять новую область, иначе рынок вернулся к балансу.</div>
       </div>
 
     </div>
   </section>
 
 
-  <!-- ─────── 06. КЕЙС C ─────── -->
+  <!-- ─────── 08. КЕЙС C ─────── -->
   <section class="section" id="caseC">
     <div class="section-header">
-      <span class="section-num">06</span>
+      <span class="section-num">08</span>
       <span class="section-title">Кейс C: фейд ловушки (perp-led)</span>
       <span class="section-badge">fade</span>
     </div>
@@ -397,84 +535,9 @@
       <div class="lvl lvl-2">
         <span class="lvl-tag">L2 · Чтение</span>
         <p>Это «хрупкий рост» из <a href="regime.html" style="color:#9cc5ec;">OF Regime</a>: вид бычий, но спот не верит, плечо переполнено → фейд у стены, когда инициатива выдыхается.</p>
-      </div>
-
-      <hr class="lvl-divider">
-
-      <div class="lvl lvl-3">
-        <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl red"><span class="hl-label">Ловушка</span>Фейд — только по триггеру (reject / loss структуры), не по «funding высокий» вслепую. Перегрев тянется дольше, чем кажется.</div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ─────── 07. МАТРИЦА ─────── -->
-  <section class="section" id="matrix">
-    <div class="section-header">
-      <span class="section-num">07</span>
-      <span class="section-title">Конфлюэнс-матрица</span>
-      <span class="section-badge">confluence</span>
-    </div>
-    <div class="section-body">
-
-      <div class="lvl lvl-1">
-        <span class="lvl-tag">L1 · База</span>
-        <table>
-          <thead><tr><th>Комбо слоёв</th><th>Смысл</th></tr></thead>
-          <tbody>
-            <tr><td class="loc">key level + naked POC + стена / стопы</td><td>A-локация (где готовить сделку)</td></tr>
-            <tr><td class="flow">spot CVD ведёт + footprint absorption + OI build</td><td>подтверждённая инициатива → continuation</td></tr>
-            <tr><td>liq-flush + absorption + хвост у уровня</td><td>капитуляция → разворот (кейс A)</td></tr>
-            <tr><td class="fuel">perp ведёт + funding-экстрим + OI build (без спота)</td><td>хрупко → фейд (кейс C)</td></tr>
-            <tr><td class="trig">imbalance + acceptance + VWAP reclaim</td><td>пробой → continuation (кейс B)</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <hr class="lvl-divider">
-
-      <div class="lvl lvl-2">
-        <span class="lvl-tag">L2 · Чтение</span>
-        <ul>
-          <li>Больше <strong>независимых</strong> слоёв в одну сторону = выше вероятность</li>
-          <li>Конфликт слоёв (спот против перпа) = меньше размер или пропуск</li>
-        </ul>
-      </div>
-
-      <hr class="lvl-divider">
-
-      <div class="lvl lvl-3">
-        <span class="lvl-tag">L3 · Эдж</span>
-        <div class="hl azure"><span class="hl-label">Определение A-сделки</span><strong>≥ 3 независимых слоя</strong> в одну сторону у заранее выбранной зоны + чистый триггер + R ≥ 2. Меньше — это наблюдение, а не сделка.</div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ─────── 08. ЧЕК-ЛИСТ ─────── -->
-  <section class="section" id="checklist">
-    <div class="section-header">
-      <span class="section-num">08</span>
-      <span class="section-title">Чек-лист и анти-чек-лист</span>
-      <span class="section-badge">checklist</span>
-    </div>
-    <div class="section-body">
-
-      <div class="lvl lvl-1">
-        <span class="lvl-tag">L1 · База</span>
-        <div class="hl"><span class="hl-label">Суть</span>Перед кликом пройди 5 шагов. Если на любом «нет ответа» — это <strong>наблюдение, а не сделка</strong>.</div>
-      </div>
-
-      <hr class="lvl-divider">
-
-      <div class="lvl lvl-2">
-        <span class="lvl-tag">L2 · Чтение</span>
-        <div class="grid2">
-          <div class="card"><div class="card-title">✓ Pre-trade</div>① Режим/контекст определён? ② Цена у A-зоны (стек уровней)? ③ Поток подтверждает (CVD/footprint/OI)? ④ Чистый триггер (accept/reject/reclaim)? ⑤ Стоп / R / размер посчитаны?</div>
-          <div class="card"><div class="card-title">✗ Анти-чек-лист</div>Торговать середину диапазона · гнаться за perp-сквизом · ловить нож в каскаде · входить на одном «красивом» слое · путать absorption и imbalance · двигать стоп против себя.</div>
+        <div class="grid2" style="margin-top:12px;">
+          <div class="card"><div class="card-title">Что делает толпа</div>Поздние лонги/шорты давят маркетами, OI растёт, funding уходит в крайность, но цена перестаёт получать прогресс у заранее важной зоны.</div>
+          <div class="card"><div class="card-title">Что ждём</div>Absorption/дельта-дивергенция + failed reclaim или потеря локального swing. Фейд начинается не от “дорого”, а от <strong>провала инициативы</strong>.</div>
         </div>
       </div>
 
@@ -482,7 +545,193 @@
 
       <div class="lvl lvl-3">
         <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl red"><span class="hl-label">Ловушка</span>Фейд — только по триггеру (reject / loss структуры), не по «funding высокий» вслепую. Перегрев тянется дольше, чем кажется.</div>
+        <div class="hl azure"><span class="hl-label">Drill</span>На replay собери 10 движений, где perp CVD лидировал, а spot CVD не подтверждал. Раздели их на две корзины: где был fade после absorption, а где рынок всё-таки принял уровень и продолжил.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 09. LIVE EXECUTION ─────── -->
+  <section class="section" id="execution">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">Live execution: как принимать решение у зоны</span>
+      <span class="section-badge">entry</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Когда цена дошла до зоны, задача не “войти быстрее”, а определить статус: <strong>зона держит, принимается насквозь или рынок ещё не решил</strong>.</p>
+        <div class="grid3">
+          <div class="card"><div class="card-title">Observe</div>Цена далеко от зоны или только подходит. Никакого входа; обновить контекст и цель движения.</div>
+          <div class="card"><div class="card-title">Stalk</div>Цена внутри зоны. Смотреть reaction: absorption, sweep, reclaim/reject, OI/CVD/funding.</div>
+          <div class="card"><div class="card-title">Execute</div>Есть trigger + flow не против + риск посчитан. Вход только там, где invalidation понятна.</div>
+        </div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Live read</th><th>Что значит</th><th>Действие</th></tr></thead>
+          <tbody>
+            <tr><td>GREEN aggression + GREEN OF + GREEN A/R</td><td>Trap + контекст + acceptance/rejection совпали.</td><td>Compound entry / нормальный размер по плану.</td></tr>
+            <tr><td>GREEN aggression + GREEN OF</td><td>Поздняя агрессия поймана, OF поддерживает, но A/R ещё не полный.</td><td>Aggressive entry; часть позиции, добор после retest.</td></tr>
+            <tr><td>GREEN aggression + YELLOW OF</td><td>Trap есть, но контекст смешанный.</td><td>Только scalp/starter или ждать чистый retest.</td></tr>
+            <tr><td>GREEN aggression + RED OF</td><td>Trap может быть топливом продолжения против тебя.</td><td>Нет входа; ждать смены OF или reclaim.</td></tr>
+            <tr><td>OF + A/R без trap</td><td>Зона подтверждается, но late-traders evidence слабее.</td><td>Confirmed entry меньшим размером / через retest.</td></tr>
+            <tr><td>WAIT RETEST</td><td>Идея есть, но цена уже далеко от зоны.</td><td>Не chase. Ждать возврат или новую структуру.</td></tr>
+          </tbody>
+        </table>
+        <div class="hl note"><span class="hl-label">Практика</span><code>entry_check.py</code> полезен именно как дисциплина: он разделяет trapped aggression, orderflow и acceptance/rejection, не давая слепить всё в один удобный “да/нет”.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Стоп</div>Ставится за место, где тезис становится неверным: sweep-low/high, возврат внутрь value, acceptance за зоной, слом retest. Не “за VWAP” и не “за индикатор”.</div>
+          <div class="card"><div class="card-title">TP</div>Первая цель — ближайший реальный magnet/reaction: VWAP, POC, VAH/VAL, naked level, stop/TP pool, passive wall. Если цель слишком близко — сетап не брать.</div>
+        </div>
+        <div class="hl red"><span class="hl-label">Менеджмент</span>Не превращай scalp в swing после плохого входа. Horizon задаётся до сделки: scalp-зона не становится swing-зоной, потому что позиция ушла в минус.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 10. REPLAY DRILLS ─────── -->
+  <section class="section" id="drills">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">Replay drills: как реально набивать глаз</span>
+      <span class="section-badge">training</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <p>Replay нужен не чтобы “переиграть историю красиво”, а чтобы научиться видеть одну и ту же формацию <strong>до результата</strong>. Рабочий формат: закрыть правую часть графика, принять решение, потом открыть outcome.</p>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Drill</th><th>Задача</th><th>Pass condition</th></tr></thead>
+          <tbody>
+            <tr><td>Regime drill</td><td>На 20 отрезках определить balance / imbalance / transition / fragile move.</td><td>Ты можешь назвать тактику: fade, continuation или no-trade.</td></tr>
+            <tr><td>Location drill</td><td>До включения OF отметить 3 зоны сверху/снизу и ближайшие magnets.</td><td>Цена реагирует у твоих зон чаще, чем в случайных местах.</td></tr>
+            <tr><td>Divergence drill</td><td>Искать price HH/LL без подтверждения spot CVD или volume.</td><td>Ты отличаешь предупреждение от входа: ждёшь trigger.</td></tr>
+            <tr><td>NL/NS drill</td><td>Разделить fresh longs/shorts, short covering, long unwind, absorbed longs/shorts.</td><td>Ты не называешь любой рост “бычьим”, а любое падение “медвежьим”.</td></tr>
+            <tr><td>Absorption drill</td><td>Отмечать места, где агрессия есть, а price progress нет.</td><td>Вход появляется только после price response, не на самой агрессии.</td></tr>
+            <tr><td>Journal drill</td><td>После 20 примеров выписать повторяющуюся ошибку.</td><td>Один конкретный вывод переносится в следующий план.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Метрика прогресса</span>Считай не “сколько заработал на replay”, а <strong>сколько раз решение до outcome совпало с последующим поведением</strong>. Если после открытия правой части ты меняешь причину входа — это hindsight, не практика.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 11. МАТРИЦА ─────── -->
+  <section class="section" id="matrix">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <span class="section-title">Скоринг: когда сетап достоин риска</span>
+      <span class="section-badge">scoring</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <table>
+          <thead><tr><th>Компонент</th><th>0 баллов</th><th>1 балл</th><th>2 балла</th></tr></thead>
+          <tbody>
+            <tr><td class="loc"><strong>Локация</strong></td><td>середина, нет уровня</td><td>один понятный reference</td><td>стек: VP/key/VWAP/heatmap/HL</td></tr>
+            <tr><td><strong>Режим</strong></td><td>непонятно</td><td>режим есть, но смешанный</td><td>тактика очевидна: balance fade / trend continuation / trap fade</td></tr>
+            <tr><td class="flow"><strong>Поток</strong></td><td>против сделки</td><td>смешанный / слабый</td><td>CVD/OI/footprint/liqs читаются в одну историю</td></tr>
+            <tr><td class="trig"><strong>Триггер</strong></td><td>касание без реакции</td><td>первичный reject/reclaim</td><td>trigger + retest / acceptance / trapped aggression</td></tr>
+            <tr><td><strong>Риск</strong></td><td>R &lt; 1.5 или стоп нелогичен</td><td>R около 2, цель близко</td><td>R ≥ 2 и стоп за настоящей invalidation</td></tr>
+          </tbody>
+        </table>
+        <div class="hl green"><span class="hl-label">Оценка</span><strong>8–10</strong> = A-сделка; <strong>6–7</strong> = B-сделка / меньший размер; <strong>≤5</strong> = наблюдение. Любой красный конфликт по OF или риску может обнулить скоринг.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <table>
+          <thead><tr><th>Комбо слоёв</th><th>Смысл</th><th>Ошибка новичка</th></tr></thead>
+          <tbody>
+            <tr><td class="loc">key level + naked POC + стена / стопы</td><td>A-локация: здесь готовят сделку.</td><td>Войти сразу по касанию без реакции.</td></tr>
+            <tr><td class="flow">spot CVD ведёт + OI build + acceptance</td><td>Инициатива подтверждена → continuation.</td><td>Фейдить “потому что уже высоко”.</td></tr>
+            <tr><td>liq-flush + absorption + reclaim</td><td>Капитуляция и впитывание → reversal attempt.</td><td>Ловить нож до reclaim.</td></tr>
+            <tr><td class="fuel">perp ведёт + funding extreme + spot не верит</td><td>Хрупкое плечо → искать trap у уровня.</td><td>Шортить просто по funding без trigger.</td></tr>
+            <tr><td class="trig">stacked imbalance + retest hold</td><td>Агрессия защищает новую область.</td><td>Покупать после полного перекрытия imbalance.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
+        <div class="hl azure"><span class="hl-label">Определение A-сделки</span><strong>≥ 3 независимых слоя</strong> в одну сторону у заранее выбранной зоны + чистый trigger + R ≥ 2 + нет красного конфликта. Меньше — это наблюдение или starter.</div>
+        <div class="hl red"><span class="hl-label">Не подгонять</span>Скоринг нужен, чтобы отбраковывать сделки, а не чтобы оправдывать желание войти. Если главный тезис держится на одном красивом индикаторе — баллы не складываются.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────── 12. ЧЕК-ЛИСТ ─────── -->
+  <section class="section" id="checklist">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <span class="section-title">Чек-лист, анти-чек-лист и журнал</span>
+      <span class="section-badge">review</span>
+    </div>
+    <div class="section-body">
+
+      <div class="lvl lvl-1">
+        <span class="lvl-tag">L1 · База</span>
+        <div class="hl"><span class="hl-label">Суть</span>Перед кликом пройди 5 шагов. Если на любом «нет ответа» — это <strong>наблюдение, а не сделка</strong>. После сделки записывай не эмоцию, а качество процесса.</div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-2">
+        <span class="lvl-tag">L2 · Чтение</span>
+        <div class="grid2">
+          <div class="card"><div class="card-title">✓ Pre-trade</div>① Режим/контекст определён? ② Цена у A-зоны? ③ Есть сценарий, а не импульс? ④ Поток подтверждает или хотя бы не против? ⑤ Trigger есть? ⑥ Стоп/R/размер посчитаны?</div>
+          <div class="card"><div class="card-title">✓ In-trade</div>Цена идёт к ближайшему magnet? Pullback держит структуру? OF не перевернулся против? Если тезис сломался — выйти, а не ждать “ну может”.</div>
+          <div class="card"><div class="card-title">✓ Post-trade</div>Записать: сетап, режим, зона, trigger, entry distance, stop logic, target logic, что подтвердилось, что отменилось, какой вывод переносится дальше.</div>
+          <div class="card"><div class="card-title">✗ Анти-чек-лист</div>Торговать середину диапазона · гнаться за perp-сквизом · ловить нож в каскаде · входить на одном «красивом» слое · путать absorption и imbalance · двигать стоп против себя · менять horizon после входа.</div>
+        </div>
+        <div class="hl note"><span class="hl-label">Шаблон журнала</span><span class="mono">Date / Setup / Regime / Zone / Thesis / Trigger / Entry / SL / TP / Size / OF read / Management / Result / Process grade / One takeaway</span></div>
+      </div>
+
+      <hr class="lvl-divider">
+
+      <div class="lvl lvl-3">
+        <span class="lvl-tag">L3 · Эдж</span>
         <div class="hl azure"><span class="hl-label">Каркас (резюме)</span>контекст (<a href="amt.html" style="color:#d9b8ff;">AMT</a>/<a href="regime.html" style="color:#d9b8ff;">regime</a>) → локация (<a href="volumeprofile.html" style="color:#d9b8ff;">VP</a>/<a href="keylevels.html" style="color:#d9b8ff;">levels</a>) → поток (<a href="cvd.html" style="color:#d9b8ff;">CVD</a>/<a href="footprint.html" style="color:#d9b8ff;">footprint</a>/<a href="oi.html" style="color:#d9b8ff;">OI</a>/<a href="funding.html" style="color:#d9b8ff;">funding</a>/<a href="liquidations.html" style="color:#d9b8ff;">liq</a>) → триггер → риск (<a href="mathrisk.html" style="color:#d9b8ff;">§18</a>).</div>
+        <div class="hl green"><span class="hl-label">Цель практики</span>Через 30–50 разборов у тебя должен появиться список “мои A-сетапы” и “мои частые ошибки”. Всё остальное — красивый шум.</div>
         <div class="hl note"><span class="hl-label">Напоминание</span>Это мастер-страница. Детали и схемы каждого слоя — в его собственном разделе.</div>
       </div>
 
